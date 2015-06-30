@@ -1,0 +1,13 @@
+CRON
+===========
+DAY 
+-----------
+SYNC supplier, site, adspace, report
+
+===========
+MON
+-----------
+ApplicationMonies
+|
+v
+COUNT supplier

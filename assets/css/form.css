@@ -1,0 +1,143 @@
+	.form-box{
+		width: 1000px;
+		padding: 10px;
+		border: solid 1px #C8CAC9;
+		margin-left: auto;
+		margin-right: auto;
+		padding-top: 25px;
+		position: relative;
+		margin-top: 20px;
+	}
+	.form-box-label{
+		height: 20px;
+		background-color: #C8CAC9;
+		width: auto;
+		position: absolute;
+		font-size: 14px;
+		top: 0px;
+		left: 0px;
+		padding-left: 5px;
+		padding-right: 5px;
+		line-height: 20px;
+	}
+	.singleText-group input{
+		max-width: 300px;
+	}
+	.object-group{
+		position: relative;
+		padding: 5px;
+		overflow: hidden;
+	}
+	.object-group:hover{
+		background-color: #F0F0F0;
+	}	
+	.object-group .setting-btn-group{
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
+	.multiText-group textarea{
+		margin-top: 30px;
+	}
+	#single-select-input-group input{
+		max-width: 200px;
+		margin-left: 5px;
+		max-height: 30px;
+		float: left;
+		line-height: 30px;
+	}
+	#single-select-input-group button{
+		max-width: 200px;
+		margin-left: 5px;
+		max-height: 30px;
+		float: left;
+	}	
+	#single-select-input-group .radios{
+		height: 15px;
+		width: 15px;
+		margin-right: 5px;
+		margin-top: 7.5px;
+	}
+	.single-select-input-box:hover{
+		background-color: #F0F0F0;
+	}
+	.single-select-input-box-add , .single-select-other{
+		width: 100%;
+		background-position: left;
+		padding-left: 20px;
+		margin-bottom: 10px;
+		overflow: hidden;
+		cursor: pointer !important;
+	}
+	.single-select-input-box-add input , .single-select-other input ,.singleSelect-other-text ,.multiSelect-other-text{
+		max-width: 200px;
+		height: 30px;
+		margin-left: 5px;
+		max-height: 30px;
+		float: left;
+		line-height: 30px;
+		cursor: pointer !important;
+	}
+	.single-select-input-box-add .radios , .single-select-other .radios , .multiSelect-other .checkboxs{
+		height: 15px;
+		width: 15px;
+		margin-right: 5px;
+		margin-top: 7.5px;
+	}	
+	.single-select-input-temp , .single-select-other, .date-group, .time-group{
+		display: none;
+	}	
+
+	.singleSelect-other-radio, .multiSelect-other-checkbox{
+		float: left;
+	}
+	.singleSelect-other-box, .multiSelect-other-box{
+		width: 100%;
+	}
+	.drop-down-warp{
+		margin-left: 20px;
+		float: left;
+		max-width: 300px;
+		display: none;
+		height: 30px;
+	}
+	.ntl-table tr td , .tableSelect-table tr td{
+		min-width: 30px;
+		text-align: center;
+	}
+	.tableSelect-column-text{
+		font-weight: bold;
+		text-align: center;
+	}
+	.tableSelect-row-text{
+		font-weight: bold;
+		text-align: right;
+	}
+	.tableSelect-table{
+		width: 100%;
+	}
+	.tableSelect-table tr{
+		border-bottom:  solid 1px #B4B4B4; 
+	}
+	.tableSelect-table tr:nth-child(even){
+		background-color: #F2F2F2;
+	}
+	.tableSelect-table thead{
+		background-color: #ffffff;
+	}
+	.object-group{
+		min-height: 60px;
+		background: url("<?php echo Yii::app()->params['baseUrl']; ?>/assets/image/icon/select.png?t=123");
+		background-position: left;
+		background-repeat: repeat-y;
+		padding-left: 20px;
+	}
+	.ojb-group{
+		min-height: 50px;
+	}
+	.page-over-selected{
+		cursor: pointer;
+	}
+	.rm-after-start{
+		display: none;
+	}

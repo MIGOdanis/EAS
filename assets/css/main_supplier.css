@@ -1,0 +1,170 @@
+body , html{
+	font-family: "微軟正黑體";
+	width: 100%;
+	height: 100%;
+}
+
+body a{
+	color: #777;
+}
+
+body a:hover{
+	color: #777;
+	text-decoration: none;
+}
+
+#logo{
+	float:left;
+	width: 250px;
+	text-align: center;
+}
+#main{
+	width: 100%;
+	height: 100%;
+}
+#left-main{
+	width: 250px;
+	background-color: #f8f8f8;
+ 	border-right: solid 1px #e7e7e7;
+	height: 100%;
+	position: absolute;
+}
+.menu-list{
+	width: 100%;
+	height: 40px;
+	font-size: 16px;
+	text-align: left;
+	padding-left: 15px;
+	margin-top: 5px;
+	line-height: 40px;
+}
+#right-main{
+	width: auto;
+	height: 100%;
+	padding-left: 15px;
+	margin-left: 250px;
+	margin-top: 0px;
+}
+#navibar{
+	width: 100%;
+	height: 59px;
+	margin-left: auto;
+	margin-right: auto;
+}
+#navibar .navi{
+	float: left;
+	width: 120px;
+	height: 59px;
+	line-height: 59px;
+	text-align: center;
+	position: relative;
+	color: #454648;
+	font-size: 17px;
+	font-weight: bold;
+}
+#contents{
+	width: auto;
+	height: 100%;
+	overflow: hidden;
+	border-radius: 2px;
+	background-color: #fff;
+}
+#content-singe{
+	width: 40%;
+	/*margin: 20px;*/
+	margin-right: auto;
+	margin-left: auto;
+	border-radius: 2px;
+	background-color: #fff;
+	border:1px #CACACA solid;
+	overflow: hidden;	
+}
+
+/*表格*/
+.table{
+	/*background-color: #fff;*/
+	/*border: #ACACAC!important;*/
+	/*border-width: 0px !important;*/
+}
+.tbody{
+	/*border-width: 0px !important;*/
+}
+.table thead{
+	/*background-color: #fff;*/
+	/*border-width: 0px !important;*/
+}
+.table thead th{
+	/*border: 1px #ACACAC!important;*/
+	/*text-align: center;*/
+	/*border-width: 0px !important;*/
+	background-color: #f1f1f1;
+	border-bottom-width: 1px !important;
+	/*border-top-width: 1px !important;*/
+}	
+
+.table-bordered{
+	/*border:#ccc!important;*/
+	/*border-top: 1px !important;*/
+}
+.table thead a:link{
+	color: #7E7E7E;
+}
+.filters{
+	display: none;
+}
+.filters td{
+	border-bottom-width: 1px !important;
+}
+
+/*左側選單*/
+.left-navi-menu{
+	width: 100%;
+	height: 60px;
+	color: #9A9BA5;
+	padding-left: 15px;
+}
+.menu-title{
+	height: auto;
+	line-height: 25px;
+	font-size: 25px;
+	padding-top: 10px;	
+}
+.menu-remark{
+	margin-top: 0px;
+}
+.menu-active{
+	background-color: #1E202C;
+	color: #FFFFFF;
+}
+.navbar{
+	border-left: 0px;
+	border-top: 0px;
+	border-right: 0px;
+	border-radius: 0px;
+	margin-bottom: 0px;
+}
+#pay-infor{
+	overflow: hidden;
+}
+.cash-text{
+	font-size: 35px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.pay-infor-box{
+	float: left;
+	margin-right: 35px;
+}
+
+.page-header{
+	margin: 0px;
+}
+
+#index-report-box{
+	max-width: 800px;
+	margin: 0px auto;
+}
+
+#contents-singe{
+	padding: 20px;
+}

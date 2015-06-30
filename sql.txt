@@ -1,0 +1,13 @@
+SELECT sum(income)/100000, sum(agency_income)/100000, sum(media_cost)/100000 FROM `buy_dr_display_daily_pc_report` WHERE campaign_id = 100203149
+ELECT SUM(bid_win_cost)/100000, SUM(rate_bid_win_cost)/100000, SUM(income)/100000 FROM `sell_display_daily_pc_report` WHERE ad_space_id = 10010725 AND strategy_id = 100203151
+
+SELECT sum(income)/100000, sum(agency_income)/100000, sum(media_cost)/100000 FROM `buy_dr_display_daily_pc_report` WHERE `ad_space_id` IN (100200103,100200099,10010889,10010884,10010879,10010864,10010849,100200107,10010829,10010708,10010698,10010688,10010682,10010672,10010661,10010655,10010650,10010645,10010640,10010635,10010627,100200111,100216,100204,100199) AND settled_time LIKE '2015-06-18 00:00:00'
+
+廣告主 BUY
+income = 32.4
+agency_income = 32.4
+media_cost = 11.3
+
+網站主 SELL
+bid_win_cost = 32.4
+income =11.3

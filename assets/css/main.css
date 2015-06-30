@@ -1,0 +1,157 @@
+body , html{
+	font-family: "微軟正黑體";
+	background-color: #F6F6F6;
+	width: 100%;
+	height: 100%;
+	padding: 10px;
+}
+
+#main{
+	/*padding-top: 50px;*/
+	width: 100%;
+	height: 100%;
+	/*overflow: hidden;*/
+}
+
+/*上方選單*/
+#head{
+	width: 100%;
+	background-color: #E6E6E6;
+}
+
+/*左側選單*/
+#left-main{
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+#right-main{
+	width: auto;
+	height: auto;
+	padding-left: 50px;
+	padding-right: 50px;
+	/*overflow: hidden;*/
+	border-radius: 2px;
+	background-color: #fff;
+	border:1px #CACACA solid;
+}
+
+@media (min-width: 768px){
+	#left-main{
+		float: left;
+		width: 180px;
+
+	}
+	#right-main{
+		margin-top: 20px;
+		margin-left: 200px;	
+	}
+}
+
+#content-singe{
+	width: 40%;
+	margin: 20px;
+	margin-right: auto;
+	margin-left: auto;
+	border-radius: 2px;
+	background-color: #fff;
+	border:1px #CACACA solid;
+	padding-left: 50px;
+	padding-right: 50px;	
+	overflow: hidden;	
+}
+
+/*使用者訊息*/
+#user-info{
+	width: 100%;
+	height: 80px;
+	background-color: #3CBCAD;
+	padding-left: 15px;
+}
+#user-name{
+	height: 20px;
+	color: #FFFFFF;
+	font-size: 12px;
+	line-height: 20px;
+	margin-top: 3px;
+}
+#user-nickname{
+	height: 45px;
+	color: #FFFFFF;
+	line-height: 25px;
+	font-size: 25px;
+	padding-top: 15px;
+}
+#user-info-text{
+	float: left;
+	width: 80%;
+}
+#logout{
+	width: 45px;
+	height: 80px;
+	float: right;
+	background-color: #FB7171;
+}
+
+/*表格*/
+.table{
+	background-color: #fff;
+	border-width: 0px !important;
+}
+.tbody{
+	border-width: 0px !important;
+}
+.table thead{
+	background-color: #fff;
+	border-width: 0px !important;
+}
+.table thead th{
+	text-align: center;
+	border-width: 0px !important;
+	border-bottom-width: 1px !important;
+}	
+.table thead a:link{
+	color: #7E7E7E;
+}
+.filters td{
+	border-bottom-width: 1px !important;
+}
+
+/*左側選單*/
+.left-navi-menu{
+	width: 100%;
+	height: 60px;
+	color: #9A9BA5;
+	padding-left: 15px;
+}
+
+.menu-title{
+	height: auto;
+	line-height: 25px;
+	font-size: 25px;
+	padding-top: 10px;	
+}
+.menu-remark{
+	margin-top: 0px;
+}
+.menu-active{
+	background-color: #1E202C;
+	color: #FFFFFF;
+}
+.badge-menu{
+	font-size: 15px  !important;
+	background-color: #d9534f !important;
+}
+
+.pager li>a{
+	border-radius: 0px;
+}
+
+.pagination .first, .pagination .last{
+	display: none;
+}
+
+.keys-alert{
+	text-align: center;
+	color: #9E9E9E;
+}
