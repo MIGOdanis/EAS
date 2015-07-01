@@ -40,7 +40,7 @@ return array(
 		//TOS-CORE
 		'core'=>array(
 		    'class'=>'CDbConnection',
-		    'connectionString' => 'mysql:host=127.0.0.1:3307;dbname=core',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3307;dbname=core',
 		    'emulatePrepare' => true,
 		    'username' => 'core',
 		    'password' => 'z3Ah1pEGznu9',
@@ -51,7 +51,7 @@ return array(
 		//TOS-CORE
 		'treport'=>array(
 		    'class'=>'CDbConnection',
-		    'connectionString' => 'mysql:host=127.0.0.1:3308;dbname=treport',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3307;dbname=treport',
 		    'emulatePrepare' => true,
 		    'username' => 'treport',
 		    'password' => 'dUWjXdb4gZQi',

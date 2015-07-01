@@ -3,6 +3,7 @@
 class CronSupplierController extends Controller
 {
 
+	//累計本月可請款金額，可重複計算於每個月１日啟動，如不累計需先清除
 	public function actionCronUnapplicationMonies()
 	{
 		set_time_limit(0);

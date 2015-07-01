@@ -9,13 +9,13 @@
 	<head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"> 
 	<meta charset="utf-8">
-	<title>YTB LOG Geter</title>
+	<title>CLICKFORCE EAS</title>
+	<link rel="SHORTCUT ICON" href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/image/cfd.png">
 	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap/js/bootstrap.min.js"></script>
-	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/main_register_supplier.css" rel="stylesheet">
-	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.js"></script>
-	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+	<!-- <link href="<?php //echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"> -->
+	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/main.css" rel="stylesheet">
 	<?php Yii::app()->clientScript->registerCoreScript('jquery');?>
+	<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap/js/bootstrap.min.js"></script>
 	</head>
 	<body>
 		<div id="main">	

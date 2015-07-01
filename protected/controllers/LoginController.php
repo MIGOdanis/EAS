@@ -4,7 +4,9 @@ class LoginController extends Controller
 {
 	public function actionIndex()
 	{
+
 		$this->layout='column_list';
+
 		if(Yii::app()->user->id > 0)
 			$this->redirect(Yii::app()->homeUrl);
 

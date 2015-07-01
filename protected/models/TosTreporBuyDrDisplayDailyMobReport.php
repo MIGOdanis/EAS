@@ -1,21 +1,32 @@
 <?php
-
-/**
- * This is the model class for table "{{log}}".
- *
- * The followings are the available columns in table '{{log}}':
- * @property integer $id
- * @property string $name
- * @property string $value
- */
-class Log extends CActiveRecord
+class TosTreporBuyDrDisplayDailyMobReport extends CActiveRecord
 {
+	public static $conection; 
+
 	/**
 	 * @return string the associated database table name
 	 */
+
+	public function getDbConnection()
+    {
+        if (self::$conection !== null)
+            return self::$conection;
+        else
+        {
+            self::$conection = Yii::app()->treport;
+            if (self::$conection instanceof CDbConnection)
+            {
+                self::$conection->setActive(true);
+                return self::$conection;
+            }
+            else
+                throw new CDbException(Yii::t('yii','Active Record requires a "TosCore" CDbConnection application component.'));
+        }
+    }
+
 	public function tableName()
 	{
-		return '{{log}}';
+		return '{{buy_dr_display_daily_mob_report}}';
 	}
 
 	/**
@@ -25,13 +36,7 @@ class Log extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array(
-			array('name, value', 'required'),
-			array('name, value', 'length', 'max'=>255),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, name, value', 'safe', 'on'=>'search'),
-		);
+		return array();
 	}
 
 	/**
@@ -51,9 +56,6 @@ class Log extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'name' => 'Name',
-			'value' => 'Value',
 		);
 	}
 
@@ -73,32 +75,26 @@ class Log extends CActiveRecord
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('value',$this->value,true);
+		// $criteria=new CDbCriteria;
+		// $criteria->compare('id',$this->id);
+		// $criteria->compare('user',$this->user,true);
+		// $criteria->compare('password',$this->password,true);
+		// $criteria->compare('name',$this->name,true);
+		// $criteria->compare('auth_id',$this->auth_id);
+		// $criteria->compare('group',$this->group);
+		// $criteria->compare('creat_time',$this->creat_time);
+		// $criteria->compare('active',$this->active);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
 
-
-	public function getValByName($name)
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-		$criteria = new CDbCriteria;
-		$criteria->addCondition("`name` LIKE '" . $name . "'");
-		$model = $this::model()->find($criteria);
-		return $model->value;
-	}
-
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return Log the static model class
+	 * @return User the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{

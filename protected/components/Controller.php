@@ -13,7 +13,7 @@ class Controller extends CController
 	public $supplier;
 	public $breadcrumbs=array();
 
-	public function beforeAction($action){
+	public function beforeAction($action=null){
 		if(!isset($this->user) || empty($this->user))
 			$this->user = User::model()->with("auth")->findByPk(Yii::app()->user->id);
 
@@ -26,9 +26,9 @@ class Controller extends CController
 		return true;
 	}
 
-	public function checkUserAuth(){
+	public function checkUserAuth($action=null){
 		$auth = array();
-		$this->beforeAction($action);
+		$this->beforeAction();
 		$ua = json_decode($this->user->auth->auth,true);
 
 		

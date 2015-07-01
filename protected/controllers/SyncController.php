@@ -166,9 +166,14 @@ class SyncController extends Controller
 	{
 		set_time_limit(0);
 		ini_set("memory_limit","2048M");
-		// $criteria = new CDbCriteria;
-		// $criteria->addCondition("account_id = 2");
-		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll();
+		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyPcTosTime");
+		
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
+		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll($criteria);
+		// print_r($buyReportDailyPc); exit;
+
+		
 		foreach ($buyReportDailyPc as $value) {
 			$lastTime = $value->settled_time;
 			$type = "update";
@@ -196,7 +201,9 @@ class SyncController extends Controller
 			}
 		}
 		$this->saveLog("lastSyncBuyReportDailyPc",time());
-		$this->saveLog("lastSyncBuyReportDailyPcTosTime",$lastTime);
+
+		if(!empty($lastTime))
+			$this->saveLog("lastSyncBuyReportDailyPcTosTime",$lastTime);
 	}
 
 	public function mappingBuyReportDailyPc($model,$tosPcBReport){
@@ -225,7 +232,78 @@ class SyncController extends Controller
 		$model->sync_time = time();
 
 		return $model;
+	}	
+
+	public function actionSyncBuyReportDailyMob()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyMobTosTime");
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$buyReportDailyMob = TosTreporBuyDrDisplayDailyMobReport::model()->findAll($criteria);
+		foreach ($buyReportDailyMob as $value) {
+			$lastTime = $value->settled_time;
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("id = " . $value->id);
+			$model = BuyReportDailyPc::model()->find($criteria);
+			if($model === null){
+				$model = new BuyReportDailyPc();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingBuyReportDailyMob($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyPc/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyPc/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncBuyReportDailyMob",time());
+
+		if(!empty($lastTime))
+			$this->saveLog("lastSyncBuyReportDailyMobTosTime",$lastTime);
 	}
+
+	public function mappingBuyReportDailyMob($model,$tosPcBReport){
+
+		$model->id = $tosPcBReport->id;
+		$model->settled_time = strtotime($tosPcBReport->settled_time);
+		$model->campaign_id = $tosPcBReport->campaign_id;
+		$model->ad_space_id = $tosPcBReport->ad_space_id;
+		$model->strategy_id = $tosPcBReport->strategy_id;
+		$model->creative_id = $tosPcBReport->creative_id;
+		$model->media_category_id = $tosPcBReport->media_category_id;
+		// $model->screen_pos = $tosPcBReport->screen_pos;
+		$model->adformat = $tosPcBReport->adformat;
+		$model->width_height = $tosPcBReport->width_height;
+		$model->pv = $tosPcBReport->pv;
+		$model->impression = $tosPcBReport->impression;
+		$model->impression_ten_sec = $tosPcBReport->impression_ten_sec;
+		$model->click = $tosPcBReport->click;
+		$model->media_cost = $tosPcBReport->media_cost;
+		$model->media_tax_cost = $tosPcBReport->media_tax_cost;
+		$model->media_ops_cost = $tosPcBReport->media_ops_cost;
+		$model->income = $tosPcBReport->income;
+		$model->income_ten_sec = $tosPcBReport->income_ten_sec;
+		$model->agency_income = $tosPcBReport->agency_income;
+		$model->is_outside_tracking = $tosPcBReport->is_outside_tracking;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+
 
 	// public function saveLog($name,$value){
 	// 	$criteria = new CDbCriteria;

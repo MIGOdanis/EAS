@@ -16,7 +16,7 @@ class CronApplicationMoniesController extends Controller
 
 		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 		//print_r($month_of_account); exit;
-		$monthOfAccount->value = strtotime(date("Y-" . date("m",strtotime("-1 Months",strtotime("2015-06-01"))) . "-01"));
+		$monthOfAccount->value = strtotime(date("Y-m-01",strtotime("-1 Months",time())));
 		$monthOfAccount->save();	
 
 		//清除系統退回未申請的請款
