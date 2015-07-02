@@ -206,7 +206,7 @@ class SupplierApplicationMoniesController extends Controller
 
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', '供應商ID');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B3', '供應商名稱');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C3', '站長身份');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C3', '供應商身份');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D3', '網站ID');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E3', '網站名稱');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F3', '版位ID');
@@ -256,7 +256,7 @@ class SupplierApplicationMoniesController extends Controller
 	        $objPHPExcel->setActiveSheetIndex(0);
 
 			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-			header('Content-Disposition: attachment;filename="供應商對帳表.xlsx"');
+			header('Content-Disposition: attachment;filename="' . $_GET['year'] . "-" . $_GET['month'] . '供應商對帳表.xlsx"');
 			header('Cache-Control: max-age=0');
 			// If you're serving to IE 9, then the following may be needed
 			header('Cache-Control: max-age=1');

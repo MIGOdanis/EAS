@@ -16,7 +16,8 @@ return array(
 	'commentNeedApproval'=>true,
 	// the copyright information displayed in the footer section
 	// 'baseUrl' => 'http://events.doublemax.net/cloud',
-	'baseUrl' => 'http://eas.doublemax.net',
+	//'baseUrl' => 'http://eas.doublemax.net',
+	'baseUrl' => 'http://192.168.1.10/eas',
 	'userGroup' => array(
 		'1'=>'管理員','2'=>'域動_PM','3'=>'域動_財務','4'=>'域動_BD','5'=>'域動_業務','6'=>'域動_行銷','7'=>'網站主','8'=>'經銷商','9'=>'廣告主','10'=>'代理商'
 	),
@@ -67,7 +68,7 @@ return array(
 	),
 
 	'taxTypeDeduct' => array(
-		"1" => "1",
+		"1" => "0.9",
 		"2" => "0.8",
 		"3" => "1",
 		"4" => "0.8"

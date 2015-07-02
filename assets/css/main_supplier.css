@@ -168,3 +168,8 @@ body a:hover{
 #contents-singe{
 	padding: 20px;
 }
+
+.repasswd{
+	max-width: 800px;
+	margin: 0px auto;	
+}

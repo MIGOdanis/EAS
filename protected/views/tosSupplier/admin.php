@@ -11,11 +11,6 @@
 		left: auto;
 	}
 </style>
-<script type="text/javascript">
-$(function() {
-				
-})
-</script>
 <?php
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -92,6 +87,8 @@ function setting($data){
 					<li><a href="supplierUserCreate?id=' . $data->id . '" class="set-btn" >建立帳號</a></li>
 					<li role="separator" class="divider"></li>
 					<li><a href="updateLog?id=' . $data->id . '">查詢修改記錄</a></li>
+					<li role="separator" class="divider"></li>
+					<li><a href="gotoDashboard?id=' . $data->id . '">前往模擬前台</a></li>					
 				</ul>
 			</div>';
 

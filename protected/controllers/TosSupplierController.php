@@ -79,6 +79,7 @@ class TosSupplierController extends Controller
 				$savelog->bank_sub_id = $model->bank_sub_id;
 				$savelog->bank_type = $model->bank_type;
 				$savelog->bank_swift = $model->bank_swift;
+				$savelog->bank_swift2 = $model->bank_swift2;
 				$savelog->remark = $model->remark;
 				$savelog->create_time = $model->create_time;
 				$savelog->update_by = Yii::app()->user->id;
@@ -148,7 +149,8 @@ class TosSupplierController extends Controller
 			$user->creat_time = time();		
 			$user->password = $user->hashPassword($passwd);
 			if($user->save()){
-				$this->email($_POST['mail'], "供應商平台帳號申請通知", "您申請的帳號[" . $_POST['name'] . "]已經通過審核! <br> 您可以使用帳號" . $_POST['mail'] . "密碼<br> " . $passwd ."<br> 登入您的後台");
+				$this->email($_POST['mail'], "CLICKFORCE 供應商平台帳號啟用通知","您申請的帳號[" . $_POST['name'] . "]已經通過審核! <br> 您可以使用<br>帳號:" .$_POST['mail'] . "<br>密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>登入您的後台</a>");
+
 				echo json_encode(array("code" => "1"));
 				Yii::app()->end();
 			}else{
@@ -169,5 +171,12 @@ class TosSupplierController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
+
+	public function actionGotoDashboard($id)
+	{	
+		Yii::app()->session['virtual_id'] = $id;
+		$this->redirect(array('supplier/index'));
+		//Yii::app()->session['virtual_time_out'] = time() + 600;
+	}	
 
 }

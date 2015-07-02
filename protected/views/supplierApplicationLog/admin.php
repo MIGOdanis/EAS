@@ -271,8 +271,9 @@ tableEvent();
 		<select name="month">
 		<?php for($m=1; $m <= 12; $m++) {?>
 			<option value="<?php echo $m?>" 
-				<?php if((isset($_GET['month']) && $_GET['month'] == $m) || (!isset($_GET['month']) && date("m",strtotime(date("Y-" . date("m",strtotime("-1 Months",$monthOfAccount->value)) . "-01"))) == $m)){ ?>
-					selected="selected"<?php }?>>
+					<?php if((isset($_GET['month']) && $_GET['month'] == $m) || (!isset($_GET['month']) &&  date("m",strtotime("-1 Months",$monthOfAccount->value)) == $m)){ ?>
+						selected="selected"
+					<?php }?>>
 				<?php echo $m?>
 			</option>
 		<?php }?>

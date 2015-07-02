@@ -5,20 +5,20 @@ class SupplierController extends Controller
 
 	public $layout = "supplier_column1";
 
-	// //權限驗證模組
-	// public function filters()
-	// {
-	// 	return array(
-	// 		'accessControl', // perform access control for CRUD operations
-	// 		'postOnly + delete', // we only allow deletion via POST request
-	// 	);
-	// }
+	//權限驗證模組
+	public function filters()
+	{
+		return array(
+			'accessControl', // perform access control for CRUD operations
+			'postOnly + delete', // we only allow deletion via POST request
+		);
+	}
 
-	// public function accessRules()
-	// {
-	// 	return $this->checkSupplierAuth();
-	// }
-	// //權限驗證模組
+	public function accessRules()
+	{
+		return $this->checkSupplierAuth();
+	}
+	//權限驗證模組
 
 
 	public function actionIndex()
@@ -41,15 +41,23 @@ class SupplierController extends Controller
 	public function actionPayments()
 	{
 
+		if(isset($_GET['type']) && $_GET['type'] == "downloadIV"){
+			$this->CreatIV();
+			Yii::app()->end();
+		}
+
 		$accountsStatus = SiteSetting::model()->getValByKey("accounts_status");
-		if(isset($_GET['type']) && $_GET['type'] == "applicationPay" && $accountsStatus == 1){
+
+		$this->layout = "supplier_column2";
+		$model = SupplierApplicationMonies::model()->getSupplierMonies($this->supplier->tos_id);
+
+		
+		if(isset($_GET['type']) && $_GET['type'] == "applicationPay" && $model->application_type != 1){
 			if($this->applicationPay()){
 				$this->redirect(array('payments'));
 			}
 		}
-		$this->layout = "supplier_column2";
-		$model = SupplierApplicationMonies::model()->getSupplierMonies($this->supplier->tos_id);
-
+		
 		$criteria=new CDbCriteria;
 		$criteria->addCondition("supplier_id = " . $this->supplier->tos_id);
 		$criteria->addCondition("status = 3");
@@ -122,30 +130,103 @@ class SupplierController extends Controller
 		return false;	
 	}
 
-	// Uncomment the following methods and override them if needed
-	/*
-	public function filters()
+	public function actionRepassword()
 	{
-		// return the filter configuration for this controller, e.g.:
-		return array(
-			'inlineFilterName',
-			array(
-				'class'=>'path.to.FilterClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
+		$model=User::model()->findByPk(Yii::app()->user->id);
+		$model->scenario = 'repassword';
+
+		if(isset($_POST['User']))
+		{
+			if (crypt($_POST['User']['password'],$model->password)===$model->password){
+				$model->attributes=$_POST['User'];
+				$model->password = $model->hashPassword($_POST['User']['new_password']);
+				if ($model->save()) {
+					$this->email($model->user, "CLICKFORCE 密碼修改通知", "您的密碼已於".date("Y-m-d H:i:s") . "修改完成");
+					$this->redirect(array('login/out'));
+				}			
+			}else{
+				$passCheck = true;
+			}
+		}
+		$model->password = "";
+		$this->render('repassword',array(
+			'model'=>$model,
+			'passCheck'=>$passCheck
+		));
 	}
 
-	public function actions()
-	{
-		// return external action classes, e.g.:
-		return array(
-			'action1'=>'path.to.ActionClass',
-			'action2'=>array(
-				'class'=>'path.to.AnotherActionClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
+	public function creatIV(){
+		set_time_limit(0);
+		ini_set('memory_limit', '1024M');		
+		require_once dirname(__FILE__).'/../extensions/PHPWord_CloneRow/PHPWord.php';
+		require_once dirname(__FILE__).'/../extensions/PHPWord_CloneRow/PHPWord/Autoloader.php';
+		require_once dirname(__FILE__).'/../extensions/PHPWord_CloneRow/PHPWord/DocumentProperties.php';
+		require_once dirname(__FILE__).'/../extensions/PHPWord_CloneRow/PHPWord/Template.php';
+
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+		$SupplierApplicationMonies = SupplierApplicationMonies::model()->getSupplierMonies($this->supplier->tos_id);
+
+		$PHPWord = new PHPWord();
+		$document = $PHPWord->loadTemplate(dirname(__FILE__).'/../extensions/wordTemp/iv.docx');
+
+		$titleName = ($this->supplier->type == 1 || $this->supplier->type == 3)? "姓名" : "公司名稱";
+		$taxid = ($this->supplier->type == 1 || $this->supplier->type == 3)? "身分證字號" : "統一編號";
+		
+		$document->setValue('title_name', $titleName);
+		$document->setValue('name',  $this->supplier->invoice_name);
+		$document->setValue('y',  (date("Y",$monthOfAccount->value) - 1911));
+		$document->setValue('m',  date("m",$monthOfAccount->value));
+		$document->setValue('pay_y',  (date("Y") - 1911));
+		$document->setValue('pay_m',  date("m"));
+		$document->setValue('pay_d',  date("t"));
+		$document->setValue('title_taxid',  $taxid);
+		$document->setValue('taxid',  $this->supplier->tax_id);
+		$document->setValue('address',  $this->supplier->company_address);
+		$document->setValue('mail_address',  $this->supplier->mail_address);
+		$document->setValue('type', Yii::app()->params['supplierType'][$this->supplier->type]);
+		$document->setValue('totle_pay', $this->tax($this,$SupplierApplicationMonies->count_monies));
+		$document->setValue('tax_pay', $this->taxDeduct($this,$SupplierApplicationMonies->count_monies));
+		$document->setValue('pay', $this->taxDeductTot($this,$SupplierApplicationMonies->count_monies));
+
+		$tax = Yii::app()->params['taxTypeDeduct'][$this->supplier->type];
+		if($this->supplier->type == 1 && $count_monies < 20000)
+			$tax = 1;
+		$document->setValue('tax', (1 - $tax) * 100);
+
+		$temp_file = tempnam(dirname(__FILE__), 'PHPWord');
+		$document->save($temp_file);
+		header("Content-Disposition: attachment; filename='支領證明單_" . date("Y-m") . ".docx'");
+		readfile($temp_file); 
+		unlink($temp_file); 
+
+		exit;
 	}
-	*/
+
+	public function tax($value,$count_monies){
+		$tax = Yii::app()->params['taxType'][$value->supplier->type];
+		if($value->supplier->type == 1 && $count_monies < 20000)
+			$tax = 1;
+
+		return number_format($count_monies * $tax, 0, "." ,",");
+		
+	}
+
+	public function taxDeductTot($value,$count_monies){
+		$tax =  $this->tax($value,$count_monies);
+		$taxDeduct = Yii::app()->params['taxTypeDeduct'][$value->supplier->type];
+		if($value->supplier->type == 1 && $count_monies >= 20000)
+			$taxDeduct = 0.9;
+
+		return number_format($tax * $taxDeduct, $floor, "." ,",");
+		
+	}
+
+	public function taxDeduct($value,$count_monies){
+		$tax =  $this->tax($value,$count_monies);
+		$taxDeduct = $this->taxDeductTot($value,$count_monies);
+
+		return number_format($tax - $taxDeduct, $floor, "." ,",");
+		
+	}
+	
 }

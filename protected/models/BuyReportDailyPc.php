@@ -170,6 +170,9 @@ class BuyReportDailyPc extends CActiveRecord
 		$criteria->group = "settled_time";
 
 		return new CActiveDataProvider($this, array(
+			'pagination' => array(
+				'pageSize' => 50
+			),
 			'criteria'=>$criteria,
 		));
 	}

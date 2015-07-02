@@ -61,7 +61,7 @@ function status($status){
 	<br>
 	<div id="application-group">
 		<div><h4>申請款項</h4></div>
-		<?php if($accountsStatus == 1){ ?>
+		<?php if($accountsStatus->value == 1){ ?>
 			<?php if($model->application_type == 1){ ?>
 				<div>本期款項已在申請作業中，請盡速提供您的相關文件加速作業！</div>
 				<br>
@@ -71,8 +71,12 @@ function status($status){
 				<a href="payments?type=applicationPay" class="btn btn-primary btn-xl">申請支付款項</a>
 			<?php }?>
 		<?php }else{?>
-			<div>目前尚未開放申請，如有需要可向您的窗口詢問</div>
+			<div>目前尚未開放申請，如有需要請向您的窗口詢問</div>
 		<?php }?>
 	</div>
+
+	<br>
+	<div><h4>下載勞務報酬單</h4></div>
+	<a href="payments?type=downloadIV" class="btn btn-primary btn-sm">下載</a>
 	
 </div>

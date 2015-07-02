@@ -87,6 +87,30 @@ class UserController extends Controller
 		));
 	}
 
+	public function actionRepassword()
+	{
+		$model=$this->loadModel(Yii::app()->user->id);
+		$model->scenario = 'repassword';
+
+		if(isset($_POST['User']))
+		{
+			if (crypt($_POST['User']['password'],$model->password)===$model->password){
+				$model->attributes=$_POST['User'];
+				$model->password = $model->hashPassword($_POST['User']['new_password']);
+				if ($model->save()) {
+					$this->redirect(array('admin'));
+				}			
+			}else{
+				$passCheck = true;
+			}
+		}
+		$model->password = "";
+		$this->render('repassword',array(
+			'model'=>$model,
+			'passCheck'=>$passCheck
+		));
+	}
+
 	/**
 	 * Deletes a particular model.
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.

@@ -54,15 +54,6 @@ $('.search-form form').submit(function(){
 });
 ");
 ?>
-<style type="text/css">
-	.select-type{
-		height: 30px;
-	}
-	.dropdown-menu{
-		right: 0px;
-		left: auto;
-	}
-</style>
 <form method="get">
 <p>
 	下載供應商對帳表 (本期:<?php echo date("Y / m",$monthOfAccount->value)?>)
@@ -78,14 +69,14 @@ $('.search-form form').submit(function(){
 	<select name="month" class="select-type">
 	<?php for($m=1; $m <= 12; $m++) {?>
 		<option value="<?php echo $m?>" 
-			<?php if((isset($_GET['month']) && $_GET['month'] == $m) || (!isset($_GET['month']) && date("m") == $m)){ ?>
+			<?php if((isset($_GET['month']) && $_GET['month'] == $m) || (!isset($_GET['month']) && date("m",$monthOfAccount->value) == $m)){ ?>
 				selected="selected"<?php }?>>
 			<?php echo $m?>
 		</option>
 	<?php }?>
 	</select>
 	<input type="hidden" name="export" value="1">
-	<button type="submit" class="btn btn-primary btn-sm">篩選</button>
+	<button type="submit" class="btn btn-primary btn-sm">下載</button>
 </p>
 </form>
 <?php 

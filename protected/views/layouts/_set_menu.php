@@ -62,6 +62,7 @@ $this->nav = array(
 					"supplierUserCreate" => "新建供應商帳號",
 					"updateLog" => "查詢供應商編輯記錄",
 					"updateLogView" => "檢視供應商編輯記錄",
+					"gotoDashboard" => "模擬供應商前台"
 				),
 			),
 			"tosSite" => array(

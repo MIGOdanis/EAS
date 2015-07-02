@@ -19,8 +19,13 @@ class SupplierApplicationListController extends Controller
 	
 	public function actionAdmin()
 	{	
+		if(isset($_GET['export']) && $_GET['export']){
+			$this->exportSupplierApplication();
+			Yii::app()->end();
+		}		
 		$accountsStatus = SiteSetting::model()->getValByKey("accounts_status");
-		
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+
 		$model = new SupplierApplicationLog('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['SupplierApplicationLog']))
@@ -28,7 +33,8 @@ class SupplierApplicationListController extends Controller
 
 		$this->render('admin',array(
 			'model'=>$model,
-			"accountsStatus" => $accountsStatus
+			"accountsStatus" => $accountsStatus,
+			"monthOfAccount" => $monthOfAccount
 		));
 	}
 
@@ -212,5 +218,180 @@ class SupplierApplicationListController extends Controller
 		Yii::app()->end();
 	}
 
+	public function tax($value){
+		$tax = Yii::app()->params['taxType'][$value->supplier->type];
+		if($value->supplier->type == 1 && $value->monies < 20000)
+			$tax = 1;
 
+		return number_format($value->monies * $tax, 0, "." ,",");
+		
+	}
+
+	public function taxDeductTot($value){
+		$tax =  $this->tax($value);
+		$taxDeduct = Yii::app()->params['taxTypeDeduct'][$value->supplier->type];
+		if($value->supplier->type == 1 && $value->monies >= 20000)
+			$taxDeduct = 0.9;
+
+		return number_format($tax * $taxDeduct, $floor, "." ,",");
+		
+	}
+
+	public function taxDeduct($value){
+		$tax =  $this->tax($value);
+		$taxDeduct = $this->taxDeductTot($value);
+
+		return number_format($tax - $taxDeduct, $floor, "." ,",");
+		
+	}
+
+	public function exportSupplierApplication(){
+		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
+		if($_GET['year'] && $_GET['month']){
+
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("year = " . $_GET['year']);
+			$criteria->addCondition("month = " . $_GET['month']);
+			$SupplierApplicationLog = SupplierApplicationLog::model()->with("supplier")->findAll($criteria);
+
+			// print_r($SupplierApplicationLog); exit;
+
+			$status = array(
+				"已退回",
+				"申請中",
+				"憑證已確認",
+				"申請已完成",
+			);
+
+			$reportName = array(
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => 'E86D4B'),
+				),
+				'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+
+			);
+
+			$title = array(
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'color' => array('rgb' => 'E8BE93'),
+				),
+				'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+			);
+
+			$objPHPExcel = new PHPExcel();
+			$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
+										 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
+
+			$objPHPExcel->getActiveSheet()->mergeCells('A1:V1');
+
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '供應商請款報表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
+
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('A2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('B2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('C2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('D2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('E2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('F2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('G2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('H2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('I2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('J2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('K2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('L2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('M2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('N2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('O2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('P2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('Q2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('R2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('S2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('T2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('U2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('V2')->applyFromArray($title);
+
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', '供應商ID');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B2', '供應商名稱');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C2', '供應商身分');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D2', '請款期間(起)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E2', '請款期間(迄)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F2', '請款狀態');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G2', '未稅金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H2', '含稅金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I2', '代扣稅額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J2', '請款金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K2', '發票(憑證)號碼');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L2', '戶名(請款公司/個人)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M2', '統編/身份證字號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N2', '銀行名稱');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O2', '分行');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P2', '帳號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q2', '銀行代號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R2', '分行代號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S2', '分支機構代號/Swiftcode');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T2', '中間銀行 swift code');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U2', 'Email(主要聯絡人)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V2', '國家代碼');
+
+			if($SupplierApplicationLog !== null){
+				$r = 3;
+				$total_monies = 0;
+				$cril_total_monies = 0;
+				foreach ($SupplierApplicationLog as $value) {
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $r, $value->supplier->tos_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B' . $r, $value->supplier->name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$value->supplier->type]);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $r, date("Y-m",$value->start_time));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $r, date("Y-m",$value->end_time));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, $status[$value->status]);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format($value->monies, 2, "." ,","));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, $this->tax($value));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, $this->taxDeduct($value));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, $this->taxDeductTot($value));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, $value->invoice);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, $value->supplier->account_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->supplier->tax_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $value->supplier->bank_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, $value->supplier->bank_sub_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('P' . $r, (string)$value->supplier->account_number,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $r, $value->supplier->bank_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R' . $r, $value->supplier->bank_sub_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S' . $r, $value->supplier->bank_swift);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T' . $r, $value->supplier->bank_swift2);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U' . $r, $value->supplier->email);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V' . $r, $value->supplier->country_code);
+					// $total_monies += $value->total_monies;
+					// $cril_total_monies += ceil($value->total_monies);
+					$r++;
+				}
+				$r++;
+				$objPHPExcel->getActiveSheet()->mergeCells('A' . $r . ':B' . $r . '');
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $r, "資料時間 : " . date("Y-m-d H:i:s"));
+				// $objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $total_monies);
+				// $objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, $cril_total_monies);
+			}else{
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', '沒有資料');
+			}
+
+
+	        $objPHPExcel->getActiveSheet()->setTitle("供應商請款報表");
+
+	        $objPHPExcel->setActiveSheetIndex(0);
+
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header('Content-Disposition: attachment;filename="' . $_GET['year'] . "-" . $_GET['month'] . '供應商請款報表.xlsx"');
+			header('Cache-Control: max-age=0');
+			// If you're serving to IE 9, then the following may be needed
+			header('Cache-Control: max-age=1');
+			// If you're serving to IE over SSL, then the following may be needed
+			header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+			header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+			header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+			header ('Pragma: public'); // HTTP/1.0
+			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+			$objWriter->save('php://output');
+		}
+	}
 }

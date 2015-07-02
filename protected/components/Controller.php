@@ -20,6 +20,10 @@ class Controller extends CController
 		if(isset($this->user) && !empty($this->user) && $this->user->group == 7 && $this->user->supplier_id > 0)
 			$this->supplier = Supplier::model()->findByPk($this->user->supplier_id);
 
+		if(isset(Yii::app()->session['virtual_id']) && !empty(Yii::app()->session['virtual_id']))
+			$this->supplier = Supplier::model()->findByPk((int)Yii::app()->session['virtual_id']);
+
+
 		if(!isset($this->nav) || empty($this->nav))
 			require dirname(__FILE__).'/../views/layouts/_set_menu.php';
 		
@@ -27,11 +31,13 @@ class Controller extends CController
 	}
 
 	public function checkUserAuth($action=null){
-		$auth = array();
+		if(Yii::app()->user->id <= 0){
+			$this->redirect(array("login/index"));
+		}
+
+		$auth = array();		
 		$this->beforeAction();
 		$ua = json_decode($this->user->auth->auth,true);
-
-		
 
 		foreach ($this->nav as $navIndex => $value) {
 			if(in_array($this->id, $value['controllers'])){
@@ -42,11 +48,7 @@ class Controller extends CController
 		
 		if($this->id == "user"){
 			$auth[] = "repassword";		
-		}elseif(Yii::app()->user->id <= 0){
-			throw new CHttpException(403,'The requested page does not exist.');
 		}
-
-		
 
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
@@ -58,6 +60,35 @@ class Controller extends CController
 			),
 		);
 	}
+
+	public function checkSupplierAuth($action=null){
+		$auth = array();
+		$this->beforeAction();
+	
+		if(Yii::app()->user->id <= 0){
+			$this->redirect(array("login/index"));
+		}
+
+		if($this->user->group != 7){
+			$ua = json_decode($this->user->auth->auth,true);
+			// print_r($ua['tosSupplier']['tosSupplier']); exit;
+			if(!in_array("gotoDashboard", $ua['tosSupplier']['tosSupplier']))
+				throw new CHttpException(403,'The requested page does not exist.');
+		}
+
+		return array(
+			array('allow',  // allow all users to perform 'index' and 'view' actions
+				// 'actions'=> $auth,
+				'users'=>array('@'),
+			),
+			array('deny',  // deny all users
+				'users'=>array('*'),
+			),
+		);
+	}
+
+
+
 
 	// 使用者啟用停用
 	public function actionActive($id)

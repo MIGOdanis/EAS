@@ -251,6 +251,31 @@ function refreshTable(){
 tableEvent();
 ");
 ?>
+<form method="get">
+<p>
+	下載供應商對帳表 (本期:<?php echo date("Y / m",$monthOfAccount->value)?>)
+	<select name="year" class="select-type">
+	<?php for($y=2015; $y <= date("Y"); $y++) {?>
+		<option value="<?php echo $y?>" 
+			<?php if((isset($_GET['year']) && $_GET['year'] == $y) || (!isset($_GET['year']) && date("Y") == $y)){ ?>
+				selected="selected"<?php }?>>
+			<?php echo $y?>
+		</option>
+	<?php }?>
+	</select>
+	<select name="month" class="select-type">
+	<?php for($m=1; $m <= 12; $m++) {?>
+		<option value="<?php echo $m?>" 
+			<?php if((isset($_GET['month']) && $_GET['month'] == $m) || (!isset($_GET['month']) && date("m",$monthOfAccount->value) == $m)){ ?>
+				selected="selected"<?php }?>>
+			<?php echo $m?>
+		</option>
+	<?php }?>
+	</select>
+	<input type="hidden" name="export" value="1">
+	<button type="submit" class="btn btn-primary btn-sm">下載</button>
+</p>
+</form>
 <?php 
 function supplierType($data){
 	$types = array("未填","國人", "外人", "國司", "外司");

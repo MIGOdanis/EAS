@@ -75,6 +75,7 @@ $this->widget('zii.widgets.CDetailView', array(
 			'value' => $bank[$model->bank_type],
 		),
 		'bank_swift',
+		'bank_swift2',
 		array(
 			'name' => '帳戶影本',
 			'type' => 'raw',

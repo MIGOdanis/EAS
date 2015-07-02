@@ -2,6 +2,7 @@
 class SupplierNaviWidget extends CWidget
 {
 	public $controller;
+	public $supplier;
 
 	public function init()
 	{
@@ -10,6 +11,6 @@ class SupplierNaviWidget extends CWidget
 	
 	public function run()
 	{   
-		$this->render('supplierNaviWidget', array("controller" => $this->controller));
+		$this->render('supplierNaviWidget', array("controller" => $this->controller,"supplier" => $this->supplier));
 	}
 }

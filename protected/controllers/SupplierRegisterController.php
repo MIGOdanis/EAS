@@ -55,7 +55,7 @@ class SupplierRegisterController extends Controller
 					$checkSupplier = Supplier::model()->find($criteria);
 					if($checkSupplier === null){
 						$supplier = $this->creatSupplier($model);
-						if($supplier){
+						if($supplier->id){
 							$criteria = new CDbCriteria;
 							$criteria->addCondition("user = '" . $model->email . "'", "OR");
 							$criteria->addCondition("name = '" . $model->company_name . "'", "OR");
@@ -146,12 +146,14 @@ class SupplierRegisterController extends Controller
 		$supplier->bank_sub_id = $model->bank_sub_id;
 		$supplier->bank_type = $model->bank_type;
 		$supplier->bank_swift = $model->bank_swift;
+		$supplier->bank_swift2 = $model->bank_swift2;
 		$supplier->create_time = time();
 		$supplier->sync_time = time();
 		$supplier->status = 1;
 		$supplier->certificate_image = $model->certificate_image;
 		$supplier->bank_book_img = $model->bank_book_img;		
-		return $supplier->save();
+		$supplier->save();
+		return $supplier;
 	}
 
 	public function creatNewUser($model,$supplier)
@@ -161,15 +163,15 @@ class SupplierRegisterController extends Controller
 		$user->user = $model->email;
 		$user->password = $passwd;
 		$user->repeat_password = $passwd;
-		$user->name = $model->company_name;
+		$user->name = $model->contacts;
 		$user->group = 7;
 		$user->auth_id = 0;
 		$user->active = 1;
-		$user->supplier_id = $model->id;
+		$user->supplier_id = $supplier->id;
 		$user->creat_time = time();		
 		$user->password = $user->hashPassword($passwd);
 		if($user->save()){
-			$this->email($model->email, "電子合約申請通知", "您申請的" . $model->company_name . "供應商電子合約已完成審! <br>  您可以使用帳號" . $model->email . "密碼<br> " . $passwd ."<br> 登入您的後台");
+			$this->email($model->email, "CLICKFORCE 電子合約申請通知", "您申請的" . $model->company_name . "供應商電子合約已完成審! <br> 您可以使用<br>帳號:" . $model->email . "<br>密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>登入您的後台</a>");
 			return true;
 		}else{
 			// print_r($user->getErrors()); exit;

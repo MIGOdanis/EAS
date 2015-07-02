@@ -155,3 +155,10 @@ body , html{
 	text-align: center;
 	color: #9E9E9E;
 }
+.select-type{
+	height: 30px;
+}
+.dropdown-menu{
+	right: 0px;
+	left: auto;
+}

@@ -61,7 +61,7 @@
 								</a>
 								<ul class="dropdown-menu" role="menu">
 									<li><a href="#">修改資料</a></li>
-									<li><a href="#">修改密碼</a></li>
+									<li><a href="<?php echo Yii::app()->createUrl("user/repassword"); ?>">修改密碼</a></li>
 									<li class="divider"></li>
 									<li><a href="<?php echo Yii::app()->createUrl("login/out"); ?>"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 登出</a></li>
 								</ul>

@@ -61,7 +61,7 @@ class Supplier extends CActiveRecord
 			array('contacts_email, contacts_tel, contacts_moblie, contacts_fax, tel, fax, email, mobile, company_name, invoice_name, tax_id, bank_id, bank_sub_id', 'length', 'max'=>50),
 			array('country_code', 'length', 'max'=>10),
 			array('bank_swift', 'length', 'max'=>15),
-			array('remark,certificate_image, bank_book_img', 'safe'),
+			array('remark, certificate_image, bank_book_img, bank_swift2', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, tos_id, name, contacts, contacts_email, contacts_tel, contacts_moblie, contacts_fax, tel, fax, email, mobile, company_name, company_address, mail_address, invoice_name, tax_id, type, country_code, account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type, bank_swift, remark, create_time, sync_time, status', 'safe', 'on'=>'search'),
@@ -111,7 +111,8 @@ class Supplier extends CActiveRecord
 			'bank_sub_name' => '分行名稱',
 			'bank_sub_id' => '分行代號',
 			'bank_type' => '銀行類型',
-			'bank_swift' => '中繼銀行代號(Swift)',
+			'bank_swift' => '國際銀行代號(Swift)',
+			'bank_swift2' => '中繼銀行代號(Swift 港澳帳戶請填寫)',
 			'remark' => '備註',
 			'create_time' => '建立時間',
 			'sync_time' => '同步時間',

@@ -33,8 +33,8 @@ class User extends CActiveRecord
 			array('id, name, password, name, active, creat_time,supplier_id', 'safe', 'on'=>'search'),
 			array('user', 'unique', 'message'=>'{attribute}"{value}"已經使用', 'on'=>'register'),
 			array('name', 'unique', 'message'=>'{attribute}"{value}"已經使用', 'on'=>'register'),
-			array('new_password', 'compare', 'compareAttribute'=>'repeat_password', 'on'=>'resetpassword', 'message'=>'新{attribute}與再次輸入的密碼不同'),
-			array('password, new_password, repeat_password', 'required', 'on'=>'resetpassword'),
+			array('new_password', 'compare', 'compareAttribute'=>'repeat_password', 'on'=>'repassword', 'message'=>'新{attribute}與再次輸入的密碼不同'),
+			array('password, new_password, repeat_password', 'required', 'on'=>'repassword'),
 		);
 	}
 
@@ -59,6 +59,8 @@ class User extends CActiveRecord
 			'id' => 'ID',
 			'user' => '帳號',
 			'password' => '密碼',
+			'new_password' => '新密碼',
+			'repeat_password' => '確認密碼',						
 			'name' => '名稱',
 			'auth_id' => '權限',
 			'group' => '群組',
