@@ -165,6 +165,10 @@ body a:hover{
 	margin: 0px auto;
 }
 
+#index-report{
+	margin-top: 10px;
+}
+
 #contents-singe{
 	padding: 20px;
 }
@@ -173,3 +177,28 @@ body a:hover{
 	max-width: 800px;
 	margin: 0px auto;	
 }
+
+.report-site-list{
+	/*border-bottom: 2px solid #DADADA;*/
+}
+
+.report-adspace-list{
+	padding-left: 30px;
+	display: none;
+	background-color: #e5e5e5;
+}
+
+.report-list{
+	cursor: pointer;
+	font-weight: bold;
+	margin-top: 0px;
+	font-size: 14px;
+}
+
+.report-site-active{
+	border-left: 10px solid #404040;
+}
+.report-adspace-active{
+	border-left: 10px solid #FB546A;
+}
+

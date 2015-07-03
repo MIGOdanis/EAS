@@ -4,7 +4,7 @@ class SupplierController extends Controller
 {
 
 	public $layout = "supplier_column1";
-
+	public $site;
 	//權限驗證模組
 	public function filters()
 	{
@@ -77,6 +77,47 @@ class SupplierController extends Controller
 			'lastApplication'=>$lastApplication,
 			'accountsStatus'=>$accountsStatus,
 			'thisApplication' => $thisApplication,
+		));
+	}
+
+	public function actionMySite()
+	{
+
+		if(isset($_GET['type']) && $_GET['type'] == "downloadIV"){
+			$this->CreatIV();
+			Yii::app()->end();
+		}
+
+		$this->render('payments',array(
+			'model'=>$model,
+			'lastApplication'=>$lastApplication,
+			'accountsStatus'=>$accountsStatus,
+			'thisApplication' => $thisApplication,
+		));
+	}
+
+	public function actionReport()
+	{
+		$this->layout = "supplier_column_report";
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.supplier_id = " . $this->supplier->tos_id);
+		$this->site = Site::model()->with("adSpace")->findAll($criteria);
+
+		$this->render('report',array(
+			'model'=>$model,
+		));
+	}
+
+	public function actionGetSupplierReport()
+	{
+		$model = new BuyReportDailyPc('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['BuyReportDailyPc']))
+			$model->attributes=$_GET['BuyReportDailyPc'];
+
+		$this->renderPartial('_supplierReport',array(
+			'model'=>$model,
 		));
 	}
 

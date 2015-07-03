@@ -93,7 +93,7 @@ class SupplierRegister extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'tos_id' => 'Tos',
-			'name' => '名稱',
+			'name' => '供應商名稱',
 			'contacts' => '主要聯絡人',
 			'contacts_email' => '主要聯絡人電子郵件',
 			'contacts_tel' => '主要聯絡人電話',

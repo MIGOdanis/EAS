@@ -38,19 +38,21 @@
 							<!-- <li class="active"><a href="#">Link</a></li> -->
 							
 							<?php 
-							$naviArray = array();
-							foreach (json_decode($this->user->auth->auth,true) as $key => $value) {
-								$naviArray[] = $key;
-							}
-
-							foreach ($this->nav as $navIndex => $value) { 
-								if(Yii::app()->user->id && in_array($navIndex, $naviArray)){
-							?>
-								<li <?php if(in_array($this->id, $value['controllers'])){?>  class="active" <?php } ?>><a href="<?php echo Yii::app()->createUrl($value["url"]); ?>"><?php echo $value['title'];?></a></li>
-							<?php 
+							if(isset($this->user->auth->auth) && !empty($this->user->auth->auth)){
+								$naviArray = array();
+								foreach (json_decode($this->user->auth->auth,true) as $key => $value) {
+									$naviArray[] = $key;
 								}
-							}
-							?>
+
+								foreach ($this->nav as $navIndex => $value) { 
+									if(Yii::app()->user->id && in_array($navIndex, $naviArray)){
+								?>
+									<li <?php if(in_array($this->id, $value['controllers'])){?>  class="active" <?php } ?>><a href="<?php echo Yii::app()->createUrl($value["url"]); ?>"><?php echo $value['title'];?></a></li>
+								<?php 
+									}
+								}
+							}?>
+
 							<?php //print_r($this->nav);?>
 							</li>
 						</ul>

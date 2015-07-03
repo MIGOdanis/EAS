@@ -15,7 +15,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="index">首頁</a></li>
                 <li><a href="#">我的網站(未開放)</a></li>
-                <li><a href="#">報表查詢(未開放)</a></li>
+                <li><a href="report">報表查詢</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">

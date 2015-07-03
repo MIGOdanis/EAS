@@ -217,6 +217,13 @@ $(function() {
 			</div>	
 
 			<div class="form-group">
+				<label><?php echo $form->labelEx($model,'bank_swift2'); ?></label>
+				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>若您以港澳帳戶收款，請向您的中繼銀行詢問Swift代號。可節省時間</div>
+				<?php echo $form->textField($model,'bank_swift2',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"Swift代號")); ?>
+				<p class="text-danger"><?php echo $form->error($model,'bank_swift2'); ?></p>
+			</div>
+
+			<div class="form-group">
 				<div>
 					<?php 
 					if(isset($model->bank_book_img)){

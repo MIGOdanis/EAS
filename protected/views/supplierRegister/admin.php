@@ -45,10 +45,6 @@ $('.search-form form').submit(function(){
 	});
 	return false;
 });
-
-
-
-
 ");
 ?>
 <form>

@@ -45,7 +45,7 @@ class RegisterSupplierController extends Controller
 				if($uploadMsg === true){
 					$model->bank_book_img = date("Ymd") . "/" . md5($_FILES['bank_book_img']['name'].$time);
 				}else{
-					print_r($uploadMsg); exit;
+					// print_r($uploadMsg); exit;
 				}
 			}
 

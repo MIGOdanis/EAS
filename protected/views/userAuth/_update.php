@@ -1,7 +1,7 @@
 <style type="text/css">
-	#save{
+/*	#save{
 		display: none;
-	}
+	}*/
 </style>
 <div class="modal-header">
 	<h4 class="modal-title" id="myModalLabel">選擇權限組</h4>

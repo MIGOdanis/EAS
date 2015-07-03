@@ -115,7 +115,7 @@ $(function() {
 
 			<div class="form-group">
 				<label><?php echo $form->labelEx($model,'certificate_image'); ?></label>
-				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您做為銀行帳戶的存摺影本，JPG格式4MB以內</div>				
+				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您的營利登記證(公司) / 身份證(個人) / 護照影本(非本國人士)，JPG格式4MB以內</div>				
 				<div>
 					<?php 
 					if(isset($model->certificate_image)){
