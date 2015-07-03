@@ -88,7 +88,7 @@ $('.search-form form').submit(function(){
 		array(
 			'header'=>'檢視',
 			'type'=>'raw',
-			'value'=> 'CHtml::link("檢視",array("tosAdspace/view","id"=>$data->id),array("class"=>"btn btn-default set-btn"))',
+			'value'=> 'CHtml::link("檢視",array("tosAdSpace/view","id"=>$data->id),array("class"=>"btn btn-default set-btn"))',
 			'htmlOptions'=>array('width'=>'55')
 		),
 	),

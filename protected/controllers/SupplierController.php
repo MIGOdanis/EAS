@@ -210,8 +210,8 @@ class SupplierController extends Controller
 		$PHPWord = new PHPWord();
 		$document = $PHPWord->loadTemplate(dirname(__FILE__).'/../extensions/wordTemp/iv.docx');
 
-		$titleName = ($this->supplier->type == 1 || $this->supplier->type == 3)? "姓名" : "公司名稱";
-		$taxid = ($this->supplier->type == 1 || $this->supplier->type == 3)? "身分證字號" : "統一編號";
+		$titleName = ($this->supplier->type == 1 || $this->supplier->type == 2)? "姓名" : "公司名稱";
+		$taxid = ($this->supplier->type == 1 || $this->supplier->type == 2)? "身分證字號" : "統一編號";
 		
 		$document->setValue('title_name', $titleName);
 		$document->setValue('name',  $this->supplier->invoice_name);
@@ -225,9 +225,9 @@ class SupplierController extends Controller
 		$document->setValue('address',  $this->supplier->company_address);
 		$document->setValue('mail_address',  $this->supplier->mail_address);
 		$document->setValue('type', Yii::app()->params['supplierType'][$this->supplier->type]);
-		$document->setValue('totle_pay', $this->tax($this,$SupplierApplicationMonies->count_monies));
-		$document->setValue('tax_pay', $this->taxDeduct($this,$SupplierApplicationMonies->count_monies));
-		$document->setValue('pay', $this->taxDeductTot($this,$SupplierApplicationMonies->count_monies));
+		$document->setValue('totle_pay', number_format($this->tax($this,$SupplierApplicationMonies->count_monies), 0, "." ,","));
+		$document->setValue('tax_pay', number_format($this->taxDeduct($this,$SupplierApplicationMonies->count_monies), 0, "." ,","));
+		$document->setValue('pay', number_format($this->taxDeductTot($this,$SupplierApplicationMonies->count_monies), 0, "." ,","));
 
 		$tax = Yii::app()->params['taxTypeDeduct'][$this->supplier->type];
 		if($this->supplier->type == 1 && $count_monies < 20000)
@@ -248,7 +248,7 @@ class SupplierController extends Controller
 		if($value->supplier->type == 1 && $count_monies < 20000)
 			$tax = 1;
 
-		return number_format($count_monies * $tax, 0, "." ,",");
+		return $count_monies * $tax;
 		
 	}
 
@@ -258,7 +258,7 @@ class SupplierController extends Controller
 		if($value->supplier->type == 1 && $count_monies >= 20000)
 			$taxDeduct = 0.9;
 
-		return number_format($tax * $taxDeduct, $floor, "." ,",");
+		return $tax * $taxDeduct;
 		
 	}
 
@@ -266,7 +266,7 @@ class SupplierController extends Controller
 		$tax =  $this->tax($value,$count_monies);
 		$taxDeduct = $this->taxDeductTot($value,$count_monies);
 
-		return number_format($tax - $taxDeduct, $floor, "." ,",");
+		return $tax - $taxDeduct;
 		
 	}
 	

@@ -69,17 +69,18 @@ function tax($data){
 	if($data->supplier->type == 1 && $data->monies < 20000)
 		$tax = 1;
 
-	return number_format($data->monies * $tax, 0, "." ,",");
+	return $data->monies;
 	
 }
 
 function taxDeductTot($data){
 	$tax = tax($data);
 	$taxDeduct = Yii::app()->params['taxTypeDeduct'][$data->supplier->type];
+
 	if($data->supplier->type == 1 && $data->monies >= 20000)
 		$taxDeduct = 0.9;
 
-	return number_format($tax * $taxDeduct, $floor, "." ,",");
+	return $tax * $taxDeduct;
 	
 }
 
@@ -87,8 +88,7 @@ function taxDeduct($data){
 	$tax = tax($data);
 	$taxDeduct = taxDeductTot($data);
 
-	return number_format($tax - $taxDeduct, $floor, "." ,",");
-	
+	return $tax - $taxDeduct;
 }
 
 Yii::app()->clientScript->registerScript('search', "
@@ -340,21 +340,21 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 			'header'=>'請款總額(含稅)',
 			'name' => "monies",
-			'value'=>'"$" . tax($data)',
+			'value'=>'"$" . number_format(tax($data), 0, "." ,",")',
 			'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),
 		array(
 			'header'=>'代扣稅額',
 			'name' => "monies",
-			'value'=>'"$" . taxDeduct($data)',
+			'value'=>'"$" . number_format(taxDeduct($data), 0, "." ,",")',
 			'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),	
 		array(
 			'header'=>'應付總額',
 			'name' => "monies",
-			'value'=>'"$" . taxDeductTot($data)',
+			'value'=>'"$" . number_format(taxDeductTot($data), 0, "." ,",")',
 			'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),							

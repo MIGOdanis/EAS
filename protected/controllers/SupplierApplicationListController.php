@@ -223,7 +223,7 @@ class SupplierApplicationListController extends Controller
 		if($value->supplier->type == 1 && $value->monies < 20000)
 			$tax = 1;
 
-		return number_format($value->monies * $tax, 0, "." ,",");
+		return $value->monies * $tax;
 		
 	}
 
@@ -233,7 +233,7 @@ class SupplierApplicationListController extends Controller
 		if($value->supplier->type == 1 && $value->monies >= 20000)
 			$taxDeduct = 0.9;
 
-		return number_format($tax * $taxDeduct, $floor, "." ,",");
+		return $tax * $taxDeduct;
 		
 	}
 
@@ -241,7 +241,7 @@ class SupplierApplicationListController extends Controller
 		$tax =  $this->tax($value);
 		$taxDeduct = $this->taxDeductTot($value);
 
-		return number_format($tax - $taxDeduct, $floor, "." ,",");
+		return $tax - $taxDeduct;
 		
 	}
 
@@ -347,9 +347,9 @@ class SupplierApplicationListController extends Controller
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $r, date("Y-m",$value->end_time));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, $status[$value->status]);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format($value->monies, 2, "." ,","));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, $this->tax($value));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, $this->taxDeduct($value));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, $this->taxDeductTot($value));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, number_format($this->tax($value), 0, "." ,","));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, number_format($this->taxDeduct($value), 0, "." ,","));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, number_format($this->taxDeductTot($value), 0, "." ,","));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, $value->invoice);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, $value->supplier->account_name);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->supplier->tax_id);

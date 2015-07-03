@@ -186,17 +186,17 @@ class BuyReportDailyPc extends CActiveRecord
 		}
 
 		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
 		}
 
 		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time > " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time < " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
 		}
 
 		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time > " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time > " . strtotime(date("Y-m-t 00:00:00")));
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
+			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
 		}	
 
 		if($_GET['type'] == "custom"){
