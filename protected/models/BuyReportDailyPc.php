@@ -145,6 +145,15 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+	public  function sumColumn($model,$key){
+		$keySum = 0;
+		foreach ($model->data as $value) {
+			$keySum += $value->$key;
+		}
+
+		return $keySum;
+	}
+
 	public function supplierDailyReport($tos_id,$reportType)
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
@@ -203,8 +212,8 @@ class BuyReportDailyPc extends CActiveRecord
 			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
 				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
 			}
-			if(isset($_GET['endtDay']) &&  !empty($_GET['endtDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endtDay'] . "00:00:00"));
+			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
+				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
 			}			
 
 		}	
@@ -243,11 +252,9 @@ class BuyReportDailyPc extends CActiveRecord
 	{
 		$criteria=new CDbCriteria;
 		$criteria->select = '
-			sum(t.media_cost) / 100000 as media_cost,
+			sum(t.income) / 100000 as income,
 			sum(t.click) as click,
-			sum(t.impression) as impression,
-			sum(t.pv) as pv
-
+			sum(t.impression) as impression
 		';
 
 		if(!isset($_GET) || $_GET['type'] == "7day"){
@@ -272,8 +279,8 @@ class BuyReportDailyPc extends CActiveRecord
 			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
 				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
 			}
-			if(isset($_GET['endtDay']) &&  !empty($_GET['endtDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endtDay'] . "00:00:00"));
+			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
+				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
 			}			
 		}	
 
@@ -290,7 +297,7 @@ class BuyReportDailyPc extends CActiveRecord
 				'pageSize' => 100
 			),
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => 't.impression DESC',
 			),			
 			'criteria'=>$criteria,
 		));
