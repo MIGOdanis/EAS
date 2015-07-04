@@ -136,6 +136,7 @@ class PHPWord_Template {
 		}
 
 		rename($this->_tempFileName, $strFilename);
+		//unlink($this->_tempFileName); 
 	}
 
 	/**

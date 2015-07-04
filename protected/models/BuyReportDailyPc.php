@@ -239,6 +239,63 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+	public function supplierCategoryReport()
+	{
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.media_cost) / 100000 as media_cost,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			sum(t.pv) as pv
+
+		';
+
+		if(!isset($_GET) || $_GET['type'] == "7day"){
+			$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
+		}
+
+		if($_GET['type'] == "30day"){
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
+		}
+
+		if($_GET['type'] == "pastMonth"){
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+		}
+
+		if($_GET['type'] == "thisMonth"){
+			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
+			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
+		}	
+
+		if($_GET['type'] == "custom"){
+			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
+				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
+			}
+			if(isset($_GET['endtDay']) &&  !empty($_GET['endtDay'])){
+				$criteria->addCondition("settled_time <= " . strtotime($_GET['endtDay'] . "00:00:00"));
+			}			
+		}	
+
+
+		$criteria->addCondition("campaign_id = '" . $_GET['Campaign_id'] . "'");
+
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory");
+
+		$criteria->group = "category.category_id";
+		
+		// print_r($adSpacArray); exit;
+		return new CActiveDataProvider($this, array(
+			'pagination' => array(
+				'pageSize' => 100
+			),
+			'sort' => array(
+				'defaultOrder' => 'impression DESC, click DESC',
+			),			
+			'criteria'=>$criteria,
+		));
+	}
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!

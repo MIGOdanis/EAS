@@ -303,7 +303,52 @@ class SyncController extends Controller
 		return $model;
 	}
 
+	public function actionSyncSiteMediaCategory()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncSiteMediaCategoryTosTime");
 
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$SyncSiteMediaCategory = TosCoreSiteMediaCategory::model()->findAll($criteria);
+		foreach ($SyncSiteMediaCategory as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("site_id = " . $value->site_id);
+			$model = SiteMediaCategory::model()->find($criteria);
+			if($model === null){
+				$model = new SiteMediaCategory();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingSiteMediaCategory($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncSiteMediaCategory/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncSiteMediaCategory/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncSiteMediaCategory",time());
+
+	}
+
+	public function mappingSiteMediaCategory($model,$tosSiteMediaCategory){
+
+		$model->site_id = $tosSiteMediaCategory->site_id;
+		$model->category_id = $tosSiteMediaCategory->category_id;
+		$model->status = $tosSiteMediaCategory->status;
+
+		return $model;
+	}
 
 	// public function saveLog($name,$value){
 	// 	$criteria = new CDbCriteria;

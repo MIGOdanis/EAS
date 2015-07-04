@@ -1,22 +1,32 @@
 <?php
-
-/**
- * This is the model class for table "{{siteMediaCategory}}".
- *
- * The followings are the available columns in table '{{siteMediaCategory}}':
- * @property integer $id
- * @property string $site_id
- * @property string $category_id
- * @property integer $status
- */
-class SiteMediaCategory extends CActiveRecord
+class TosCoreSiteMediaCategory extends CActiveRecord
 {
+	public static $conection; 
+
 	/**
 	 * @return string the associated database table name
 	 */
+
+	public function getDbConnection()
+    {
+        if (self::$conection !== null)
+            return self::$conection;
+        else
+        {
+            self::$conection = Yii::app()->core;
+            if (self::$conection instanceof CDbConnection)
+            {
+                self::$conection->setActive(true);
+                return self::$conection;
+            }
+            else
+                throw new CDbException(Yii::t('yii','Active Record requires a "TosCore" CDbConnection application component.'));
+        }
+    }
+
 	public function tableName()
 	{
-		return '{{siteMediaCategory}}';
+		return '{{site_media_category}}';
 	}
 
 	/**
@@ -26,13 +36,7 @@ class SiteMediaCategory extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array(
-			array('status', 'numerical', 'integerOnly'=>true),
-			array('site_id, category_id', 'length', 'max'=>20),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, site_id, category_id, status', 'safe', 'on'=>'search'),
-		);
+		return array();
 	}
 
 	/**
@@ -43,7 +47,6 @@ class SiteMediaCategory extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'mediaCategory' => array(self::HAS_ONE, 'MediaCategory', array('id' => 'category_id')),
 		);
 	}
 
@@ -53,10 +56,6 @@ class SiteMediaCategory extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'site_id' => 'Site',
-			'category_id' => 'Category',
-			'status' => 'Status',
 		);
 	}
 
@@ -76,12 +75,15 @@ class SiteMediaCategory extends CActiveRecord
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('site_id',$this->site_id,true);
-		$criteria->compare('category_id',$this->category_id,true);
-		$criteria->compare('status',$this->status);
+		// $criteria=new CDbCriteria;
+		// $criteria->compare('id',$this->id);
+		// $criteria->compare('user',$this->user,true);
+		// $criteria->compare('password',$this->password,true);
+		// $criteria->compare('name',$this->name,true);
+		// $criteria->compare('auth_id',$this->auth_id);
+		// $criteria->compare('group',$this->group);
+		// $criteria->compare('creat_time',$this->creat_time);
+		// $criteria->compare('active',$this->active);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -92,7 +94,7 @@ class SiteMediaCategory extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return SiteMediaCategory the static model class
+	 * @return User the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{

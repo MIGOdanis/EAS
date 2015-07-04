@@ -53,6 +53,7 @@ class Site extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'supplier' => array(self::HAS_ONE, 'Supplier', array('tos_id' => 'supplier_id')),
+			'category' => array(self::HAS_ONE, 'SiteMediaCategory', array('site_id' => 'tos_id')),
 			'adSpace' => array(self::HAS_MANY, 'AdSpace', array('site_id' => 'tos_id')),
 		);
 	}
