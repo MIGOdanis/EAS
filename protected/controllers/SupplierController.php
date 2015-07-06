@@ -214,7 +214,7 @@ class SupplierController extends Controller
 		$taxid = ($this->supplier->type == 1 || $this->supplier->type == 2)? "身分證字號" : "統一編號";
 		
 		$document->setValue('title_name', $titleName);
-		$document->setValue('name',  $this->supplier->invoice_name);
+		$document->setValue('name',  $this->supplier->invoice_name . "(" . $this->supplier->tos_id  . ")");
 		$document->setValue('y',  (date("Y",$monthOfAccount->value) - 1911));
 		$document->setValue('m',  date("m",$monthOfAccount->value));
 		$document->setValue('pay_y',  (date("Y") - 1911));

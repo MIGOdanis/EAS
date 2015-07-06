@@ -28,6 +28,7 @@ class RegisterSupplierController extends Controller
 			//print_r($_FILES); exit;
 			$time = time();
 			$model->attributes=$_POST['SupplierRegister'];
+			$model->name = $model->company_name;
 			$model->public_time = 0;
 			$model->create_time = time();
 			$model->check_time = 0;

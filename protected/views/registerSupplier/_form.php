@@ -45,17 +45,16 @@ $(function() {
 		<div class="panel-body">
 
 			<div class="form-group">
-
 				<label><?php echo $form->labelEx($model,'type'); ?></label>
 				<div><?php echo $form->dropDownList($model,'type',Yii::app()->params['supplierType']); ?></div>
 				<p class="text-danger"><?php echo $form->error($model,'type'); ?></p>
 			</div>
 
-			<div class="form-group">
-				<label><?php echo $form->labelEx($model,'name'); ?></label>
-				<?php echo $form->textField($model,'name',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"名稱")); ?>
-				<p class="text-danger"><?php echo $form->error($model,'name'); ?></p>
-			</div>	
+			<!-- <div class="form-group"> -->
+				<!-- <label><?php //echo $form->labelEx($model,'name'); ?></label> -->
+				<?php //echo $form->textField($model,'name',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"名稱")); ?>
+				<!-- <p class="text-danger"><?php //echo $form->error($model,'name'); ?></p> -->
+			<!-- </div>	 -->
 
 			<div class="form-group">
 				<label><?php echo $form->labelEx($model,'company_name'); ?></label>

@@ -64,6 +64,7 @@ $this->widget('zii.widgets.CDetailView', array(
 	'nullDisplay' => '未填寫',
 	'htmlOptions' => array('class'=>'table table-bordered'),
 	'attributes'=>array(
+		'invoice_name',
 		'account_name',
 		'account_number',
 		'bank_name',
