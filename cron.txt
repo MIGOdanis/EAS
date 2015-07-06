@@ -1,0 +1,7 @@
+30 3 1 * * root php /var/www/html/cron/cronCountMonies.php
+45 1 * * * root php /var/www/html/cron/cronSyncDailyReport.php
+30 8 * * * root php /var/www/html/cron/cronSyncSupplierData.php
+30 12 * * * root php /var/www/html/cron/cronSyncSupplierData.php
+30 17 * * * root php /var/www/html/cron/cronSyncSupplierData.php
+00 0 * * * root php /var/www/html/cron/cronSyncSupplierData.php
+

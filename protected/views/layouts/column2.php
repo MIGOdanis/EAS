@@ -11,10 +11,12 @@ $this->beginContent('/layouts/main');
 					foreach ($value['list'] as $listIndex => $list) {
 						$auth = json_decode($this->user->auth->auth,true);
 						$authIndex = array();
-						foreach ($auth[$navIndex] as $key => $authList) {
-							$authIndex[] = $key;
+						if(is_array($auth[$navIndex])){
+							foreach ($auth[$navIndex] as $key => $authList) {
+								$authIndex[] = $key;
+							}						
 						}
-						//print_r($auth[$navIndex]); exit;
+
 						if(Yii::app()->user->id && in_array($listIndex, $authIndex)){
 					?>
 						<a href="<?php echo Yii::app()->createUrl($list["url"]); ?>" class="list-group-item <?php if($this->id == $listIndex){?> disabled <?php }?>"><?php echo $list['title'];?></a>

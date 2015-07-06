@@ -35,6 +35,8 @@ class Controller extends CController
 			$this->redirect(array("login/index"));
 		}
 
+		// /print_r(Yii::app()->user->id); exit;
+
 		$auth = array();		
 		$this->beforeAction();
 		$ua = json_decode($this->user->auth->auth,true);
@@ -50,6 +52,9 @@ class Controller extends CController
 			$auth[] = "repassword";		
 		}
 
+		if (!is_array($auth)) {
+			throw new CHttpException(403,'The requested page does not exist.');
+		}
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
 				'actions'=> $auth,
@@ -262,6 +267,67 @@ class Controller extends CController
 			copy($image['tmp_name'],$upload_folder."/".$o_name); 
 		
 		return true;
+	}	
+
+	public function exportExcel($Report){
+		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
+
+		$reportName = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E86D4B'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+		$title = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E8BE93'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
+									 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A1:' . $Report['width']);
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', $Report['titleName']);
+		foreach($Report['title'] as $position => $row){
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle($position)->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue($position, $row);
+		}
+
+			if($Report['data'] !== null){
+				$r = 3;
+				foreach ($Report['data'] as $data) {
+					foreach ($data as $position => $value) {
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue($position . $r, $value);
+					}
+					$r++;
+				}
+			}else{
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', '沒有資料');
+			}
+
+
+	        $objPHPExcel->getActiveSheet()->setTitle($Report['name']);
+
+	        $objPHPExcel->setActiveSheetIndex(0);
+
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header('Content-Disposition: attachment;filename="'. $Report['fileName'] . date("Ymd-his") . '.xlsx"');
+			header('Cache-Control: max-age=0');
+			// If you're serving to IE 9, then the following may be needed
+			header('Cache-Control: max-age=1');
+			// If you're serving to IE over SSL, then the following may be needed
+			header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+			header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+			header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+			header ('Pragma: public'); // HTTP/1.0
+			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+			$objWriter->save('php://output');
 	}	
 
 }

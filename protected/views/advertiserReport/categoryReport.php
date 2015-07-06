@@ -86,10 +86,21 @@
 .filters td{
 	border-bottom-width: 1px !important;
 }	
-	
+.glyphicon-save-file{
+	font-size: 25px;
+	width: 30px;
+	height: 30px;
+	color: #7E7E7E  !important;
+}
+.filters a{
+	color: #7E7E7E;
+}
 </style>
 <div id="report">
 	<div id="filter">
+		<div class="filter-box">
+			<a id="export" href=""><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span></a>
+		</div>	
 		<div class="filter-box">
 			<div class="dropdown">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -200,6 +211,7 @@ $(function(){
 					Campaign_id : CampaignId
 				},
 				success:function(html){
+					$("#export").prop("href", this.url + "&export=1");
 					$('#display-supplier-report').html(html);
 					$('#loading-supplier-report').hide();
 					initLinkBtn();

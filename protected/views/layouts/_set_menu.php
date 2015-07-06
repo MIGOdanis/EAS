@@ -116,8 +116,6 @@ $this->nav = array(
 					"InvoiceView" => "檢視發票",
 				),
 			),
-
-			
 			"accountsStatus" => array(
 				"title" => "開關帳設定",
 				"url"=>"accountsStatus/admin",
@@ -127,5 +125,36 @@ $this->nav = array(
 			),						
 		)
 	),
+	"mediaReport" => array(
+		"title" => "供應商日報",
+		"url"=>"mediaReport/supplierReport",
+		"controllers" => array("mediaReport"),
+		"list" => array(
+			"mediaReport" => array(
+				"title" => "供應商日報",
+				"url"=>"mediaReport/supplierReport",
+				"action" => array(
+					"supplierReport" => "供應商日報表",
+					"siteReport" => "供應商網站日報表",
+					"adSpaceReport" => "供應商網站版位日報表",
+				),
+			)						
+		)
+	),
+	"advertiserReport" => array(
+		"title" => "訂單日報",
+		"url"=>"advertiserReport/categoryReport",
+		"controllers" => array("advertiserReport"),
+		"list" => array(
+			"advertiserReport" => array(
+				"title" => "訂單日報",
+				"url"=>"advertiserReport/categoryReport",
+				"action" => array(
+					"categoryReport" => "訂單類別報表",
+
+				),
+			)						
+		)
+	),	
 );
 ?>

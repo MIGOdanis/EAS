@@ -33,4 +33,35 @@ class LoginController extends Controller
 		Yii::app()->user->logout(false);
 		$this->redirect("index");
 	}
+
+	public function actionResetPassword()
+	{
+		$this->layout='column_list';
+		$err = false;
+		if(Yii::app()->user->id > 0)
+			$this->redirect(Yii::app()->homeUrl);
+
+		// collect user input data
+		if(isset($_POST['mail']))
+		{
+			$criteria = new CDbCriteria; 
+			$criteria->addCondition("user = :mail");		
+			$criteria->params = array(':mail'=>$_POST['mail']);	
+			$model = User::model()->find($criteria);
+			if($model !== null){
+				$passwd = rand(0,9).rand(0,9).rand(0,9).rand(0,9).rand(0,9).rand(0,9);
+				$model->password = $model->hashPassword($passwd);
+				if($model->save()){
+					$this->email($model->user, "CLICKFORCE 密碼更換通知", "您於" . date("Y-m-d H:i:s") . "申請更換密碼<br> 您的新密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>請使用您的新密碼登入</a><br> 若您無申請此變更請立即與我們連繫!");
+					$this->render('afterResetPassword');
+					Yii::app()->end();
+				}
+			}else{
+				$err = true;
+			}
+		}
+
+		// display the login form
+		$this->render('resetPassword',array('err'=>$err));	
+	}	
 }

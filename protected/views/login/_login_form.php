@@ -62,10 +62,11 @@ $(function(){
 	</div>
 
 	<div class="form-group login-button-group">
-		<div class="col-md-offset-4 col-md-8 col-sm-offset-4 col-sm-8 text-right">
+		<div class="text-right">
 			<label>
 				<?php echo $form->checkBox($model,'rememberMe'); ?> <?php echo $form->label($model,'rememberMe'); ?>
 			</label>
+			<a href="resetPassword" class="btn btn-warning">忘記密碼</a>
 			<button id="login-member" type="submit" class="btn btn-primary">會員登入</button>
 		</div>
 	</div>
