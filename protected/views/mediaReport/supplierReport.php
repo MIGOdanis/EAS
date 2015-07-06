@@ -71,5 +71,5 @@
 		$(function(){
 			getReport();
 		})		
-	<? }?>	
+	<?php }?>	
 </script>

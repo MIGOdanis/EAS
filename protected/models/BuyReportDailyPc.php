@@ -290,7 +290,7 @@ class BuyReportDailyPc extends CActiveRecord
 				'pageSize' => 150
 			),
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => 'settled_time DESC',
 			),			
 			'criteria'=>$criteria,
 		));

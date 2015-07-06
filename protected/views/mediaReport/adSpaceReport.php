@@ -88,5 +88,5 @@
 		$(function(){
 			getReport();
 		})		
-	<? }?>
+	<?php }?>
 </script>
