@@ -13,6 +13,8 @@ $checkCron = file_get_contents($baseUrl . "sync/syncAdvertisers", false, $ctx);
 //檢查未執行排程
 $checkCron = file_get_contents($baseUrl . "sync/syncCampaign", false, $ctx);
 //檢查未執行排程
+$checkCron = file_get_contents($baseUrl . "sync/syncCampaignBudget", false, $ctx);
+//檢查未執行排程
 $checkCron = file_get_contents($baseUrl . "sync/syncStrategy", false, $ctx);
 //檢查未執行排程
 $checkCron = file_get_contents($baseUrl . "sync/syncCreativeMaterial", false, $ctx);
