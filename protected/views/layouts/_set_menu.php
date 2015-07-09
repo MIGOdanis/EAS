@@ -140,11 +140,11 @@ $this->nav = array(
 				),
 			),
 			"advertiserReport" => array(
-				"title" => "訂單日報",
+				"title" => "廣告活動日報",
 				"url"=>"advertiserReport/categoryReport",
 				"action" => array(
-					"categoryReport" => "訂單媒體分類報表",
-					"campaignBannerReport" => "訂單總表"
+					"categoryReport" => "媒體分類報表",
+					"campaignBannerReport" => "廣告活動總表"
 
 				),					
 			)						

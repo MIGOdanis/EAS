@@ -157,9 +157,9 @@ class AdvertiserReportController extends Controller
 			);
 
 			$report = array(
-				"name" => "訂單素材總表",
-				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 訂單素材總表 查詢時間" . $day[0] . "~" . $day[1],
-				"fileName" => "訂單素材總表 查詢時間" . $day[0] . "~" . $day[1],
+				"name" => "廣告活動總表",
+				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 廣告活動總表 查詢時間" . $day[0] . "~" . $day[1],
+				"fileName" => "廣告活動總表 查詢時間" . $day[0] . "~" . $day[1],
 				"width" => "L1",
 				"title" => array(
 					"A2" => "日期",

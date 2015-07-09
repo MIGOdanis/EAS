@@ -52,7 +52,7 @@
 		<div class="dropList-box">
 		<?php
 			echo $this->renderPartial('_reportDropList',array(
-				'defReport'=>"訂單總表",
+				'defReport'=>"廣告活動總表",
 			));
 		?>
 		</div>
@@ -60,7 +60,7 @@
 </div>
 <div id="supplier-report">
 <div id="supplier-report">
-	<h3>訂單總表</h3>
+	<h3>廣告活動總表</h3>
 	<div id="loading-supplier-report">載入中..</div>
 	<div id="display-supplier-report">請操作條件!</div>
 </div>

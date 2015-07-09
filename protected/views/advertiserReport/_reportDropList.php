@@ -5,6 +5,6 @@
 	</button>
 	<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 		<li><a href="categoryReport">媒體分類報表</a></li>
-		<li><a href="campaignBannerReport">訂單總表</a></li>
+		<li><a href="campaignBannerReport">廣告活動總表</a></li>
 	</ul>
 </div>
