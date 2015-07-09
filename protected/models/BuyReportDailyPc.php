@@ -46,7 +46,7 @@ class BuyReportDailyPc extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('settled_time, sync_time', 'required'),
+			array('settled_time, sync_time,tos_id , report_type', 'required'),
 			array('settled_time, media_category_id, screen_pos, adformat, is_outside_tracking, sync_time', 'numerical', 'integerOnly'=>true),
 			array('campaign_id, ad_space_id, strategy_id, creative_id, pv, impression, impression_ten_sec, click, media_cost, media_tax_cost, media_ops_cost, income, income_ten_sec, agency_income', 'length', 'max'=>20),
 			array('width_height', 'length', 'max'=>255),
@@ -65,6 +65,9 @@ class BuyReportDailyPc extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'adSpace' => array(self::HAS_ONE, 'AdSpace', array('tos_id' => 'ad_space_id')),
+			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id')),
+			'strategy' => array(self::HAS_ONE, 'Strategy', array('tos_id' => 'strategy_id')),
+			'creative' => array(self::HAS_ONE, 'CreativeMaterial', array('tos_id' => 'creative_id')),	
 		);
 	}
 
@@ -154,7 +157,7 @@ class BuyReportDailyPc extends CActiveRecord
 		return $keySum;
 	}
 
-	public function addReportTime($criteria,$type)
+	public function addReportTime($criteria)
 	{
 		if(!isset($_GET) || $_GET['type'] == "yesterday"){
 			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
@@ -187,6 +190,8 @@ class BuyReportDailyPc extends CActiveRecord
 			}			
 
 		}
+
+		return $criteria;
 	}
 
 	//前台供應商查詢
@@ -226,42 +231,8 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.pv) as pv,
 			t.settled_time as time
 		';
-		// if(!isset($_GET) || $_GET['type'] == "today"){
-		// 	$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		// }
 
-		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
-		}
-
-		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		}
-
-		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
-			}			
-
-		}	
-
+		$criteria = $this->addReportTime($criteria);
 
 		$criteria->addInCondition("ad_space_id",$adSpacArray);
 
@@ -286,9 +257,7 @@ class BuyReportDailyPc extends CActiveRecord
 		
 		// print_r($adSpacArray); exit;
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 150
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 'settled_time DESC',
 			),			
@@ -299,22 +268,6 @@ class BuyReportDailyPc extends CActiveRecord
 	//後台查詢供應商
 	public function adminSupplierDailyReport($adSpacArray)
 	{
-		// if(isset($_GET['supplierId']) && $_GET['supplierId'] > 0){
-
-		// 	$criteria=new CDbCriteria;
-		// 	$criteria->addCondition("t.tos_id = '" . $_GET['supplierId'] . "'");	
-
-		// 	$supplier = Supplier::model()->with("site","site.adSpace")->find($criteria);
-		// 	$adSpacArray = array();	
-
-		// 	if($supplier !== null){
-		// 		foreach ($supplier->site as $site) {
-		// 			foreach ($site->adSpace as $value) {
-		// 				$adSpacArray[] = $value->tos_id;
-		// 			}
-		// 		}				
-		// 	}
-		// }
 
 		$criteria=new CDbCriteria;
 		$criteria->select = '
@@ -324,40 +277,9 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.pv) as pv,
 			t.settled_time as time
 		';
-		// if(!isset($_GET) || $_GET['type'] == "today"){
-		// 	$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		// }
 
-		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
-		}
 
-		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		}
-
-		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
-			}
-		}
+		$criteria = $this->addReportTime($criteria);
 
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
@@ -367,6 +289,8 @@ class BuyReportDailyPc extends CActiveRecord
 
 		$criteria->group = "supplier.tos_id";
 
+		//print_r($criteria); exit;
+
 		if(isset($_GET['export']) && $_GET['export'] == 1){
 			$criteria->order = 'impression DESC, click DESC';
 			return $this->findAll($criteria);
@@ -374,9 +298,7 @@ class BuyReportDailyPc extends CActiveRecord
 		
 		// print_r($adSpacArray); exit;
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 150
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 'impression DESC, click DESC',
 			),			
@@ -387,29 +309,6 @@ class BuyReportDailyPc extends CActiveRecord
 	//後台查詢供應商
 	public function adminSiteDailyReport($adSpacArray)
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-		// if( (isset($_GET['supplierId']) && $_GET['supplierId'] > 0) || (isset($_GET['siteId']) && $_GET['siteId'] > 0) ){
-
-		// 	$criteria=new CDbCriteria;
-
-		// 	if(isset($_GET['supplierId']) && $_GET['supplierId'] > 0)
-		// 		$criteria->addCondition("t.tos_id = '" . $_GET['supplierId'] . "'");	
-
-		// 	if(isset($_GET['siteId']) && $_GET['siteId'] > 0)
-		// 		$criteria->addCondition("site.tos_id = '" . $_GET['siteId'] . "'");	
-
-		// 	$supplier = Supplier::model()->with("site","site.adSpace")->find($criteria);
-		// 	$adSpacArray = array();	
-
-		// 	if($supplier !== null){
-		// 		foreach ($supplier->site as $site) {
-		// 			foreach ($site->adSpace as $value) {
-		// 				$adSpacArray[] = $value->tos_id;
-		// 			}
-		// 		}				
-		// 	}
-		// }
-
 		$criteria=new CDbCriteria;
 		$criteria->select = '
 			sum(t.media_cost) / 100000 as media_cost,
@@ -468,9 +367,7 @@ class BuyReportDailyPc extends CActiveRecord
 		
 		// print_r($adSpacArray); exit;
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 150
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 'impression DESC, click DESC',
 			),			
@@ -489,40 +386,8 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.pv) as pv,
 			t.settled_time as time
 		';
-		// if(!isset($_GET) || $_GET['type'] == "today"){
-		// 	$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		// }
 
-		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
-		}
-
-		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		}
-
-		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
-			}
-		}
+		$criteria = $this->addReportTime($criteria);
 
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
@@ -539,9 +404,7 @@ class BuyReportDailyPc extends CActiveRecord
 		
 		// print_r($adSpacArray); exit;
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 150
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 'impression DESC, click DESC',
 			),			
@@ -551,7 +414,7 @@ class BuyReportDailyPc extends CActiveRecord
 
 	//--------------Make Adv report--------------------
 
-	public function supplierCategoryReport()
+	public function supplierCategoryReport($campaignId)
 	{
 		$criteria=new CDbCriteria;
 		$criteria->select = '
@@ -560,35 +423,9 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.impression) as impression
 		';
 
-		if(!isset($_GET) || $_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		}
+		$criteria = $this->addReportTime($criteria);	
 
-		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
-			}			
-		}	
-
-
-		$criteria->addCondition("campaign_id = '" . $_GET['Campaign_id'] . "'");
+		$criteria->addCondition("campaign_id = '" . $campaignId . "'");
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory");
 
@@ -597,18 +434,53 @@ class BuyReportDailyPc extends CActiveRecord
 		// print_r($adSpacArray); exit;
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.impression DESC';
 			return $this->findAll($criteria);
 		}
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 100
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 't.impression DESC',
 			),			
 			'criteria'=>$criteria,
 		));
 	}
+
+	public function campaignBannerReport($campaignId)
+	{
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign","strategy","creative","creative.creativeGroup");
+
+		$criteria->group = "t.strategy_id, t.creative_id, category.category_id, t.settled_time"; 
+		
+		// print_r($adSpacArray); exit;
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC';
+			return $this->findAll($criteria);
+		}
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC',
+			),			
+			'criteria'=>$criteria,
+		));
+	}
+
+
+
 
 	/**
 	 * Returns the static model of the specified AR class.

@@ -6,6 +6,16 @@
 		background-color: #f8f8f8;
 		
 	}
+
+	@media (max-width: 1280px){
+/*		#filter{
+			height: 100px;
+		}*/
+		.id-input-group{
+			width: 120px !important;
+		}
+	}
+
 	#right-main{
 		padding-left: 0px;
 		padding-right: 0px;
@@ -110,5 +120,8 @@
 		color: #7E7E7E;
 	}
 	#right-main{
-		min-width: 1109px;
+		/*min-width: 1109px;*/
+	}
+	.sm-text{
+		font-size: 5px;
 	}

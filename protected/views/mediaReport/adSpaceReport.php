@@ -70,7 +70,7 @@
 		<div class="dropList-box">
 		<?php
 			echo $this->renderPartial('_reportDropList',array(
-				'defReport'=>"網站版位日報表",
+				'defReport'=>"版位日報表",
 			));
 		?>
 		</div>

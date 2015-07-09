@@ -170,15 +170,17 @@ class SyncController extends Controller
 		
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
+		$criteria->addCondition("settled_time <= '2015-07-01 00:00:00'");
 		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll($criteria);
-		// print_r($buyReportDailyPc); exit;
+		//print_r($lastTimeLog); exit;
 
 		
 		foreach ($buyReportDailyPc as $value) {
 			$lastTime = $value->settled_time;
 			$type = "update";
 			$criteria = new CDbCriteria;
-			$criteria->addCondition("id = " . $value->id);
+			$criteria->addCondition("tos_id = " . $value->id);
+			$criteria->addCondition("report_type = 1");
 			$model = BuyReportDailyPc::model()->find($criteria);
 			if($model === null){
 				$model = new BuyReportDailyPc();
@@ -208,7 +210,8 @@ class SyncController extends Controller
 
 	public function mappingBuyReportDailyPc($model,$tosPcBReport){
 
-		$model->id = $tosPcBReport->id;
+		$model->tos_id = $tosPcBReport->id;
+		$model->report_type = 1;
 		$model->settled_time = strtotime($tosPcBReport->settled_time);
 		$model->campaign_id = $tosPcBReport->campaign_id;
 		$model->ad_space_id = $tosPcBReport->ad_space_id;
@@ -230,7 +233,7 @@ class SyncController extends Controller
 		$model->agency_income = $tosPcBReport->agency_income;
 		$model->is_outside_tracking = $tosPcBReport->is_outside_tracking;
 		$model->sync_time = time();
-
+		
 		return $model;
 	}	
 
@@ -247,7 +250,9 @@ class SyncController extends Controller
 			$lastTime = $value->settled_time;
 			$type = "update";
 			$criteria = new CDbCriteria;
-			$criteria->addCondition("id = " . $value->id);
+			$criteria->addCondition("tos_id = " . $value->id);
+			$criteria->addCondition("report_type = 2");
+
 			$model = BuyReportDailyPc::model()->find($criteria);
 			if($model === null){
 				$model = new BuyReportDailyPc();
@@ -277,7 +282,8 @@ class SyncController extends Controller
 
 	public function mappingBuyReportDailyMob($model,$tosPcBReport){
 
-		$model->id = $tosPcBReport->id;
+		$model->tos_id = $tosPcBReport->id;
+		$model->report_type = 2;
 		$model->settled_time = strtotime($tosPcBReport->settled_time);
 		$model->campaign_id = $tosPcBReport->campaign_id;
 		$model->ad_space_id = $tosPcBReport->ad_space_id;
@@ -488,6 +494,386 @@ class SyncController extends Controller
 			}
 		}
 		$this->saveLog("lastSyncOldSupplier",time());
+	}
+
+	public function actionSyncAdvertisers()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncAdvertisers");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreAdvertisers = TosCoreAdvertisers::model()->findAll($criteria);
+		foreach ($tosCoreAdvertisers as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = Advertisers::model()->find($criteria);
+			if($model === null){
+				$model = new Advertisers();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingAdvertisers($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncAdvertisers/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncAdvertisers/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncAdvertisers",time());
+	}
+
+	public function mappingAdvertisers($model,$tosCoreAdvertisers){
+		$model->tos_id = $tosCoreAdvertisers->id;
+		$model->advertiser_name = $tosCoreAdvertisers->advertiser_name;
+		$model->short_name = $tosCoreAdvertisers->short_name;
+		$model->site_url = $tosCoreAdvertisers->site_url;
+		$model->industry_id = $tosCoreAdvertisers->industry_id;
+		$model->account_id = $tosCoreAdvertisers->account_id;
+		$model->default_minisite_id = $tosCoreAdvertisers->default_minisite_id;
+		$model->category = $tosCoreAdvertisers->category;
+		$model->remark = $tosCoreAdvertisers->remark;
+		$model->organization_code = $tosCoreAdvertisers->organization_code;
+		$model->source = $tosCoreAdvertisers->source;
+		$model->audit_status = $tosCoreAdvertisers->audit_status;
+		$model->status = $tosCoreAdvertisers->status;
+		$model->adv_rate = $tosCoreAdvertisers->adv_rate;
+		$model->submit_status = $tosCoreAdvertisers->submit_status;
+		$model->pre_status = $tosCoreAdvertisers->pre_status;
+		$model->standard_id = $tosCoreAdvertisers->standard_id;
+		$model->advertiser_type = $tosCoreAdvertisers->advertiser_type;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+	public function actionSyncCampaign()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncCampaign");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreCampaign = TosCoreCampaign::model()->findAll($criteria);
+		foreach ($tosCoreCampaign as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = Campaign::model()->find($criteria);
+			if($model === null){
+				$model = new Campaign();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingCampaign($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCampaign/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCampaign/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncCampaign",time());
+	}
+
+	public function mappingCampaign($model,$tosCoreCampaign){
+		$model->tos_id = $tosCoreCampaign->id;
+		$model->campaign_name =  $tosCoreCampaign->campaign_name;
+		$model->advertiser_id =  $tosCoreCampaign->advertiser_id;
+		$model->account_id =  $tosCoreCampaign->account_id;
+		$model->industry_id =  $tosCoreCampaign->industry_id;
+		$model->site_id =  $tosCoreCampaign->site_id;
+		$model->start_time =  strtotime($tosCoreCampaign->start_time);
+		$model->end_time =  strtotime($tosCoreCampaign->end_time);
+		$model->remark =  $tosCoreCampaign->remark;
+		$model->adv_feature =  $tosCoreCampaign->adv_feature;
+		$model->source =  $tosCoreCampaign->source;
+		$model->status =  $tosCoreCampaign->status;
+		$model->adv_rate =  $tosCoreCampaign->adv_rate;
+		$model->brand_id =  $tosCoreCampaign->brand_id;
+		$model->product_id =  $tosCoreCampaign->product_id;
+		$model->brief_id =  $tosCoreCampaign->brief_id;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+	public function actionSyncCampaignBudget()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncCampaignBudget");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreCampaignBudget = TosCoreCampaignBudget::model()->findAll($criteria);
+
+		foreach ($tosCoreCampaignBudget as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = CampaignBudget::model()->find($criteria);
+			if($model === null){
+				$model = new CampaignBudget();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingCampaignBudget($model,$value);
+			if(!$model->save()){
+
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCampaignBudget/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCampaignBudget/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncCampaignBudget",time());
+	}
+
+	public function mappingCampaignBudget($model,$tosCoreCampaignBudget){
+		$model->tos_id = $tosCoreCampaignBudget->id;
+		$model->campaign_id = $tosCoreCampaignBudget->campaign_id;
+		$model->total_budget = $tosCoreCampaignBudget->total_budget;
+		$model->max_daily_budget = $tosCoreCampaignBudget->max_daily_budget;
+		$model->total_pv = $tosCoreCampaignBudget->total_pv;
+		$model->max_daily_pv = $tosCoreCampaignBudget->max_daily_pv;
+		$model->total_click = $tosCoreCampaignBudget->total_click;
+		$model->max_daily_click = $tosCoreCampaignBudget->max_daily_click;
+		$model->total_viewable = $tosCoreCampaignBudget->total_viewable;
+		$model->max_daily_viewable = $tosCoreCampaignBudget->max_daily_viewable;
+		$model->status = $tosCoreCampaignBudget->status;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+	public function actionSyncStrategy()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncStrategy");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreStrategy = TosCoreStrategy::model()->findAll($criteria);
+
+		foreach ($tosCoreStrategy as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = Strategy::model()->find($criteria);
+			if($model === null){
+				$model = new Strategy();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingStrategy($model,$value);
+			if(!$model->save()){
+				
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncStrategy/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncStrategy/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncStrategy",time());
+	}
+
+	public function mappingStrategy($model,$tosCoreStrategy){
+		$model->tos_id = $tosCoreStrategy->id;
+		$model->strategy_name = $tosCoreStrategy->strategy_name;
+		$model->strategy_type = $tosCoreStrategy->strategy_type;
+		$model->medium = $tosCoreStrategy->medium;
+		$model->campaign_id = $tosCoreStrategy->campaign_id;
+		$model->tags = $tosCoreStrategy->tags;
+		$model->buy_mode = $tosCoreStrategy->buy_mode;
+		$model->bidding_type = $tosCoreStrategy->bidding_type;
+		$model->bidding_price = $tosCoreStrategy->bidding_price;
+		$model->kpi_type = $tosCoreStrategy->kpi_type;
+		$model->kpi_value = $tosCoreStrategy->kpi_value;
+		$model->sec_kpi_type = $tosCoreStrategy->sec_kpi_type;
+		$model->sec_kpi_value = $tosCoreStrategy->sec_kpi_value;
+		$model->charge_type = $tosCoreStrategy->charge_type;
+		$model->priority = $tosCoreStrategy->priority;
+		$model->weight = $tosCoreStrategy->weight;
+		$model->pacing_type = $tosCoreStrategy->pacing_type;
+		$model->charge_price = $tosCoreStrategy->charge_price;
+		$model->imp_tracking = $tosCoreStrategy->imp_tracking;
+		$model->status = $tosCoreStrategy->status;
+		$model->creative_tag = $tosCoreStrategy->creative_tag;
+		$model->start_time = strtotime($tosCoreStrategy->start_time);
+		$model->end_time = strtotime($tosCoreStrategy->end_time);
+		$model->adv_feature = $tosCoreStrategy->adv_feature;
+		$model->ops_rate = $tosCoreStrategy->ops_rate;
+		$model->account_id = $tosCoreStrategy->account_id;
+		$model->range_type = $tosCoreStrategy->range_type;
+		$model->range_price = $tosCoreStrategy->range_price;
+		$model->bidding_strategy = $tosCoreStrategy->bidding_strategy;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+	public function actionSyncCreativeMaterial()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncCreativeMaterial");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreCreativeMaterial = TosCoreCreativeMaterial::model()->findAll($criteria);
+
+		foreach ($tosCoreCreativeMaterial as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = CreativeMaterial::model()->find($criteria);
+			if($model === null){
+				$model = new CreativeMaterial();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingCreativeMaterial($model,$value);
+			if(!$model->save()){
+				
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCreativeMaterial/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCreativeMaterial/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncCreativeMaterial",time());
+	}
+
+	public function mappingCreativeMaterial($model,$tosCoreCreativeMaterial){
+		$model->tos_id = $tosCoreCreativeMaterial->id;
+		$model->name = $tosCoreCreativeMaterial->name;
+		$model->creative_group_id = $tosCoreCreativeMaterial->creative_group_id;
+		$model->campaign_id = $tosCoreCreativeMaterial->campaign_id;
+		$model->account_id = $tosCoreCreativeMaterial->account_id;
+		$model->adv_feature = $tosCoreCreativeMaterial->adv_feature;
+		$model->size_id = $tosCoreCreativeMaterial->size_id;
+		$model->width = $tosCoreCreativeMaterial->width;
+		$model->height = $tosCoreCreativeMaterial->height;
+		$model->material_format = $tosCoreCreativeMaterial->material_format;
+		$model->play_time = $tosCoreCreativeMaterial->play_time;
+		$model->status = $tosCoreCreativeMaterial->status;
+		$model->category = $tosCoreCreativeMaterial->category;
+		$model->material_url = $tosCoreCreativeMaterial->material_url;
+		$model->material_content = $tosCoreCreativeMaterial->material_content;
+		$model->material_type = $tosCoreCreativeMaterial->material_type;
+		$model->size = $tosCoreCreativeMaterial->size;
+		$model->is_mraid = $tosCoreCreativeMaterial->is_mraid;
+		$model->sync_time = time();
+
+		return $model;
+	}
+
+	public function actionSyncCreativeGroups()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		// $lastTimeLog = Log::model()->getValByName("lastSyncCreativeGroups");
+
+		// $criteria = new CDbCriteria;
+		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$tosCoreCreativeGroups = TosCoreCreativeGroups::model()->findAll($criteria);
+
+		foreach ($tosCoreCreativeGroups as $value) {
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$model = CreativeGroups::model()->find($criteria);
+			if($model === null){
+				$model = new CreativeGroups();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingCreativeGroups($model,$value);
+			if(!$model->save()){
+				
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCreativeGroups/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncCreativeGroups/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+		$this->saveLog("lastSyncCreativeGroups",time());
+	}
+
+	public function mappingCreativeGroups($model,$tosCoreCreativeGroups){
+		$model->tos_id = $tosCoreCreativeGroups->id;
+		$model->name = $tosCoreCreativeGroups->name;
+		$model->medium = $tosCoreCreativeGroups->medium;
+		$model->campaign_id = $tosCoreCreativeGroups->campaign_id;
+		$model->account_id = $tosCoreCreativeGroups->account_id;
+		$model->ad_format = $tosCoreCreativeGroups->ad_format;
+		$model->targeting_url = $tosCoreCreativeGroups->targeting_url;
+		$model->click_tracking = $tosCoreCreativeGroups->click_tracking;
+		$model->content_type_id = $tosCoreCreativeGroups->content_type_id;
+		$model->template_id = $tosCoreCreativeGroups->template_id;
+		$model->adv_feature = $tosCoreCreativeGroups->adv_feature;
+		$model->status = $tosCoreCreativeGroups->status;
+		$model->material_delivery = $tosCoreCreativeGroups->material_delivery;
+		$model->creative_concept_id = $tosCoreCreativeGroups->creative_concept_id;
+		$model->is_default = $tosCoreCreativeGroups->is_default;
+		$model->source = $tosCoreCreativeGroups->source;
+		$model->channel_type = $tosCoreCreativeGroups->channel_type;
+		$model->media_terminal = $tosCoreCreativeGroups->media_terminal;
+		$model->sync_time = time();
+
+		return $model;
 	}
 
 }

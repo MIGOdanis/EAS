@@ -61,7 +61,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(
 		array(
 			'name' => "adSpace.id",
-			'header' => "網站編號",
+			'header' => "版位編號",
 			'value'=>'$data->adSpace->tos_id',
 			'htmlOptions'=>array('width'=>'80','class'=>'day'),
 			'filter'=>false,
@@ -69,7 +69,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		),
 		array(
 			'name' => "adSpace.id",
-			'header' => "網站",
+			'header' => "版位",
 			'value'=>'$data->adSpace->name',
 			'htmlOptions'=>array('width'=>'250','class'=>'name'),
 			'filter'=>false,

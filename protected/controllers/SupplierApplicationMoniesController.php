@@ -137,6 +137,7 @@ class SupplierApplicationMoniesController extends Controller
 			$criteria = new CDbCriteria;
 			$criteria->addCondition("year = " . $_GET['year']);
 			$criteria->addCondition("month = " . $_GET['month']);
+			$criteria->order = "supplier.tos_id DESC";
 			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->with("supplier","site","adSpace")->findAll($criteria);
 
 			//print_r($supplierMoniesMonthly); exit;

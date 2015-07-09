@@ -52,7 +52,7 @@
 		<div class="dropList-box">
 		<?php
 			echo $this->renderPartial('_reportDropList',array(
-				'defReport'=>"媒體分類報表",
+				'defReport'=>"訂單總表",
 			));
 		?>
 		</div>
@@ -60,13 +60,13 @@
 </div>
 <div id="supplier-report">
 <div id="supplier-report">
-	<h3>媒體分類報表</h3>
+	<h3>訂單總表</h3>
 	<div id="loading-supplier-report">載入中..</div>
 	<div id="display-supplier-report">請操作條件!</div>
 </div>
 </div>
 <script>
-	var reportUrl = 'categoryReport';
+	var reportUrl = 'campaignBannerReport';
 	<?php if((isset($_GET['Campaign_id']) && $_GET['Campaign_id'] > 0)){ ?>
 		var type = "<?php echo $_GET['type']?>";
 		$(function(){

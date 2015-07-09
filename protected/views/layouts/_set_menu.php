@@ -126,9 +126,9 @@ $this->nav = array(
 		)
 	),
 	"mediaReport" => array(
-		"title" => "供應商日報",
+		"title" => "報表查詢",
 		"url"=>"mediaReport/supplierReport",
-		"controllers" => array("mediaReport"),
+		"controllers" => array("mediaReport","advertiserReport"),
 		"list" => array(
 			"mediaReport" => array(
 				"title" => "供應商日報",
@@ -138,21 +138,15 @@ $this->nav = array(
 					"siteReport" => "供應商網站日報表",
 					"adSpaceReport" => "供應商網站版位日報表",
 				),
-			)						
-		)
-	),
-	"advertiserReport" => array(
-		"title" => "訂單日報",
-		"url"=>"advertiserReport/categoryReport",
-		"controllers" => array("advertiserReport"),
-		"list" => array(
+			),
 			"advertiserReport" => array(
 				"title" => "訂單日報",
 				"url"=>"advertiserReport/categoryReport",
 				"action" => array(
-					"categoryReport" => "訂單類別報表",
+					"categoryReport" => "訂單媒體分類報表",
+					"campaignBannerReport" => "訂單總表"
 
-				),
+				),					
 			)						
 		)
 	),	

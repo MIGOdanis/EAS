@@ -4,8 +4,7 @@
 		<span class="caret"></span>
 	</button>
 	<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-		<li><a href="supplierReport">供應商日報表</a></li>
-		<li><a href="siteReport">網站日報表</a></li>
-		<li><a href="adSpaceReport">版位日報表</a></li>
+		<li><a href="categoryReport">媒體分類報表</a></li>
+		<li><a href="campaignBannerReport">訂單總表</a></li>
 	</ul>
 </div>

@@ -27,6 +27,11 @@ class MediaReportController extends Controller
 			$model = BuyReportDailyPc::model()->adminSupplierDailyReport($adSpacArray['adSpacArray']);
 
 			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$media_cost = 0;
+
 			foreach ($model as $value) {
 				$data[] = array(
 					"A" => $value->adSpace->site->supplier->name,
@@ -37,7 +42,21 @@ class MediaReportController extends Controller
 					"F" => (($value->impression > 0) ? number_format(($value->media_cost / $value->impression) * 1000, 2, "." ,"") : 0),
 					"G" => (($value->click > 0) ? number_format(($value->media_cost / $value->click), 2, "." ,"") : 0),
 				);
+				$impression += $value->impression;
+				$click += $value->click;
+				$media_cost += $value->media_cost;
+
 			}
+
+			$data[] = array(
+				"A" => "合計",
+				"B" => number_format($impression, 0, "." ,""),
+				"C" => number_format($click, 0, "." ,""),
+				"D" => (($impression > 0) ? round(($click / $impression) * 100, 2) : 0) . "%",
+				"E" => number_format($media_cost, 2, "." ,""),
+				"F" => (($impression > 0) ? number_format(($media_cost / $impression) * 1000, 2, "." ,"") : 0),
+				"G" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
+			);			
 
 			$report = array(
 				"name" => "供應商日報表",
@@ -86,9 +105,13 @@ class MediaReportController extends Controller
 		if(isset($_GET['export']) && $_GET['export'] == 1){
 			$adSpacArray = $this->getSpaceArray();
 			$day = $this->getDay();			
-			$model = BuyReportDailyPc::model()->adminSupplierDailyReport($adSpacArray['adSpacArray']);
+			$model = BuyReportDailyPc::model()->adminSiteDailyReport($adSpacArray['adSpacArray']);
 
 			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$media_cost = 0;
 			foreach ($model as $value) {
 				$data[] = array(
 					"A" => $value->adSpace->site->name,
@@ -99,7 +122,21 @@ class MediaReportController extends Controller
 					"F" => (($value->impression > 0) ? number_format(($value->media_cost / $value->impression) * 1000, 2, "." ,"") : 0),
 					"G" => (($value->click > 0) ? number_format(($value->media_cost / $value->click), 2, "." ,"") : 0),
 				);
+				$impression += $value->impression;
+				$click += $value->click;
+				$media_cost += $value->media_cost;
+
 			}
+
+			$data[] = array(
+				"A" => "合計",
+				"B" => number_format($impression, 0, "." ,""),
+				"C" => number_format($click, 0, "." ,""),
+				"D" => (($impression > 0) ? round(($click / $impression) * 100, 2) : 0) . "%",
+				"E" => number_format($media_cost, 2, "." ,""),
+				"F" => (($impression > 0) ? number_format(($media_cost / $impression) * 1000, 2, "." ,"") : 0),
+				"G" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
+			);
 
 			$report = array(
 				"name" => "供應商網站日報表",
@@ -149,9 +186,13 @@ class MediaReportController extends Controller
 		if(isset($_GET['export']) && $_GET['export'] == 1){
 			$adSpacArray = $this->getSpaceArray();
 			$day = $this->getDay();					
-			$model = BuyReportDailyPc::model()->adminSupplierDailyReport($adSpacArray['adSpacArray']);
+			$model = BuyReportDailyPc::model()->adminAdSpaceDailyReport($adSpacArray['adSpacArray']);
 
 			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$media_cost = 0;			
 			foreach ($model as $value) {
 				$data[] = array(
 					"A" => $value->adSpace->name,
@@ -162,7 +203,21 @@ class MediaReportController extends Controller
 					"F" => (($value->impression > 0) ? number_format(($value->media_cost / $value->impression) * 1000, 2, "." ,"") : 0),
 					"G" => (($value->click > 0) ? number_format(($value->media_cost / $value->click), 2, "." ,"") : 0),
 				);
+				$impression += $value->impression;
+				$click += $value->click;
+				$media_cost += $value->media_cost;
+
 			}
+
+			$data[] = array(
+				"A" => "合計",
+				"B" => number_format($impression, 0, "." ,""),
+				"C" => number_format($click, 0, "." ,""),
+				"D" => (($impression > 0) ? round(($click / $impression) * 100, 2) : 0) . "%",
+				"E" => number_format($media_cost, 2, "." ,""),
+				"F" => (($impression > 0) ? number_format(($media_cost / $impression) * 1000, 2, "." ,"") : 0),
+				"G" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
+			);
 
 			$report = array(
 				"name" => "供應商網站日報表",
@@ -207,27 +262,6 @@ class MediaReportController extends Controller
 		$this->render('adSpaceReport');
 	}
 
-	// 報表資料陣列格式
-	// array(
-	// 	"name" => "報表名稱",
-	// "titleName" => "訂單類別報表 查詢時間" . $day[0] . "~" . $day[1],
-	// "fileName" => "訂單類別報表 查詢時間" . $day[0] . "~" . $day[1],
-	// 	"width" => "B1",
-	// 	"title" => array(
-	// 		"A1" => "標題",
-	// 		"B1" => "標題",
-	// 	),
-	// 	"data" => array(
-	// 		array(
-	// 			"A" => "內容",
-	// 			"B" => "內容",
-	// 		),
-	// 		array(
-	// 			"A" => "內容",
-	// 			"B" => "內容",
-	// 		),
-	// 	)
-	// )
 	public function getSpaceArray(){
 		$adSpacArray = array();	
 		if( (isset($_GET['supplierId']) && !empty($_GET['supplierId'])) || (isset($_GET['siteId']) && !empty($_GET['siteId']))  || (isset($_GET['adSpaceId']) && $_GET['adSpaceId'] > 0) ){
@@ -256,47 +290,4 @@ class MediaReportController extends Controller
 
 		return array("adSpacArray" => $adSpacArray, "supplier" => $supplier);		
 	}
-	public function getDay(){
-
-		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$startDay = date("Y-m-d",strtotime('-1 day'));
-			$endDay = date("Y-m-d",strtotime('-1 day')); 
-		}
-
-
-		if($_GET['type'] == "7day"){
-			$startDay = date("Y-m-d",strtotime('-7 day'));
-			$endDay = date("Y-m-d"); 
-		}
-
-		if($_GET['type'] == "30day"){
-			$startDay = date("Y-m-d",strtotime('-30 day'));
-			$endDay = date("Y-m-d"); 			
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$startDay = date("Y-m-01",strtotime("-1 Months"));
-			$endDay = date("Y-m-t",strtotime("-1 Months")); 			
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$startDay = date("Y-m-01");
-			$endDay = date("Y-m-t"); 	
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$startDay = date("Y-m-d",strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$endDay = date("Y-m-d",strtotime($_GET['endDay'] . "00:00:00"));
-			}			
-		}
-
-		return array($startDay,$endDay);
-	}
-
-	
-
-
 }

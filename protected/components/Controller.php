@@ -294,6 +294,7 @@ class Controller extends CController
 
 		$objPHPExcel->getActiveSheet()->mergeCells('A1:' . $Report['width']);
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', $Report['titleName']);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
 		foreach($Report['title'] as $position => $row){
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle($position)->applyFromArray($title);
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue($position, $row);
@@ -307,6 +308,9 @@ class Controller extends CController
 					}
 					$r++;
 				}
+				$r++;
+				$objPHPExcel->getActiveSheet()->mergeCells('A' . $r .':D' . $r);
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A" . $r, "報表時間 :" . date("Y-m-d H:i:s"));
 			}else{
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', '沒有資料');
 			}
@@ -329,5 +333,45 @@ class Controller extends CController
 			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 			$objWriter->save('php://output');
 	}	
+
+	public function getDay(){
+
+		if(!isset($_GET) || $_GET['type'] == "yesterday"){
+			$startDay = date("Y-m-d",strtotime('-1 day'));
+			$endDay = date("Y-m-d",strtotime('-1 day')); 
+		}
+
+
+		if($_GET['type'] == "7day"){
+			$startDay = date("Y-m-d",strtotime('-7 day'));
+			$endDay = date("Y-m-d"); 
+		}
+
+		if($_GET['type'] == "30day"){
+			$startDay = date("Y-m-d",strtotime('-30 day'));
+			$endDay = date("Y-m-d"); 			
+		}
+
+		if($_GET['type'] == "pastMonth"){
+			$startDay = date("Y-m-01",strtotime("-1 Months"));
+			$endDay = date("Y-m-t",strtotime("-1 Months")); 			
+		}
+
+		if($_GET['type'] == "thisMonth"){
+			$startDay = date("Y-m-01");
+			$endDay = date("Y-m-t"); 	
+		}	
+
+		if($_GET['type'] == "custom"){
+			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
+				$startDay = date("Y-m-d",strtotime($_GET['startDay'] . "00:00:00"));
+			}
+			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
+				$endDay = date("Y-m-d",strtotime($_GET['endDay'] . "00:00:00"));
+			}			
+		}
+
+		return array($startDay,$endDay);
+	}
 
 }

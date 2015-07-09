@@ -61,7 +61,7 @@
 		<div class="dropList-box">
 		<?php
 			echo $this->renderPartial('_reportDropList',array(
-				'defReport'=>"供應商網站日報表",
+				'defReport'=>"網站日報表",
 			));
 		?>
 		</div>

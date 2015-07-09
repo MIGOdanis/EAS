@@ -40,20 +40,27 @@
 							<?php 
 							if(isset($this->user->auth->auth) && !empty($this->user->auth->auth)){
 								$naviArray = array();
-								foreach (json_decode($this->user->auth->auth,true) as $key => $value) {
+								$authFristList = array();
+								$authDecode = json_decode($this->user->auth->auth,true);
+								foreach ($authDecode as $key => $value) {
 									$naviArray[] = $key;
+									$fristKey = array_keys($value);
+									//print_r($fristKey); exit;
+									$authFristList[$key] = array_shift($fristKey);
 								}
 
 								foreach ($this->nav as $navIndex => $value) { 
 									if(Yii::app()->user->id && in_array($navIndex, $naviArray)){
 								?>
-									<li <?php if(in_array($this->id, $value['controllers'])){?>  class="active" <?php } ?>><a href="<?php echo Yii::app()->createUrl($value["url"]); ?>"><?php echo $value['title'];?></a></li>
+									<li <?php if(in_array($this->id, $value['controllers'])){?>  class="active" <?php } ?>>
+									<a href="<?php echo Yii::app()->createUrl($value['list'][$authFristList[$navIndex]]['url']); ?>">
+									<?php echo $value['title'];?>
+									</a>
+									</li>
 								<?php 
 									}
 								}
 							}?>
-
-							<?php //print_r($this->nav);?>
 							</li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">

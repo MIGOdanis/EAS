@@ -252,6 +252,7 @@ class SupplierApplicationListController extends Controller
 			$criteria = new CDbCriteria;
 			$criteria->addCondition("year = " . $_GET['year']);
 			$criteria->addCondition("month = " . $_GET['month']);
+			$criteria->order = "supplier.tos_id DESC";
 			$SupplierApplicationLog = SupplierApplicationLog::model()->with("supplier")->findAll($criteria);
 
 			// print_r($SupplierApplicationLog); exit;
