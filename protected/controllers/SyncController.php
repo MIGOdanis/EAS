@@ -170,7 +170,6 @@ class SyncController extends Controller
 		
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
-		$criteria->addCondition("settled_time <= '2015-07-01 00:00:00'");
 		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll($criteria);
 		//print_r($lastTimeLog); exit;
 

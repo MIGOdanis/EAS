@@ -30,6 +30,11 @@
 class BuyReportDailyPc extends CActiveRecord
 {
 	public $media_cost_count; 
+
+public $click_sum;
+public $impression_sum;
+public $income_sum;
+public $temp_income_sum;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -68,6 +73,7 @@ class BuyReportDailyPc extends CActiveRecord
 			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id')),
 			'strategy' => array(self::HAS_ONE, 'Strategy', array('tos_id' => 'strategy_id')),
 			'creative' => array(self::HAS_ONE, 'CreativeMaterial', array('tos_id' => 'creative_id')),	
+			'budget' => array(self::HAS_ONE, 'CampaignBudget', array('campaign_id' => 'campaign_id')),	
 		);
 	}
 
@@ -479,7 +485,54 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+	//經銷對帳
+	public function advertiserAccountsReport()
+	{
+		set_time_limit(0);
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income_sum,
+			sum(t.click) as click_sum,
+			sum(t.impression) as impression_sum,
+			t.*
+		';
 
+		$criteria = $this->addReportTime($criteria);
+
+		// $criteria->with = array("budget");
+
+		$criteria->group = "t.campaign_id"; 
+		
+		// print_r($adSpacArray); exit;
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.campaign_id DESC';
+			return $this->findAll($criteria);
+		}
+
+
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.campaign_id DESC',
+			),			
+			'criteria'=>$criteria,
+		));
+	}
+
+	//經銷對帳
+	public function getCampaignAllIncome($campaign_id)
+	{
+		//print_r($campaign_id); exit;
+		set_time_limit(0);
+		$criteria=new CDbCriteria;
+		$criteria->select = 'sum(t.income) / 100000 as income_sum';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$model = $this->find($criteria);
+		$this->temp_income_sum = $model->income_sum;
+		return $this->temp_income_sum;
+		
+	}
 
 
 	/**

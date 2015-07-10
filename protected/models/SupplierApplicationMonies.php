@@ -131,9 +131,7 @@ class SupplierApplicationMonies extends CActiveRecord
 		 t.update_time as update_time';
 
 		return new CActiveDataProvider($this, array(
-			'pagination' => array(
-				'pageSize' => 50
-			),
+			'pagination' => false,
 			'sort' => array(
 				'defaultOrder' => 'count_monies DESC',
 			),

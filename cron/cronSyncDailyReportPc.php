@@ -9,4 +9,4 @@ $ctx = stream_context_create(array('http'=>
 ));
 
 //檢查未執行排程
-$checkCron = file_get_contents($baseUrl . "sync/syncBuyReportDailyMob", false, $ctx);
+$checkCron = file_get_contents($baseUrl . "sync/syncBuyReportDailyPc", false, $ctx);
