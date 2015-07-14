@@ -292,6 +292,8 @@ public $temp_advertiser_invoice_sum;
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
 
+		$criteria->addCondition("supplier.tos_id IS NOT NULL");
+
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
 		$criteria->group = "supplier.tos_id";
@@ -324,44 +326,14 @@ public $temp_advertiser_invoice_sum;
 			sum(t.pv) as pv,
 			t.settled_time as time
 		';
-		// if(!isset($_GET) || $_GET['type'] == "today"){
-		// 	$criteria->addCondition("settled_time > " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		// }
 
-		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
-		}
-
-		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
-		}
-
-		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
-		}
-
-		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
-		}
-
-		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
-		}	
-
-		if($_GET['type'] == "custom"){
-			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
-			}
-			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
-			}
-		}
+		$criteria = $this->addReportTime($criteria);
 
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
+
+		$criteria->addCondition("site.tos_id IS NOT NULL");
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
@@ -400,6 +372,8 @@ public $temp_advertiser_invoice_sum;
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
 
+		$criteria->addCondition("adSpace.tos_id IS NOT NULL");
+
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
 		$criteria->group = "adSpace.tos_id";
@@ -434,6 +408,8 @@ public $temp_advertiser_invoice_sum;
 
 		$criteria->addCondition("campaign_id = '" . $campaignId . "'");
 
+		$criteria->addCondition("category.id IS NOT NULL");
+
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory");
 
 		$criteria->group = "category.category_id";
@@ -466,6 +442,8 @@ public $temp_advertiser_invoice_sum;
 		$criteria = $this->addReportTime($criteria);
 
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign","strategy","creative","creative.creativeGroup");
 
@@ -509,6 +487,8 @@ public $temp_advertiser_invoice_sum;
 
 		if(isset($_GET['active']) && ($_GET['active'] > 0))
 			$criteria->addCondition("campaign.active = " . ((int)$_GET['active'] - 1));
+
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
 		
 		$criteria->with = array("campaign");
 
