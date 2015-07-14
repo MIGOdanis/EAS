@@ -145,7 +145,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'name' => "campaign.advertiser.tos_id",
 			'header' => "<div class='topItem'>統一編號</div>發票抬頭",
 			'type' => "raw",
-			'value'=>'"<div class=\'topItem\'>" .  "-" ."</div>" . $data->campaign->advertiser->short_name',
+			'value'=>'"<div class=\'topItem\'>" .  "-" ."</div>" . $data->campaign->advertiser->advertiser_name',
 			// 'htmlOptions'=>array('width'=>'120'),
 			'filter'=>false,
 		),						

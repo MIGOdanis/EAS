@@ -34,9 +34,9 @@ $this->widget('zii.widgets.CDetailView', array(
 			'value' => $types[$model->type],
 		),	
 		array(
-			'name' => '營利登記證 / 身份證 / 護照',
+			'name' => '身份證 / 護照',
 			'type' => 'raw',
-			'value' => (empty($model->certificate_image)) ? "無資料" : '<img src="' . Yii::app()->params['baseUrl'] . "/upload/registerSupplier/" . $model->certificate_image . '" alt="certificate_image" class="img-thumbnail">',
+			'value' => (empty($model->certificate_image) || ($model->type == 1 && $model->type == 2)) ? "無資料" : '<img src="' . Yii::app()->params['baseUrl'] . "/upload/registerSupplier/" . $model->certificate_image . '" alt="certificate_image" class="img-thumbnail">',
 		),			
 		array(
 			'name' => '資料建立時間',

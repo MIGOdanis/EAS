@@ -482,8 +482,21 @@ public $temp_advertiser_invoice_sum;
 		if(isset($_GET['CampaignId']) && ($_GET['CampaignId'] > 0))
 			$criteria->addCondition("t.campaign_id = '" . $_GET['CampaignId'] . "'");
 
-		if(isset($_GET['creater']) && ($_GET['creater'] > 0))
-			$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");
+		if(isset($_GET['creater']) && ($_GET['creater'] > 0)){
+			$createrCriteria=new CDbCriteria;
+			$createrCriteria->addCondition("id = '" . $_GET['creater'] . "' OR parent_id = '" . $_GET['creater'] . "'");
+			$creater = TosUpmUser::model()->findAll($createrCriteria);
+			$createrArray = array();
+			foreach($creater as $value){
+				$createrArray[] = $value->id;
+			}
+			if(is_array($createrArray)){
+				$criteria->addInCondition("campaign.create_user",$createrArray);
+			}else{
+				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
+			}
+			
+		}
 
 		if(isset($_GET['active']) && ($_GET['active'] > 0))
 			$criteria->addCondition("campaign.active = " . ((int)$_GET['active'] - 1));

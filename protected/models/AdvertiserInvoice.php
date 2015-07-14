@@ -68,7 +68,7 @@ class AdvertiserInvoice extends CActiveRecord
 			'number' => '發票號碼',
 			'create_time' => 'Create Time',
 			'create_by' => 'Create By',
-			'remark' => 'Remark',
+			'remark' => '備註',
 		);
 	}
 

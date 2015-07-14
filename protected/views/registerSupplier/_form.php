@@ -1,3 +1,6 @@
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.js"></script>
+<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+
 <div class="form">
 <style>
 	.errorMessage{
@@ -23,6 +26,27 @@ $(function() {
 	.autocomplete( "instance" )._renderItem = function( ul, item ) {
 		return $("<li>").append(item.label).appendTo(ul);
 	};
+
+	$("#SupplierRegister_type").change(function(){
+		var type = $(this).val();
+		if(type == 1 || type == 2){
+			$("#invoice-name-group").hide();
+			$("#certificate_image").show();
+		}else{
+			$("#invoice-name-group").show();
+			$("#certificate_image").hide();
+		}
+	})
+
+	var type = $("#SupplierRegister_type").val();
+	if(type == 1 || type == 2){
+		$("#invoice-name-group").hide();
+		$("#certificate_image").show();
+	}else{
+		$("#invoice-name-group").show();
+		$("#certificate_image").hide();
+	}
+
 });
 </script>
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -62,7 +86,7 @@ $(function() {
 				<p class="text-danger"><?php echo $form->error($model,'company_name'); ?></p>
 			</div>
 
-			<div class="form-group">
+			<div class="form-group" id="invoice-name-group">
 				<label><?php echo $form->labelEx($model,'invoice_name'); ?></label>
 				<?php echo $form->textField($model,'invoice_name',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"發票抬頭")); ?>
 				<p class="text-danger"><?php echo $form->error($model,'invoice_name'); ?></p>
@@ -112,9 +136,9 @@ $(function() {
 				<p class="text-danger"><?php echo $form->error($model,'fax'); ?></p>
 			</div>	
 
-			<div class="form-group">
+			<div class="form-group" id="certificate_image"> 
 				<label><?php echo $form->labelEx($model,'certificate_image'); ?></label>
-				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您的營利登記證(公司) / 身份證(個人) / 護照影本(非本國人士)，JPG格式4MB以內</div>				
+				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您的身份證(本國人士) / 護照影本(非本國人士)，JPG格式4MB以內</div>				
 				<div>
 					<?php 
 					if(isset($model->certificate_image)){

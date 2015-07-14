@@ -68,9 +68,12 @@ class SupplierRegister extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, tos_id, name, contacts, contacts_email, contacts_tel, contacts_moblie, contacts_fax, tel, fax, email, mobile, company_name, company_address, mail_address, invoice_name, tax_id, type, country_code, account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type, bank_swift, remark, create_time, check_time, check, check_by, public_by, public_time', 'safe', 'on'=>'search'),
+
+			array('name, contacts, contacts_email, email, company_name, company_address, mail_address, invoice_name, tax_id, country_code, account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type, bank_book_img', 'required', 'on'=>'companyRegister'),
 			array('name, contacts, contacts_email, email, company_name, company_address, mail_address, invoice_name, tax_id, country_code, account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type, certificate_image, bank_book_img', 'required', 'on'=>'register'),
+
 			array('email, contacts_email', 'email', 'on'=>'register'),
-	
+			array('email, contacts_email', 'email', 'on'=>'companyRegister'),
 		);
 	}
 
@@ -126,7 +129,7 @@ class SupplierRegister extends CActiveRecord
 			'check_by' => 'Check By',
 			'public_by' => 'Public By',
 			'public_time' => 'Public Time',
-			'certificate_image' => '營利登記證 / 身份證 / 護照',
+			'certificate_image' => '身份證 / 護照',
 			'bank_book_img' => '存摺影本'
 		);
 	}

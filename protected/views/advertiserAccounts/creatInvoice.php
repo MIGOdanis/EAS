@@ -35,7 +35,7 @@ $('.save-btn').click(function(){
 	var number = $("#AdvertiserInvoice_number").val();
 	var price = $("#AdvertiserInvoice_price").val();
 	var time = $("#AdvertiserInvoice_time").val();
-
+	var remark = $("#AdvertiserInvoice_remark").val();
 	if(number.length > 0 && price.length > 0 && time.length > 0){
 			if(price > sunIncome){
 				if(!confirm("發票金額超過未請款金額! 確認是否新增此發票?")){
@@ -47,7 +47,7 @@ $('.save-btn').click(function(){
 				$.ajax({
 					url:thisPage ,
 					type:"post",
-					data:{ number : number, price : price, time : time , AdvertiserInvoice : 1},
+					data:{ number : number, price : price, time : time , remark : remark, AdvertiserInvoice : 1},
 					dataType:"json",
 					success:function(data){
 						if(data.code == 1){
@@ -67,8 +67,9 @@ $('.save-btn').click(function(){
 		            	alert("請稍後再試，或聯繫管理人員");
 		            }            
 		        });
+		        refresh();
 			}
-			refresh();
+			
 	}else{
 		alert("請確認資料已填寫");
 	}
@@ -99,8 +100,9 @@ $('.del-btn').click(function(){
 	        	alert("請稍後再試，或聯繫管理人員");
 	        }            
 	    });
+	    refresh();
 	}
-	refresh();
+	
 	return false;
 });	
 
@@ -241,6 +243,12 @@ function refresh(){
 			<label><?php echo $form->labelEx($model,'time'); ?></label>
 			<?php echo $form->textField($model,'time',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'time'); ?></p>
+		</div>
+
+		<div class="form-group">
+			<label><?php echo $form->labelEx($model,'remark'); ?></label>
+			<?php echo $form->textField($model,'remark',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
+			<p class="text-danger"><?php echo $form->error($model,'remark'); ?></p>
 		</div>
 
 	</div>

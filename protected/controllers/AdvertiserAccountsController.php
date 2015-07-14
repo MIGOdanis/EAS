@@ -117,6 +117,7 @@ class AdvertiserAccountsController extends Controller
 			$model->campaign_id = $id;
 			$model->number = $_POST['number'];
 			$model->price = $_POST['price'];
+			$model->remark = $_POST['remark'];
 			$model->time = strtotime($_POST['time']);
 			$model->create_time = time();
 			$model->create_by =  Yii::app()->user->id;
@@ -264,7 +265,7 @@ class AdvertiserAccountsController extends Controller
 				$criteria->addCondition("t.campaign_id = '" . $data->campaign_id . "'");
 				$invoice = AdvertiserInvoice::model()->findAll($criteria);
 
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A" . $r, $data->campaign->advertiser->short_name);
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A" . $r, $data->campaign->advertiser->advertiser_name);
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("B" . $r, "統一編號");
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("C" . $r, $data->campaign_id);
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("D" . $r, $data->campaign->campaign_name);

@@ -65,6 +65,12 @@ class RegisterSupplierController extends Controller
 				}
 			}			
 
+			if($model->type == 1 || $model->type == 2){
+				$model->scenario = 'register';
+				$model->invoice_name = $model->company_name;
+			}else{
+				$model->scenario = 'companyRegister';
+			}
 
 			if($model->save()){
 				$this->redirect(array('afterRegister'));
