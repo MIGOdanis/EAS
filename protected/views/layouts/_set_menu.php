@@ -128,7 +128,7 @@ $this->nav = array(
 	"mediaReport" => array(
 		"title" => "報表查詢",
 		"url"=>"mediaReport/supplierReport",
-		"controllers" => array("mediaReport","advertiserReport"),
+		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts"),
 		"list" => array(
 			"mediaReport" => array(
 				"title" => "供應商日報",
@@ -146,6 +146,17 @@ $this->nav = array(
 					"categoryReport" => "媒體分類報表",
 					"campaignBannerReport" => "廣告活動總表"
 
+				),					
+			),
+			"advertiserAccounts" => array(
+				"title" => "經銷對帳查詢",
+				"url"=>"advertiserAccounts/admin",
+				"action" => array(
+					"admin" => "媒體分類報表",
+					"selectBelong" => "設定訂單業務",
+					"selectActive" => "設定結案",
+					"creatInvoice" => "建立發票",
+					"delInvoice" => "註銷發票"
 				),					
 			)						
 		)

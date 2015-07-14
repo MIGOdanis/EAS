@@ -2,7 +2,7 @@
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js" charset="UTF-8"></script>
 <link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/mediaReport.css" rel="stylesheet">
-<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/advertiserReport.js" charset="UTF-8"></script>
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/advertiserAccounts.js" charset="UTF-8"></script>
 
 <div id="report">
 	<div id="filter">
@@ -40,14 +40,32 @@
 			</div>
 		</div>
 	
-<!-- 		<div class="filter-box">
+		<div class="filter-box">
 			<div class="form-group id-input-group">
 				<div class="input-group">
 					<div class="input-group-addon">訂</div>
 					<input type="text" class="input-sm form-control id-input" id="Campaign_id" value="<?php echo $_GET['supplier_id'];?>">
 				</div>
 			</div>			
-		</div> -->
+		</div>
+
+		<div class="filter-box">
+			<select class="form-control" id="select-creater">
+				<option>全部</option>
+				<?php foreach ($creater as $value) {?>
+					<option value="<?php echo $value->id;?>"><?php echo $value->real_name;?></option>
+				<?php }?>
+			</select>			
+		</div>
+
+		<div class="filter-box">
+			<select class="form-control" id="select-active">
+				<option>全部</option>
+				<option value="1">已結案</option>
+				<option value="2">未結案</option>
+			</select>			
+		</div>
+
 
 	</div>
 </div>

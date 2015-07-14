@@ -125,3 +125,10 @@
 	.sm-text{
 		font-size: 5px;
 	}
+
+	#select-creater, #select-active{
+		width: auto;
+		height: 30px;
+		margin-top: 10px;
+		font-size: 12px;
+	}

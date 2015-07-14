@@ -27,10 +27,8 @@ function tableEvent(){
 	$('.set-btn').click(function() {
 		var url = $(this).prop('href');
 		$.ajax({
-			//type: 'POST',
 			url:url,
-			data: {pid:$(this).data('page')},
-			async: false,
+			//data: {pid:$(this).data('page')},
 			success:function(html){
 				$('#modal-content').html(html);
 				$('#modal').modal('show');
@@ -81,12 +79,11 @@ function setting($data){
 				<ul class="dropdown-menu">
 					<li><a class="set-btn" href="view?id=' . $data->id . '">檢視</a></li>
 					<li><a href="update?id=' . $data->id . '">修改</a></li>
-					<li><a href="#">刪除</a></li>
 					<li role="separator" class="divider"></li>
 					<li><a href="supplierUserList?id=' . $data->id . '">檢視帳號</a></li>
 					<li><a href="supplierUserCreate?id=' . $data->id . '" class="set-btn" >建立帳號</a></li>
 					<li role="separator" class="divider"></li>
-					<li><a href="updateLog?id=' . $data->id . '">查詢修改記錄</a></li>
+					<li><a href="updateLog?id=' . $data->tos_id . '">查詢修改記錄</a></li>
 					<li role="separator" class="divider"></li>
 					<li><a href="gotoDashboard?id=' . $data->id . '">前往模擬前台</a></li>					
 				</ul>

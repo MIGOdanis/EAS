@@ -89,6 +89,15 @@
 					</div><!-- /.modal-content -->
 				</div><!-- /.modal-dialog -->
 			</div><!-- /.modal -->
+
+			<div class="modal fade bs-example-modal-lg" id="modal-lg">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content" id="modal-content-lg">
+					
+					</div>
+				</div>
+			</div>
+
 		</div>		
 		<script type="text/javascript">
 		$(function(){

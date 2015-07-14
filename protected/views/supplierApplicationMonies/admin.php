@@ -4,33 +4,33 @@
 </div>
 <script type="text/javascript">
 $(function() {
-	$(".set-btn").live("click",function() {
-		if(confirm("請確認是否備妥相關資料?")){
-			var url = $(this).prop("href");
-			$.ajax({
-				url:url,
-				dataType:"json",
-				success:function(data){
-					if(data.code == 1){
-						alert("請款申請完成");
-						window.location.reload();
-					}else{
-						alert(data.msg);
-					}
-				}
-			})
-	        .fail(function(e) {
-	            if(e.status == 403){
-	            	alert("您的權限不足");
-	                window.location.reload();
-	            }
-	            if(e.status == 500){
-	            	alert("請稍後再試，或聯繫管理人員");
-	            }            
-	        });
-		}
-		return false;//阻止a标签		
-	});				
+	// $(".set-btn").live("click",function() {
+	// 	if(confirm("請確認是否備妥相關資料?")){
+	// 		var url = $(this).prop("href");
+	// 		$.ajax({
+	// 			url:url,
+	// 			dataType:"json",
+	// 			success:function(data){
+	// 				if(data.code == 1){
+	// 					alert("請款申請完成");
+	// 					window.location.reload();
+	// 				}else{
+	// 					alert(data.msg);
+	// 				}
+	// 			}
+	// 		})
+	//         .fail(function(e) {
+	//             if(e.status == 403){
+	//             	alert("您的權限不足");
+	//                 window.location.reload();
+	//             }
+	//             if(e.status == 500){
+	//             	alert("請稍後再試，或聯繫管理人員");
+	//             }            
+	//         });
+	// 	}
+	// 	return false;//阻止a标签		
+	// });				
 })
 </script>
 <?php
@@ -52,6 +52,38 @@ $('.search-form form').submit(function(){
 	});
 	return false;
 });
+
+	function tableEvent(){
+		$('.set-btn').click(function() {
+			if(confirm('請確認是否備妥相關資料?')){
+				var url = $(this).prop('href');
+				$.ajax({
+					url:url,
+					dataType:'json',
+					success:function(data){
+						if(data.code == 1){
+							alert('請款申請完成');
+							window.location.reload();
+						}else{
+							alert(data.msg);
+						}
+					}
+				})
+		        .fail(function(e) {
+		            if(e.status == 403){
+		            	alert('您的權限不足');
+		                window.location.reload();
+		            }
+		            if(e.status == 500){
+		            	alert('請稍後再試，或聯繫管理人員');
+		            }            
+		        });
+			}
+			return false;//阻止a标签		
+		});
+	}
+	tableEvent();
+
 ");
 ?>
 <form method="get">
@@ -120,6 +152,8 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'itemsCssClass' => 'table table-bordered table-striped',
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
+	'ajaxUpdate'=>true,
+	'afterAjaxUpdate'=>'tableEvent',	
 	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
 	'emptyText'=>'沒有資料',
 	'pager' => array(

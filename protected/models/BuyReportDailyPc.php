@@ -35,6 +35,7 @@ public $click_sum;
 public $impression_sum;
 public $income_sum;
 public $temp_income_sum;
+public $temp_advertiser_invoice_sum;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -499,7 +500,17 @@ public $temp_income_sum;
 
 		$criteria = $this->addReportTime($criteria);
 
-		// $criteria->with = array("budget");
+
+		if(isset($_GET['CampaignId']) && ($_GET['CampaignId'] > 0))
+			$criteria->addCondition("t.campaign_id = '" . $_GET['CampaignId'] . "'");
+
+		if(isset($_GET['creater']) && ($_GET['creater'] > 0))
+			$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");
+
+		if(isset($_GET['active']) && ($_GET['active'] > 0))
+			$criteria->addCondition("campaign.active = " . ((int)$_GET['active'] - 1));
+		
+		$criteria->with = array("campaign");
 
 		$criteria->group = "t.campaign_id"; 
 		
@@ -520,7 +531,7 @@ public $temp_income_sum;
 		));
 	}
 
-	//經銷對帳
+
 	public function getCampaignAllIncome($campaign_id)
 	{
 		//print_r($campaign_id); exit;
@@ -531,6 +542,20 @@ public $temp_income_sum;
 		$model = $this->find($criteria);
 		$this->temp_income_sum = $model->income_sum;
 		return $this->temp_income_sum;
+		
+	}
+
+	public function getCampaignAdvertiserInvoice($campaign_id)
+	{
+		//print_r($campaign_id); exit;
+		set_time_limit(0);
+		$criteria=new CDbCriteria;
+		$criteria->select = 'sum(t.price) as price';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$criteria->addCondition("t.active = 1");
+		$model = AdvertiserInvoice::model()->find($criteria);
+		$this->temp_advertiser_invoice_sum = $model->price;
+		return $this->temp_advertiser_invoice_sum;
 		
 	}
 

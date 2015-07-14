@@ -50,7 +50,7 @@ class Campaign extends CActiveRecord
 			array('start_time, end_time', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, tos_id, campaign_name, advertiser_id, account_id, industry_id, site_id, start_time, end_time, remark, adv_feature, source, status, adv_rate, brand_id, product_id, brief_id, sync_time', 'safe', 'on'=>'search'),
+			array('id, tos_id, campaign_name, advertiser_id, account_id, industry_id, site_id, start_time, end_time, remark, adv_feature, source, status, adv_rate, brand_id, product_id, brief_id, sync_time, create_user, belong_by', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -63,6 +63,9 @@ class Campaign extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'advertiser' => array(self::HAS_ONE, 'Advertisers', array('tos_id' => 'advertiser_id')),
+			'budget' => array(self::HAS_ONE, 'CampaignBudget', array('campaign_id' => 'tos_id')),
+			'upm' => array(self::HAS_ONE, 'TosUpmUser', array('id' => 'create_user')),
+			'belong' => array(self::HAS_ONE, 'User', array('id' => 'belong_by')),		
 		);
 	}
 

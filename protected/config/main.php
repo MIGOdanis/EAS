@@ -59,6 +59,17 @@ return array(
 		    'tablePrefix' => '',		
 		),
 
+		//upm
+		'upm'=>array(
+		    'class'=>'CDbConnection',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3307;dbname=upm',
+		    'emulatePrepare' => true,
+		    'username' => 'upm',
+		    'password' => 'Z1RqR6i18qFf',
+		    'charset' => 'utf8',
+		    'tablePrefix' => '',		
+		),
+
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'site/error',
