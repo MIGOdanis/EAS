@@ -115,7 +115,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value'=>'"$" . number_format($data->media_cost, 2, "." ,",")',
 			'htmlOptions'=>array('width'=>'120'),
 			'filter'=>false,
-			'footer'=>number_format($model->sumColumn($allData,"media_cost"), 2, "." ,","),						
+			'footer'=>"$" . number_format($model->sumColumn($allData,"media_cost"), 2, "." ,","),						
 		),	
 		array(
 			'header' => "eCPM",
@@ -130,13 +130,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'htmlOptions'=>array('width'=>'80'),
 			'filter'=>false,
 			'footer'=>"$" . (($model->sumColumn($allData,"click") > 0) ? number_format(($model->sumColumn($allData,"media_cost") / $model->sumColumn($allData,"click")), 2, "." ,",") : 0),			
-		),	
-
-		// array(
-		// 	'name' => "impression",
-		// 	'htmlOptions'=>array('width'=>'80'),
-		// 	'filter'=>false,
-		// ),										
+		),										
 	),
 ));
 ?>

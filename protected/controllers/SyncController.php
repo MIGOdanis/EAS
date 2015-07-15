@@ -162,10 +162,32 @@ class SyncController extends Controller
 		return $model;
 	}
 
+	// public function actionSyncBuyReportDailyPcZeroUpdate()
+	// {
+	// 	set_time_limit(0);
+	// 	ini_set("memory_limit","1024M");
+
+	// 	$criteria = new CDbCriteria;
+	// 	$criteria->addCondition("campaign_id = 0", "OR");
+	// 	$criteria->addCondition("ad_space_id = 0", "OR");
+	// 	$criteria->addCondition("strategy_id = 0", "OR");
+	// 	$criteria->addCondition("creative_id = 0", "OR");
+	// 	$criteria->addCondition("report_type = 1");
+	// 	$model = BuyReportDailyPc::model()->findAll($criteria);
+	// 	foreach($model as $value){
+	// 		$criteria = new CDbCriteria;
+	// 		$criteria->addCondition("id = '" . $value->tos_id . "'");
+	// 		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->find($criteria);
+	// 		echo $value->tos_id; exit;
+	// 		$value = $this->mappingBuyReportDailyPc($value,$buyReportDailyPc);
+	// 		$value->save();
+	// 	}
+	// }
+
 	public function actionSyncBuyReportDailyPc()
 	{
 		set_time_limit(0);
-		ini_set("memory_limit","2048M");
+		ini_set("memory_limit","4096M");
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyPcTosTime");
 		
 		$criteria = new CDbCriteria;
@@ -239,11 +261,11 @@ class SyncController extends Controller
 	public function actionSyncBuyReportDailyMob()
 	{
 		set_time_limit(0);
-		ini_set("memory_limit","2048M");
+		ini_set("memory_limit","4096M");
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyMobTosTime");
 
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
 		$buyReportDailyMob = TosTreporBuyDrDisplayDailyMobReport::model()->findAll($criteria);
 		foreach ($buyReportDailyMob as $value) {
 			$lastTime = $value->settled_time;
@@ -262,13 +284,13 @@ class SyncController extends Controller
 			if(!$model->save()){
 				$this->writeLog(
 					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
-					"SyncBuyReportDailyPc/error",
+					"SyncBuyReportDailyMob/error",
 					date("Ymd") . "errorLog.log"
 				);
 			}else{
 				$this->writeLog(
 					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
-					"SyncBuyReportDailyPc/run",
+					"SyncBuyReportDailyMob/run",
 					date("YmdH") . "log.log"
 				);
 			}

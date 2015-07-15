@@ -220,9 +220,9 @@ class MediaReportController extends Controller
 			);
 
 			$report = array(
-				"name" => "供應商網站日報表",
-				"titleName" => "供應商網站日報表 查詢時間" . $day[0] . "~" . $day[1],
-				"fileName" => "供應商網站日報表 查詢時間" . $day[0] . "~" . $day[1],
+				"name" => "供應商版位日報表",
+				"titleName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
+				"fileName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"width" => "G1",
 				"title" => array(
 					"A2" => "版位",

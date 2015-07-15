@@ -19,7 +19,10 @@ function status($status){
 }
 ?>
 <div class="page-header">
-  <h1>請款資訊</h1>
+	<?php if((empty($this->supplier->account_number) || empty($this->supplier->account_name)  || empty($this->supplier->bank_sub_id)  || empty($this->supplier->bank_id))){?>
+		<div class="alert alert-danger" role="alert">您尚未填妥匯款資訊，請聯繫您的窗口! (電洽 <?php echo Yii::app()->params["cfTel"]?>)</div>
+	<?php }?>
+	<h1>請款</h1>
 </div>
 <div>
 	<div id="pay-infor">
@@ -68,7 +71,11 @@ function status($status){
 				<div><h4>申請狀態</h4></div>
 				<div><strong><h4><?php echo status($thisApplication->status);?></h4></strong></div>
 			<?php }else{?>
+				<?php if($model->count_monies > 0){?>
 				<a href="payments?type=applicationPay" class="btn btn-primary btn-xl">申請支付款項</a>
+				<?php }else{?>
+					<div>您沒有收益可供申請</div>
+				<?php }?>
 			<?php }?>
 		<?php }else{?>
 			<div>目前尚未開放申請，如有需要請向您的窗口詢問</div>

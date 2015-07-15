@@ -53,8 +53,10 @@ class SupplierController extends Controller
 
 		
 		if(isset($_GET['type']) && $_GET['type'] == "applicationPay" && $model->application_type != 1){
-			if($this->applicationPay()){
-				$this->redirect(array('payments'));
+			if($model->count_monies > 0){
+				if($this->applicationPay()){
+					$this->redirect(array('payments'));
+				}
 			}
 		}
 		
@@ -80,19 +82,70 @@ class SupplierController extends Controller
 		));
 	}
 
+	public function actionPaymentSetting()
+	{
+		$this->layout = "supplier_column2";
+		$model = $this->supplier;
+		// $model->scenario = 'paymentSetting';
+
+		// if(isset($_POST['Supplier']))
+		// {		
+		// 	$model->attributes=$_POST['Supplier'];
+		// 	if($model->save()){
+		// 		$this->afterSupplierUpdate($model);
+		// 		$model->saveChk = true;
+		// 	}
+		// }		
+		$this->render('paymentSetting',array(
+			'model'=>$model,
+		));
+	}
+
 	public function actionMySite()
 	{
+		$this->layout = "supplier_column_report";
 
-		if(isset($_GET['type']) && $_GET['type'] == "downloadIV"){
-			$this->CreatIV();
-			Yii::app()->end();
-		}
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.supplier_id = " . $this->supplier->tos_id);
+		$criteria->addCondition("t.status = 1");
+		$criteria->addCondition("adSpace.status = 1");
+		$this->site = Site::model()->with("adSpace")->findAll($criteria);
 
-		$this->render('payments',array(
+
+		$this->render('mySite',array(
+
+		));
+	}
+
+	public function actionGetMyAdSpace()
+	{
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.supplier_id = " . $this->supplier->tos_id);
+		$criteria->addCondition("t.status = 1");
+		$criteria->addCondition("adSpace.status = 1");
+		$criteria->addCondition("t.tos_id = :siteId");
+		$criteria->params = array(
+			"siteId" => $_GET['site']
+		);
+		$model = Site::model()->with("adSpace")->find($criteria);
+		// print_r($model); exit;
+		$this->renderPartial('_myAdSpace',array(
 			'model'=>$model,
-			'lastApplication'=>$lastApplication,
-			'accountsStatus'=>$accountsStatus,
-			'thisApplication' => $thisApplication,
+		));
+	}
+
+	public function actionGetAdSpaceCode($id)
+	{	
+		if(isset($_GET['download']) && $_GET['download'] == 1){
+			header('Content-disposition: attachment; filename=ClickForce' . $id .'.txt');
+			header('Content-type: text/plain');
+			$txt = file_get_contents(dirname(__FILE__).'/../extensions/adspace-base.txt');
+			$txt = str_replace("%id%",$id,$txt);
+			echo $txt;
+			exit;
+		}
+		$this->renderPartial('_adSpaceCode',array(
+			'id'=>$id,
 		));
 	}
 

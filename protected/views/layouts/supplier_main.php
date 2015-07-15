@@ -23,7 +23,7 @@
 		<?php
 		if(Yii::app()->user->id > 0){
 			
-			$this->widget('SupplierNaviWidget', array('controller'=>$this->id,'supplier'=>$this->supplier));
+			$this->widget('SupplierNaviWidget', array('controller'=>$this->id,'supplier'=>$this->supplier, 'user'=>$this->user));
 		}
 		?>
 		<div id="main">	
@@ -31,5 +31,12 @@
 				<?php echo $content; ?>
 			</div>
 		</div>
+		<div class="modal fade" id="modal">
+			<div class="modal-dialog">
+				<div class="modal-content" id="modal-content">
+
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->		
 	</body>
 </html>

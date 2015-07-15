@@ -19,9 +19,11 @@ return array(
 	// 'baseUrl' => 'http://eas.doublemax.net',
 	'baseUrl' => 'http://192.168.1.10/eas',
 	'userGroup' => array(
-		'1'=>'管理員','2'=>'域動_PM','3'=>'域動_財務','4'=>'域動_BD','5'=>'域動_業務','6'=>'域動_行銷','7'=>'網站主','8'=>'經銷商','9'=>'廣告主','10'=>'代理商'
+		'1'=>'管理員','2'=>'域動_PM','3'=>'域動_財務','4'=>'域動_BD','5'=>'域動_業務','6'=>'域動_行銷','7'=>'供應商','8'=>'經銷商','9'=>'廣告主','10'=>'代理商'
 	),
 	'uploadFolder' => dirname(__FILE__)."/../../upload/",
+
+	'cfTel' => '02-27198500',
 
 	'mail' => array(
 		"adminEmail" => "web.service@clickforce.com.tw",
@@ -30,6 +32,16 @@ return array(
 		'smtpUsername'=>'web.service@clickforce.com.tw',
 		'smtpPassword'=>'clickforce168',
 	),
+
+	'androidSdkVersion' => "1.15",
+	'androidSdkUrl' => "http://eas.doublemax.net/sdk/android/MFAD115.zip",
+	'androidSdkDoc' => "http://eas.doublemax.net/sdk/android/MFAD115.pdf",
+	'androidSdkVersionNowNew' => true,
+
+	'iosSdkVersion' => "1.15",
+	'iosSdkUrl' => "http://eas.doublemax.net/sdk/ios/MFAD115.zip",
+	'iosSdkDoc' => "http://eas.doublemax.net/sdk/ios/MFAD115.pdf",
+	'iosSdkVersionNowNew' => true,
 
 	'buyType' => array(
 		"0" => "未選擇",
@@ -73,6 +85,8 @@ return array(
 		"3" => "1",
 		"4" => "0.8"
 	),
+
+	'siteType' => array("","PC","Mobile App","Mobile Web"),
 
 	'supplierTypeInList' => array("無資料","台灣個人", "國外個人", "台灣公司", "國外公司"),
 

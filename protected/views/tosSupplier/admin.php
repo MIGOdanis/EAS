@@ -85,7 +85,7 @@ function setting($data){
 					<li role="separator" class="divider"></li>
 					<li><a href="updateLog?id=' . $data->tos_id . '">查詢修改記錄</a></li>
 					<li role="separator" class="divider"></li>
-					<li><a href="gotoDashboard?id=' . $data->id . '">前往模擬前台</a></li>					
+					<li><a target="_blank" href="gotoDashboard?id=' . $data->id . '">前往模擬前台</a></li>					
 				</ul>
 			</div>';
 

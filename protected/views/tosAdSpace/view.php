@@ -53,11 +53,11 @@ $this->widget('zii.widgets.CDetailView', array(
 			'value' => $adFormat[$model->ad_format],
 		),	
 		'ratio_id',
-		array(
-			'name' => '默認廣告設定',
-			'value' => (($model->def_creative_option) == 1) ? "系統默認廣告" : "自定默認廣告",
-		),
-		'def_creative_id',
+		// array(
+		// 	'name' => '默認廣告設定',
+		// 	'value' => (($model->def_creative_option) == 1) ? "系統默認廣告" : "自定默認廣告",
+		// ),
+		// 'def_creative_id',
 		'material_format',
 		array(
 			'name' => '採買方式',

@@ -14,8 +14,9 @@
         <div class="collapse navbar-collapse" id="navbar">
             <ul class="nav navbar-nav">
                 <li><a href="index">首頁</a></li>
-                <li><a href="#">我的網站(未開放)</a></li>
+                <li><a href="mySite">我的網站</a></li>
                 <li><a href="report">報表查詢</a></li>
+                <li><a href="payments">付費</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -24,23 +25,27 @@
                         <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span><?php echo Yii::app()->user->name;?>(<?php echo $supplier->name;?>)</span><span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="repassword">修改密碼</a></li>
-                        <li class="divider"></li>
-                        <li><a href="<?php echo Yii::app()->createUrl("login/out"); ?>"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 登出</a></li>
+                        <?php if($this->user->group != 7){ ?>
+                            <li><a href="<?php echo Yii::app()->createUrl("/"); ?>"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 回後台</a></li>
+                        <?php }else{ ?>
+                            <li><a href="repassword">修改密碼</a></li>
+                            <li class="divider"></li>
+                            <li><a href="<?php echo Yii::app()->createUrl("login/out"); ?>"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 登出</a></li>
+                        <?php }?>
                     </ul>
                 </li>
-                <li class="dropdown">
+<!--                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="#">設定(未開放)</a></li>
-                        <li><a href="payments">請款</a></li>
+                        <li><a href="payments">付費</a></li>
                     </ul>
-                </li>
-                <li>
+                </li> -->
+<!--                 <li>
                     <a href="#"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span></a>
-                </li>
+                </li> -->
             </ul>
         </div>              
     </div>  

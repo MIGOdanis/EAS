@@ -71,7 +71,14 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value'=>'CHtml::link($data->adSpace->site->name,array("mediaReport/adSpaceReport","site_id"=>$data->adSpace->site->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"]))',	
 			'htmlOptions'=>array('width'=>'250','class'=>'name'),
 			'filter'=>false,
-		),						
+		),	
+		array(
+			'header' => "網站分類",
+			'type' => 'raw',
+			'value'=>'$data->adSpace->site->category->mediaCategory->name',	
+			'htmlOptions'=>array('width'=>'80','class'=>'name'),
+			'filter'=>false,
+		),							
 		array(
 			'name' => "impression",
 			'header' => "曝光",

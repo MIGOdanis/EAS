@@ -38,6 +38,7 @@
  */
 class Supplier extends CActiveRecord
 {
+	public $saveChk;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -65,7 +66,11 @@ class Supplier extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, tos_id, name, contacts, contacts_email, contacts_tel, contacts_moblie, contacts_fax, tel, fax, email, mobile, company_name, company_address, mail_address, invoice_name, tax_id, type, country_code, account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type, bank_swift, remark, create_time, sync_time, status', 'safe', 'on'=>'search'),
+			array('account_name, account_number, bank_name, bank_id, bank_sub_name, bank_sub_id, bank_type', 'required', 'on'=>'paymentSetting'),
+
 		);
+
+
 	}
 
 	/**

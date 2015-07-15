@@ -1,0 +1,10 @@
+<script type="text/javascript">
+	tosAdspaceInfo = {
+		'aid':%id%,
+		'serverbaseurl':'tad.doublemax.net/',
+		'staticbaseurl':'static.doublemax.net/js/'
+	}
+</script>
+<script type="text/javascript" src="//static.doublemax.net/js/tr.js">
+</script>
+<script src="//eland.doublemax.net/cfdmp/edmp_ads.js"></script>

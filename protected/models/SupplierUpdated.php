@@ -179,7 +179,7 @@ class SupplierUpdated extends CActiveRecord
 		$criteria->compare('certificate_image',$this->certificate_image,true);
 		$criteria->compare('bank_book_img',$this->bank_book_img,true);
 
-		$criteria->addCondition("t.tos_id = '". $GET['id'] . "'");
+		$criteria->addCondition("t.tos_id = '". $_GET['id'] . "'");
 		$criteria->with = array("updater");
 
 		return new CActiveDataProvider($this, array(

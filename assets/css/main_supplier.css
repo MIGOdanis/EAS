@@ -21,6 +21,10 @@ body a:hover{
 #main{
 	width: 100%;
 	height: 100%;
+	margin-top: 0px;
+}
+nav{
+	z-index: 999;
 }
 #left-main{
 	width: 250px;
@@ -28,6 +32,7 @@ body a:hover{
  	border-right: solid 1px #e7e7e7;
 	height: 100%;
 	position: absolute;
+	padding-top: 51px
 }
 .menu-list{
 	width: 100%;
@@ -43,7 +48,12 @@ body a:hover{
 	height: 100%;
 	padding-left: 15px;
 	margin-left: 250px;
-	margin-top: 0px;
+	padding-top: 51px;
+	overflow: auto;
+}
+#right-main .alert{
+	margin-right: 15px;
+	margin-top : 15px;
 }
 #navibar{
 	width: 100%;
@@ -68,6 +78,7 @@ body a:hover{
 	overflow: hidden;
 	border-radius: 2px;
 	background-color: #fff;
+	margin-top: -51px;
 }
 #content-singe{
 	width: 40%;
@@ -170,7 +181,7 @@ body a:hover{
 }
 
 #contents-singe{
-	padding: 20px;
+	padding: 70px;
 }
 
 .repasswd{

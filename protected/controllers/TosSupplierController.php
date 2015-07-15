@@ -51,43 +51,7 @@ class TosSupplierController extends Controller
 		{		
 			$model->attributes=$_POST['Supplier'];
 			if($model->save()){
-				$savelog = new SupplierUpdated();
-				$savelog->o_id = $model->id;
-				$savelog->tos_id = $model->tos_id;
-				$savelog->name = $model->name;
-				$savelog->contacts = $model->contacts;
-				$savelog->contacts_email = $model->contacts_email;
-				$savelog->contacts_tel = $model->contacts_tel;
-				$savelog->contacts_moblie = $model->contacts_moblie;
-				$savelog->contacts_fax = $model->contacts_fax;
-				$savelog->tel = $model->tel;
-				$savelog->fax = $model->fax;
-				$savelog->email = $model->email;
-				$savelog->mobile = $model->mobile;
-				$savelog->company_name = $model->company_name;
-				$savelog->company_address = $model->company_address;
-				$savelog->mail_address = $model->mail_address;
-				$savelog->invoice_name = $model->invoice_name;
-				$savelog->tax_id = $model->tax_id;
-				$savelog->type = $model->type;
-				$savelog->country_code = $model->country_code;
-				$savelog->account_name = $model->account_name;
-				$savelog->account_number = $model->account_number;
-				$savelog->bank_name = $model->bank_name;
-				$savelog->bank_id = $model->bank_id;
-				$savelog->bank_sub_name = $model->bank_sub_name;
-				$savelog->bank_sub_id = $model->bank_sub_id;
-				$savelog->bank_type = $model->bank_type;
-				$savelog->bank_swift = $model->bank_swift;
-				$savelog->bank_swift2 = $model->bank_swift2;
-				$savelog->remark = $model->remark;
-				$savelog->create_time = $model->create_time;
-				$savelog->update_by = Yii::app()->user->id;
-				$savelog->update_time = time();
-				$savelog->certificate_image = $model->certificate_image;
-				$savelog->bank_book_img = $model->bank_book_img;
-				$savelog->save();
-
+				$this->afterSupplierUpdate($model);
 				$this->redirect(array('admin'));
 			}
 		}

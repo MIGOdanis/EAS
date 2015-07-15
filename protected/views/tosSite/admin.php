@@ -30,11 +30,6 @@ $(function() {
 })
 </script>
 <?php
-function typeStr($type){
-	$typeArray = array("類別不存在","PC","Mobile App","Mobile Web");
-	return $typeArray[$type];
-}
-
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
 	$('.search-form').toggle();
@@ -90,7 +85,7 @@ $('.search-form form').submit(function(){
 		array(
 			'name'=>'type',
 			'type'=>'raw',
-			'value'=>'typeStr($data->type)',
+			'value'=>'Yii::app()->params["siteType"][$data->type]',
 			'htmlOptions'=>array('width'=>'90'),
 		),						
 		array(
