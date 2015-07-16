@@ -162,28 +162,6 @@ class SyncController extends Controller
 		return $model;
 	}
 
-	// public function actionSyncBuyReportDailyPcZeroUpdate()
-	// {
-	// 	set_time_limit(0);
-	// 	ini_set("memory_limit","1024M");
-
-	// 	$criteria = new CDbCriteria;
-	// 	$criteria->addCondition("campaign_id = 0", "OR");
-	// 	$criteria->addCondition("ad_space_id = 0", "OR");
-	// 	$criteria->addCondition("strategy_id = 0", "OR");
-	// 	$criteria->addCondition("creative_id = 0", "OR");
-	// 	$criteria->addCondition("report_type = 1");
-	// 	$model = BuyReportDailyPc::model()->findAll($criteria);
-	// 	foreach($model as $value){
-	// 		$criteria = new CDbCriteria;
-	// 		$criteria->addCondition("id = '" . $value->tos_id . "'");
-	// 		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->find($criteria);
-	// 		echo $value->tos_id; exit;
-	// 		$value = $this->mappingBuyReportDailyPc($value,$buyReportDailyPc);
-	// 		$value->save();
-	// 	}
-	// }
-
 	public function actionSyncBuyReportDailyPc()
 	{
 		set_time_limit(0);

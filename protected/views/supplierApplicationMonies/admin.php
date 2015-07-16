@@ -133,8 +133,8 @@ function application($data,$accountsStatus){
 
 function tax($data,$floor){
 	$tax = Yii::app()->params['taxType'][$data->site->supplier->type];
-	if($data->site->supplier->type == 1 && $data->count_monies < 20000)
-		$tax = 1;
+	// if($data->site->supplier->type == 1)
+	// 	$tax = 1;
 
 	return number_format($data->count_monies * $tax, $floor, "." ,",");
 	

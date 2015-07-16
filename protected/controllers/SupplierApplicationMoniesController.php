@@ -171,23 +171,23 @@ class SupplierApplicationMoniesController extends Controller
 			$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
 										 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 
-			$objPHPExcel->getActiveSheet()->mergeCells('A1:O1');
-			$objPHPExcel->getActiveSheet()->mergeCells('A2:G2');
-			$objPHPExcel->getActiveSheet()->mergeCells('H2:J2');
-			$objPHPExcel->getActiveSheet()->mergeCells('K2:M2');
-			$objPHPExcel->getActiveSheet()->mergeCells('N2:O2');
+			$objPHPExcel->getActiveSheet()->mergeCells('A1:Q1');
+			$objPHPExcel->getActiveSheet()->mergeCells('A2:I2');
+			$objPHPExcel->getActiveSheet()->mergeCells('J2:L2');
+			$objPHPExcel->getActiveSheet()->mergeCells('M2:O2');
+			$objPHPExcel->getActiveSheet()->mergeCells('P2:Q2');
 
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '供應商對帳表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', '供應商資訊');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H2', '拆帳方式');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K2', '數據');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N2', '結帳金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J2', '拆帳方式');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M2', '數據');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P2', '結帳金額');
 
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('A2')->applyFromArray($title);
-			$objPHPExcel->setActiveSheetIndex(0)->getStyle('H2')->applyFromArray($title);
-			$objPHPExcel->setActiveSheetIndex(0)->getStyle('K2')->applyFromArray($title);
-			$objPHPExcel->setActiveSheetIndex(0)->getStyle('N2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('J2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('M2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('P2')->applyFromArray($title);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('A3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('B3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('C3')->applyFromArray($title2);
@@ -203,23 +203,26 @@ class SupplierApplicationMoniesController extends Controller
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('M3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('N3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('O3')->applyFromArray($title2);
-
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('P3')->applyFromArray($title2);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('Q3')->applyFromArray($title2);
 
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', '供應商ID');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B3', '供應商名稱');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C3', '供應商身份');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D3', '網站ID');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E3', '網站名稱');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F3', '版位ID');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G3', '版位名稱');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H3', '採購類型');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I3', '計費方法');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J3', '價格');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K3', 'IMP');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L3', 'CLICK');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M3', '媒體營收');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N3', '原始金額');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O3', '未稅金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F3', '網站類型');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G3', '版位ID');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H3', '版位名稱');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I3', '版位大小');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J3', '採購類型');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K3', '計費方法');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L3', '價格');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M3', 'IMP');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N3', 'CLICK');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O3', '媒體營收');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P3', '原始金額');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q3', '未稅金額');
 
 			if($supplierMoniesMonthly !== null){
 				$r = 4;
@@ -231,16 +234,19 @@ class SupplierApplicationMoniesController extends Controller
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$value->supplier->type]);
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $r, $value->site_id);
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $r, $value->site->name);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, $value->adSpace_id);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, $value->adSpace->name);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, Yii::app()->params['buyType'][$value->buy_type]);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, Yii::app()->params['chrgeType'][$value->charge_type]);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, ($value->price * Yii::app()->params['priceType'][$value->charge_type]));
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, $value->imp);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, $value->click);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->total_monies);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $value->total_monies);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, ceil($value->total_monies));
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, Yii::app()->params["siteType"][$value->site->type]);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, $value->adSpace_id);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, $value->adSpace->name);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, ($value->site == 1) ? $value->adSpace->width . " x " . $value->adSpace->height : str_replace (":"," x ",$value->adSpace->ratio_id));
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, Yii::app()->params['buyType'][$value->buy_type]);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, Yii::app()->params['chrgeType'][$value->charge_type]);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, ($value->price * Yii::app()->params['priceType'][$value->charge_type]));
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->imp);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $value->click);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, $value->total_monies);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P' . $r, $value->total_monies);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $r, ceil($value->total_monies));
+
 					$total_monies += $value->total_monies;
 					$cril_total_monies += ceil($value->total_monies);
 					$r++;

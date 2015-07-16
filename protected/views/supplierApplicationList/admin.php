@@ -66,10 +66,10 @@ function invoice($data,$accountsStatus){
 
 function tax($data){
 	$tax = Yii::app()->params['taxType'][$data->supplier->type];
-	if($data->supplier->type == 1 && $data->monies < 20000)
+	if($data->supplier->type == 1)
 		$tax = 1;
 
-	return $data->monies;
+	return round($data->monies * $tax);
 	
 }
 
@@ -77,10 +77,11 @@ function taxDeductTot($data){
 	$tax = tax($data);
 	$taxDeduct = Yii::app()->params['taxTypeDeduct'][$data->supplier->type];
 
-	if($data->supplier->type == 1 && $data->monies >= 20000)
-		$taxDeduct = 0.9;
+	if($data->supplier->type == 1 && $tax < 20000){
+		$taxDeduct = 1;
+	}
 
-	return $tax * $taxDeduct;
+	return round($tax * $taxDeduct);
 	
 }
 
@@ -88,7 +89,7 @@ function taxDeduct($data){
 	$tax = tax($data);
 	$taxDeduct = taxDeductTot($data);
 
-	return $tax - $taxDeduct;
+	return round($tax - $taxDeduct);
 }
 
 Yii::app()->clientScript->registerScript('search', "
@@ -253,7 +254,7 @@ tableEvent();
 ?>
 <form method="get">
 <p>
-	下載供應商對帳表 (本期:<?php echo date("Y / m",$monthOfAccount->value)?>)
+	下載供應商請款表 (本期:<?php echo date("Y / m",$monthOfAccount->value)?>)
 	<select name="year" class="select-type">
 	<?php for($y=2015; $y <= date("Y"); $y++) {?>
 		<option value="<?php echo $y?>" 
@@ -333,7 +334,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 			'header'=>'請款總額(未稅)',
 			'name' => "monies",
-			'value'=>'"$" . number_format($data->monies, 2, "." ,",")',
+			'value'=>'"$" . number_format($data->monies, 0, "." ,",")',
 			'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),

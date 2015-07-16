@@ -218,31 +218,32 @@ class SupplierApplicationListController extends Controller
 		Yii::app()->end();
 	}
 
-	public function tax($value){
-		$tax = Yii::app()->params['taxType'][$value->supplier->type];
-		if($value->supplier->type == 1 && $value->monies < 20000)
+	public function tax($data){
+		$tax = Yii::app()->params['taxType'][$data->supplier->type];
+		if($data->supplier->type == 1)
 			$tax = 1;
 
-		return $value->monies * $tax;
+		return round($data->monies * $tax);
 		
 	}
 
-	public function taxDeductTot($value){
-		$tax =  $this->tax($value);
-		$taxDeduct = Yii::app()->params['taxTypeDeduct'][$value->supplier->type];
-		if($value->supplier->type == 1 && $value->monies >= 20000)
-			$taxDeduct = 0.9;
+	public function taxDeductTot($data){
+		$tax = $this->tax($data);
+		$taxDeduct = Yii::app()->params['taxTypeDeduct'][$data->supplier->type];
 
-		return $tax * $taxDeduct;
+		if($data->supplier->type == 1 && $tax < 20000){
+			$taxDeduct = 1;
+		}
+
+		return round($tax * $taxDeduct);
 		
 	}
 
-	public function taxDeduct($value){
-		$tax =  $this->tax($value);
-		$taxDeduct = $this->taxDeductTot($value);
+	public function taxDeduct($data){
+		$tax = $this->tax($data);
+		$taxDeduct = $this->taxDeductTot($data);
 
-		return $tax - $taxDeduct;
-		
+		return round($tax - $taxDeduct);
 	}
 
 	public function exportSupplierApplication(){
@@ -347,10 +348,10 @@ class SupplierApplicationListController extends Controller
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $r, date("Y-m",$value->start_time));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $r, date("Y-m",$value->end_time));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, $status[$value->status]);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format($value->monies, 2, "." ,","));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, number_format($this->tax($value), 0, "." ,","));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, number_format($this->taxDeduct($value), 0, "." ,","));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, number_format($this->taxDeductTot($value), 0, "." ,","));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format($value->monies, 0, "." ,""));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, number_format($this->tax($value), 0, "." ,""));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, number_format($this->taxDeduct($value), 0, "." ,""));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, number_format($this->taxDeductTot($value), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, $value->invoice);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, $value->supplier->account_name);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->supplier->tax_id);

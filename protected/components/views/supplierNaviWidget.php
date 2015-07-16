@@ -26,7 +26,7 @@
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <?php if($this->user->group != 7){ ?>
-                            <li><a href="<?php echo Yii::app()->createUrl("/"); ?>"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 回後台</a></li>
+                            <li><a href="/"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> 回後台</a></li>
                         <?php }else{ ?>
                             <li><a href="repassword">修改密碼</a></li>
                             <li class="divider"></li>
