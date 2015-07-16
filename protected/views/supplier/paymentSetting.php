@@ -34,7 +34,7 @@
 	<div><?php echo $this->supplier->bank_name . " " . $this->supplier->bank_id; ?></div>
 	<div><?php echo $this->supplier->bank_sub_name . " " . $this->supplier->bank_sub_id; ?></div>
 	<div><?php echo $this->supplier->account_name; ?></div>
-	<div><?php if(!empty($this->supplier->account_number)) { echo  number_format($this->supplier->account_number, 0, "." ,"-") ; } ?></div>
+	<div><?php if(!empty($this->supplier->account_number)) { echo  $this->supplier->account_number ; } ?></div>
 
 	<div id="hide-form">
 		<?php 

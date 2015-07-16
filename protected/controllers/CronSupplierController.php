@@ -27,7 +27,7 @@ class CronSupplierController extends Controller
 
 	public function getPcSite(){
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("t.type = 1");
+		// $criteria->addCondition("t.type = 1");
 		$criteria->addCondition("adSpace.tos_id IS NOT NULL");
 		return Site::model()->with("adSpace")->findAll($criteria);
 	}
