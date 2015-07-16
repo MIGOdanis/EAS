@@ -95,7 +95,7 @@ class SupplierApplicationListController extends Controller
 			$model = SupplierApplicationLog::model()->findByPk($_POST['id']);
 			if($model !== null){
 				$model->invoice = $_POST['invoiceNum'];
-				$model->invoice_time = time();
+				$model->invoice_time = strtotime($_POST['invoiceTime']);
 				$model->invoice_by = Yii::app()->user->id;
 				$model->status = 3;
 				if($model->save()){
@@ -286,7 +286,7 @@ class SupplierApplicationListController extends Controller
 			$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
 										 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 
-			$objPHPExcel->getActiveSheet()->mergeCells('A1:V1');
+			$objPHPExcel->getActiveSheet()->mergeCells('A1:AA1');
 
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '供應商請款報表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
 
@@ -313,6 +313,11 @@ class SupplierApplicationListController extends Controller
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('T2')->applyFromArray($title);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('U2')->applyFromArray($title);
 			$objPHPExcel->setActiveSheetIndex(0)->getStyle('V2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('W2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('X2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('Y2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('Z2')->applyFromArray($title);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyle('AA2')->applyFromArray($title);
 
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', '供應商ID');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B2', '供應商名稱');
@@ -324,18 +329,23 @@ class SupplierApplicationListController extends Controller
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H2', '含稅金額');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I2', '代扣稅額');
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J2', '請款金額');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K2', '發票(憑證)號碼');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L2', '戶名(請款公司/個人)');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M2', '統編/身份證字號');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N2', '銀行名稱');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O2', '分行');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P2', '帳號');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q2', '銀行代號');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R2', '分行代號');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S2', '分支機構代號/Swiftcode');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T2', '中間銀行 swift code');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U2', 'Email(主要聯絡人)');
-			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V2', '國家代碼');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K2', '憑證格式');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L2', '憑證時間');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M2', '憑證號碼');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N2', '戶名(請款公司/個人)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O2', '統編/身份證字號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P2', '連絡地址');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q2', '銀行名稱');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R2', '分行');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S2', '帳號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T2', '銀行代號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U2', '分行代號');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V2', '分支機構代號/Swiftcode');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('W2', '中間銀行 swift code');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('X2', 'Email(主要聯絡人)');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Y2', '國家代碼');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Z2', '匯款日期');
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('AA2', '請款年度');
 
 			if($SupplierApplicationLog !== null){
 				$r = 3;
@@ -352,18 +362,26 @@ class SupplierApplicationListController extends Controller
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, number_format($this->tax($value), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, number_format($this->taxDeduct($value), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, number_format($this->taxDeductTot($value), 0, "." ,""));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, $value->invoice);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, $value->supplier->account_name);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->supplier->tax_id);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $value->supplier->bank_name);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, $value->supplier->bank_sub_name);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('P' . $r, (string)$value->supplier->account_number,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $r, $value->supplier->bank_id);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R' . $r, $value->supplier->bank_sub_id);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S' . $r, $value->supplier->bank_swift);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T' . $r, $value->supplier->bank_swift2);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U' . $r, $value->supplier->email);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V' . $r, $value->supplier->country_code);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('K' . $r, Yii::app()->params["invoiceType"][$value->certificate_status]);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('L' . $r, (empty($value->invoice_time)) ? "無資料" : date("Y-m-d",$value->invoice_time));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('M' . $r, $value->invoice);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('N' . $r, $value->supplier->account_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O' . $r, $value->supplier->tax_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P' . $r, $value->supplier->mail_address); //N AD
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $r, $value->supplier->bank_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R' . $r, $value->supplier->bank_sub_name);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('S' . $r, (string)$value->supplier->account_number,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);						
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T' . $r, $value->supplier->bank_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('U' . $r, $value->supplier->bank_sub_id);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V' . $r, $value->supplier->bank_swift);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('W' . $r, $value->supplier->bank_swift2);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('X' . $r, $value->supplier->email);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Y' . $r, $value->supplier->country_code);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Z' . $r, date("Y-m-t", strtotime("+1 month", $value->end_time)));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('AA' . $r, date("Y",$value->end_time));
+
+
+					
 					// $total_monies += $value->total_monies;
 					// $cril_total_monies += ceil($value->total_monies);
 					$r++;

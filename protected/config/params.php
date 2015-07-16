@@ -33,6 +33,14 @@ return array(
 		'smtpPassword'=>'clickforce168',
 	),
 
+	'invoiceType' => array(
+		"0"=> "未確認",
+		"1"=> "三聯式發票",
+		"2"=> "電子發票",
+		"3"=> "勞報單",
+		"4"=> "Invoice",
+	),
+
 	'androidSdkVersion' => "1.15",
 	'androidSdkUrl' => "http://eas.doublemax.net/sdk/android/MFAD115.zip",
 	'androidSdkDoc' => "http://eas.doublemax.net/sdk/android/MFAD115.pdf",

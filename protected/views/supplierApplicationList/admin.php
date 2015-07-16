@@ -1,6 +1,14 @@
+<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js" charset="UTF-8"></script>
 <div class="page-header">
   <h1>本期請款管理<?php echo ($accountsStatus->value == 1) ? "<span class='label label-success'>開帳中</span>" : "<span class='label label-danger'>關帳中</span>"; ?></h1>
 </div>
+<style type="text/css">
+	table, .btn{
+		font-size: 13px;
+	}
+</style>
 <?php
 function certificate_status($data,$accountsStatus){
 	$option = array("data-id"=>$data->id,"class"=>"certificate_status", "id"=>"certificate_status_" . $data->id);
@@ -13,12 +21,15 @@ function certificate_status($data,$accountsStatus){
 		if($data->status >= 3)
 			$class = 'lock-of-invoice';
 
-		return "<div class='" . $class . "'>" . $data->certificateChecker->name . "<br>已確認" . "</div>";
+		return "<div class='" . $class . "'>" . $data->certificateChecker->name . "<br>" . Yii::app()->params["invoiceType"][$data->certificate_status] . "</div>";
 	}else{
 		if($accountsStatus == 1){
-			return CHtml::dropDownList("certificate_status",$data->certificate_status,array(
+			return $data->certificateChecker->name . "<br>" . CHtml::dropDownList("certificate_status",$data->certificate_status,array(
 				"0"=> ($data->certificate_by == Yii::app()->user->id && $data->certificate_status > 0) ? "取消確認" : "未確認",
-				"1"=> $data->certificateChecker->name . "已確認" 
+				"1"=> "三聯式發票",
+				"2"=> "電子發票",
+				"3"=> "勞報單",
+				"4"=> "Invoice",
 			), $option);
 		}else{
 			return "關帳中";			
@@ -43,16 +54,14 @@ function invoice($data,$accountsStatus){
 		if($data->status == 0){
 			$invoice = "此項目已被退回";
 		}elseif($data->status >= 3){
-			$invoice = $data->invoice 
-						. "<br>" 
-						. '<a class="btn btn-danger btn-xs invoice-reset" data-id="' . $data->id . '" data-invoice="' . $data->invoice . '">重填</a>　'
-						. '<a class="btn btn-warning btn-xs invoice-view" data-id="' . $data->id . '">檢視</a>';
+			$invoice =  '<a class="btn btn-default invoice-view" data-id="' . $data->id . '">' . $data->invoice . '</a>';
 		
 		}else{
 			if($accountsStatus == 0){
 				return '關帳中';
 			}else{
-				$invoice = '<input class="form-control invoice-input" data-id="' . $data->id . '" type="text" placeholder="發票號碼">';
+				//$invoice = '<input class="form-control invoice-input" data-id="' . $data->id . '" type="text" placeholder="發票號碼">';
+				$invoice =  '<a class="btn btn-default invoice-view" data-id="' . $data->id . '">新增憑證</a>';
 			}
 		}
 		
@@ -147,53 +156,6 @@ function tableEvent(){
 	$('.lock-of-user').click(function() {
 		alert('憑證已被確認');
 	});
-
-    $('.invoice-input').keydown(function(e) {
-        var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
-        if (e.which == 13) {
-        	var invoiceNum = $(this).val();
-        	if(confirm('是否儲存發票號碼:\\n' + invoiceNum)){
-        		var id = $(this).data('id');
-        		var data = { id:id, invoiceNum:invoiceNum };
-				$.post('invoice' , data, function( data ) {
-					if(data.code == 1){
-						alert('儲存成功');
-						refreshTable();
-					}else{
-						alert('儲存失敗，請聯繫管理人員 #' + data.code);
-					}
-				},'json')
-				.fail(function(e) {
-				    if(e.status == 403){
-				        alert('權限不足');
-				    }
-				});
-        	}
-        	return false;
-        }
-    });
-
-    $('.invoice-reset').click(function() {
-		var invoiceNum = $(this).data('invoice');
-		if(confirm('請確認是否重設發票:\\n' + invoiceNum)){
-			var id = $(this).data('id');
-			var data = { id:id };
-			$.post('invoiceReset' , data, function( data ) {
-				if(data.code == 1){
-					alert('重設成功');
-					refreshTable();
-				}else{
-					alert('重設失敗，請聯繫管理人員 #' + data.code);
-				}
-			},'json')
-			.fail(function(e) {
-			    if(e.status == 403){
-			        alert('權限不足');
-			    }
-			});
-		}
-		return false;
-    });
 
 	$('.invoice-view').click(function() {
 		var id = $(this).data('id');
@@ -332,31 +294,31 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'filter'=>false,
 		),		
 		array(
-			'header'=>'請款總額(未稅)',
+			'header'=>'請款<br>總額<br>(未稅)',
 			'name' => "monies",
 			'value'=>'"$" . number_format($data->monies, 0, "." ,",")',
-			'htmlOptions'=>array('width'=>'100'),
+			// 'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),
 		array(
-			'header'=>'請款總額(含稅)',
+			'header'=>'請款<br>總額<br>(含稅)',
 			'name' => "monies",
 			'value'=>'"$" . number_format(tax($data), 0, "." ,",")',
-			'htmlOptions'=>array('width'=>'100'),
+			// 'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),
 		array(
-			'header'=>'代扣稅額',
+			'header'=>'代扣<br>稅額',
 			'name' => "monies",
 			'value'=>'"$" . number_format(taxDeduct($data), 0, "." ,",")',
-			'htmlOptions'=>array('width'=>'100'),
+			// 'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),	
 		array(
-			'header'=>'應付總額',
+			'header'=>'應付<br>總額',
 			'name' => "monies",
 			'value'=>'"$" . number_format(taxDeductTot($data), 0, "." ,",")',
-			'htmlOptions'=>array('width'=>'100'),
+			// 'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),							
 		array(

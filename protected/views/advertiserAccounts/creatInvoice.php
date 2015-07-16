@@ -241,7 +241,7 @@ function refresh(){
 
 		<div class="form-group">
 			<label><?php echo $form->labelEx($model,'time'); ?></label>
-			<?php echo $form->textField($model,'time',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
+			<?php echo $form->textField($model,'time',array('size'=>60,'maxlength'=>255 , "class"=>"form-control datepicker-readonly" , "placeholder"=>"", "readonly"=>"readonly")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'time'); ?></p>
 		</div>
 

@@ -73,7 +73,7 @@ class SupplierApplicationLog extends CActiveRecord
 			'certificate_time' => 'Certificate Time',
 			'certificate_by' => 'Certificate By',
 			'invoice' => '請款憑證',
-			'invoice_time' => 'Invoice Time',
+			'invoice_time' => '憑證時間',
 			'invoice_by' => 'Invoice By',
 			'start_time' => '起始月份',
 			'end_time' => '最終月份', 

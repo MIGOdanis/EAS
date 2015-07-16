@@ -83,7 +83,7 @@ function status($status){
 	</div>
 
 	<br>
-	<div><h4>下載勞務報酬單</h4></div>
+	<div><h4>下載請款憑證</h4></div>
 	<a href="payments?type=downloadIV" class="btn btn-primary btn-sm">下載</a>
 	
 </div>

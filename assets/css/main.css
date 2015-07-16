@@ -162,3 +162,7 @@ body , html{
 	right: 0px;
 	left: auto;
 }*/
+
+.datepicker-readonly{
+	cursor: pointer !important;
+}
