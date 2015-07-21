@@ -218,6 +218,15 @@ class SupplierApplicationListController extends Controller
 		Yii::app()->end();
 	}
 
+	function unTax($data){
+		$tax = Yii::app()->params['taxType'][$data->supplier->type];
+		if($data->supplier->type == 1)
+			$tax = 1;
+
+		return ($this->tax($data) / $tax);
+	}
+
+
 	public function tax($data){
 		$tax = Yii::app()->params['taxType'][$data->supplier->type];
 		if($data->supplier->type == 1)
@@ -358,7 +367,7 @@ class SupplierApplicationListController extends Controller
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $r, date("Y-m",$value->start_time));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . $r, date("Y-m",$value->end_time));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . $r, $status[$value->status]);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format($value->monies, 0, "." ,""));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . $r, number_format(unTax($data), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . $r, number_format($this->tax($value), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . $r, number_format($this->taxDeduct($value), 0, "." ,""));
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('J' . $r, number_format($this->taxDeductTot($value), 0, "." ,""));

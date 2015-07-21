@@ -4,8 +4,16 @@ function tax($type,$count_monies){
 	if($type == 1 && $count_monies < 20000)
 		$tax = 1;
 
-	return number_format($count_monies * $tax, 0, "." ,",");
+	return round($count_monies * $tax);
 	
+}
+
+function unTax($type,$count_monies){
+	$tax = Yii::app()->params['taxType'][$type];
+	if($data->supplier->type == 1)
+		$tax = 1;
+
+	return round(tax($type,$count_monies) / $tax);
 }
 
 function status($status){
@@ -48,12 +56,12 @@ function status($status){
 
 		<div class="pay-infor-box">
 			<div><h4>可請款收益(未稅)</h4></div>
-			<div class="cash-text"><strong>$<?php echo number_format($model->count_monies, 0, "." ,",");?></strong></div>			
+			<div class="cash-text"><strong>$<?php echo number_format(unTax($this->supplier->type,$model->count_monies), 0, "." ,",");?></strong></div>			
 		</div>
 
 		<div class="pay-infor-box">
 			<div><h4>可請款收益(含稅)</h4></div>
-			<div class="cash-text"><strong>$<?php echo tax($this->supplier->type,$model->count_monies);?></strong></div>			
+			<div class="cash-text"><strong>$<?php echo number_format(tax($this->supplier->type,$model->count_monies), 0, "." ,",");?></strong></div>			
 		</div>
 	</div>
 	<br>

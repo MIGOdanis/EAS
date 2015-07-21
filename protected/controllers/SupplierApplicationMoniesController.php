@@ -174,7 +174,7 @@ class SupplierApplicationMoniesController extends Controller
 	        $objPHPExcel = $this->makeSheetData($objPHPExcel, 1, $supplierMoniesMonthlyByLog);
 	        $objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '供應商對帳表 - 請款完成(' . $_GET['year'] . " / " . $_GET['month'] . ')');
 	        $objPHPExcel->setActiveSheetIndex(1)->setTitle("供應商對帳表 - 請款完成");
-	        // $objPHPExcel->setActiveSheetIndex(0);
+	        $objPHPExcel->setActiveSheetIndex(0);
 
 			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 			header('Content-Disposition: attachment;filename="' . $_GET['year'] . "-" . $_GET['month'] . '供應商對帳表.xlsx"');

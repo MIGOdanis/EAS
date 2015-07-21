@@ -267,7 +267,8 @@ class SupplierController extends Controller
 
 		$titleName = ($this->supplier->type == 1 || $this->supplier->type == 2)? "姓名" : "公司名稱";
 		$taxid = ($this->supplier->type == 1 || $this->supplier->type == 2)? "身分證字號" : "統一編號";
-		
+		$addressType = ($this->supplier->type == 1 || $this->supplier->type == 2)? "戶籍" : "";
+
 		$document->setValue('title_name', $titleName);
 		$document->setValue('name',  $this->supplier->invoice_name . "(" . $this->supplier->tos_id  . ")");
 		$document->setValue('y',  (date("Y",$monthOfAccount->value) - 1911));
@@ -277,6 +278,7 @@ class SupplierController extends Controller
 		$document->setValue('pay_d',  date("t"));
 		$document->setValue('title_taxid',  $taxid);
 		$document->setValue('taxid',  $this->supplier->tax_id);
+		$document->setValue('address_type',  $addressType);
 		$document->setValue('address',  $this->supplier->company_address);
 		$document->setValue('mail_address',  $this->supplier->mail_address);
 		$document->setValue('type', Yii::app()->params['supplierType'][$this->supplier->type]);

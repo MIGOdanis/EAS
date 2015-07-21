@@ -26,10 +26,14 @@ function certificate_status($data,$accountsStatus){
 		if($accountsStatus == 1){
 			return $data->certificateChecker->name . "<br>" . CHtml::dropDownList("certificate_status",$data->certificate_status,array(
 				"0"=> ($data->certificate_by == Yii::app()->user->id && $data->certificate_status > 0) ? "取消確認" : "未確認",
-				"1"=> "三聯式發票",
-				"2"=> "電子發票",
-				"3"=> "勞報單",
-				"4"=> "Invoice",
+				"1"=> "三聯式電子計算機",
+				"2"=> "三聯式收銀機",
+				"3"=> "電子發票",
+				"4"=> "載有稅額憑證(有字軌)",
+				"5"=> "載有稅額其他憑證",
+				"6"=> "勞報單",
+				"7"=> "Invoice",
+				"8"=> "其他",
 			), $option);
 		}else{
 			return "關帳中";			
@@ -73,13 +77,21 @@ function invoice($data,$accountsStatus){
 	return "<div class='" . $class ."' id='invoice_" . $data->id ."'>" . $invoice . "</div>";
 }
 
+function unTax($data){
+	$tax = Yii::app()->params['taxType'][$data->supplier->type];
+	if($data->supplier->type == 1)
+		$tax = 1;
+
+	return (tax($data) / $tax);
+}
+
+
 function tax($data){
 	$tax = Yii::app()->params['taxType'][$data->supplier->type];
 	if($data->supplier->type == 1)
 		$tax = 1;
 
 	return round($data->monies * $tax);
-	
 }
 
 function taxDeductTot($data){
@@ -90,7 +102,7 @@ function taxDeductTot($data){
 		$taxDeduct = 1;
 	}
 
-	return round($tax * $taxDeduct);
+	return ($tax * $taxDeduct);
 	
 }
 
@@ -98,7 +110,7 @@ function taxDeduct($data){
 	$tax = tax($data);
 	$taxDeduct = taxDeductTot($data);
 
-	return round($tax - $taxDeduct);
+	return ($tax - $taxDeduct);
 }
 
 Yii::app()->clientScript->registerScript('search', "
@@ -293,10 +305,17 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'htmlOptions'=>array('width'=>'80'),
 			'filter'=>false,
 		),		
+		// array(
+		// 	'header'=>'請款<br>總額<br>(未稅)',
+		// 	'name' => "monies",
+		// 	'value'=>'"$" . number_format($data->monies, 0, "." ,",")',
+		// 	// 'htmlOptions'=>array('width'=>'100'),
+		// 	'filter'=>false,
+		// ),
 		array(
 			'header'=>'請款<br>總額<br>(未稅)',
 			'name' => "monies",
-			'value'=>'"$" . number_format($data->monies, 0, "." ,",")',
+			'value'=>'"$" . number_format(unTax($data), 0, "." ,",")',
 			// 'htmlOptions'=>array('width'=>'100'),
 			'filter'=>false,
 		),

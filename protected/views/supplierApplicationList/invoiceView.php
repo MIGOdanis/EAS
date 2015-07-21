@@ -19,7 +19,7 @@ $(function(){
 	$('.create-btn').click(function(e) {
 		var invoiceNum = $("#SupplierApplicationLog_invoice").val();
 		var invoiceTime = $("#SupplierApplicationLog_invoice_time").val();
-		if(confirm('是否儲存發票號碼:\n' + invoiceNum)){
+		if(confirm('是否儲存憑證號碼:\n' + invoiceNum)){
 			
 			var data = { id: id, invoiceNum :invoiceNum, invoiceTime : invoiceTime };
 			$.post('invoice' , data, function( data ) {
@@ -43,7 +43,7 @@ $(function(){
     });
 
     $('.reset-btn').click(function() {
-		if(confirm('請確認是否重設此發票')){
+		if(confirm('請確認是否重設此憑證')){
 			var data = { id:id };
 			$.post('invoiceReset' , data, function( data ) {
 				if(data.code == 1){
@@ -118,11 +118,15 @@ $(function(){
 				array(
 					'name' => '請款總額(含稅)',
 					'value' => tax($model),
-				),				
+				),
+				array(
+					'name' => '憑證填寫',
+					'value' => $model->invoiceChecker->name,
+				),									
 				'invoice',
 				array(
-					'name' => '發票填寫',
-					'value' => $model->invoiceChecker->name,
+					'name' => '憑證類型',
+					'value' => Yii::app()->params["invoiceType"][$model->certificate_status],
 				),			
 				array(
 					'name' => '憑證時間',
