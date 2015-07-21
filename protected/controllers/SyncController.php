@@ -3,6 +3,8 @@
 class SyncController extends Controller
 {
 
+	public $noPayCampaign;
+
 	public function actionSyncSupplier()
 	{
 		set_time_limit(0);
@@ -165,14 +167,20 @@ class SyncController extends Controller
 	public function actionSyncBuyReportDailyPc()
 	{
 		set_time_limit(0);
-		ini_set("memory_limit","4096M");
+		ini_set("memory_limit","2048M");
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyPcTosTime");
-		
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
+		$this->noPayCampaign = array();
+		foreach ($noPayCampaign as $value) {
+			$this->noPayCampaign[] = $value->id;
+		}
+
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
 		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll($criteria);
-		//print_r($lastTimeLog); exit;
-
 		
 		foreach ($buyReportDailyPc as $value) {
 			$lastTime = $value->settled_time;
@@ -224,12 +232,30 @@ class SyncController extends Controller
 		$model->impression = $tosPcBReport->impression;
 		$model->impression_ten_sec = $tosPcBReport->impression_ten_sec;
 		$model->click = $tosPcBReport->click;
-		$model->media_cost = $tosPcBReport->media_cost;
-		$model->media_tax_cost = $tosPcBReport->media_tax_cost;
-		$model->media_ops_cost = $tosPcBReport->media_ops_cost;
-		$model->income = $tosPcBReport->income;
-		$model->income_ten_sec = $tosPcBReport->income_ten_sec;
-		$model->agency_income = $tosPcBReport->agency_income;
+
+		if(in_array($tosPcBReport->campaign_id, $this->noPayCampaign)){
+			$model->media_cost = 0;
+			$model->media_tax_cost = 0;
+			$model->media_ops_cost = 0;
+			$model->income = 0;
+			$model->income_ten_sec = 0;
+			$model->agency_income = 0;
+			$this->writeLog(
+				"Save : id " . $tosPcBReport->id . "time " . $tosPcBReport->settled_time . "org_media_cost" . $tosPcBReport->media_cost . "org_income" . $tosPcBReport->income,
+				"SyncBuyReportDailyMob/nopay",
+				date("YmdH") . "log.log"
+			);				
+		}else{
+			$model->media_cost = $tosPcBReport->media_cost;
+			$model->media_tax_cost = $tosPcBReport->media_tax_cost;
+			$model->media_ops_cost = $tosPcBReport->media_ops_cost;
+			$model->income = $tosPcBReport->income;
+			$model->income_ten_sec = $tosPcBReport->income_ten_sec;
+			$model->agency_income = $tosPcBReport->agency_income;
+		}
+
+
+
 		$model->is_outside_tracking = $tosPcBReport->is_outside_tracking;
 		$model->sync_time = time();
 		
@@ -239,8 +265,16 @@ class SyncController extends Controller
 	public function actionSyncBuyReportDailyMob()
 	{
 		set_time_limit(0);
-		ini_set("memory_limit","4096M");
+		ini_set("memory_limit","2048M");
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyMobTosTime");
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
+		$this->noPayCampaign = array();
+		foreach ($noPayCampaign as $value) {
+			$this->noPayCampaign[] = $value->id;
+		}
 
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("settled_time > '" . $lastTimeLog . "'");
@@ -296,12 +330,29 @@ class SyncController extends Controller
 		$model->impression = $tosPcBReport->impression;
 		$model->impression_ten_sec = $tosPcBReport->impression_ten_sec;
 		$model->click = $tosPcBReport->click;
-		$model->media_cost = $tosPcBReport->media_cost;
-		$model->media_tax_cost = $tosPcBReport->media_tax_cost;
-		$model->media_ops_cost = $tosPcBReport->media_ops_cost;
-		$model->income = $tosPcBReport->income;
-		$model->income_ten_sec = $tosPcBReport->income_ten_sec;
-		$model->agency_income = $tosPcBReport->agency_income;
+
+		if(in_array($tosPcBReport->campaign_id, $this->noPayCampaign)){
+			$model->media_cost = 0;
+			$model->media_tax_cost = 0;
+			$model->media_ops_cost = 0;
+			$model->income = 0;
+			$model->income_ten_sec = 0;
+			$model->agency_income = 0;
+			$this->writeLog(
+				"Save : id " . $tosPcBReport->id . "time " . $tosPcBReport->settled_time . "org_media_cost" . $tosPcBReport->media_cost . "org_income" . $tosPcBReport->income,
+				"SyncBuyReportDailyMob/nopay",
+				date("YmdH") . "log.log"
+			);		
+		}else{
+			$model->media_cost = $tosPcBReport->media_cost;
+			$model->media_tax_cost = $tosPcBReport->media_tax_cost;
+			$model->media_ops_cost = $tosPcBReport->media_ops_cost;
+			$model->income = $tosPcBReport->income;
+			$model->income_ten_sec = $tosPcBReport->income_ten_sec;
+			$model->agency_income = $tosPcBReport->agency_income;
+		}
+
+
 		$model->is_outside_tracking = $tosPcBReport->is_outside_tracking;
 		$model->sync_time = time();
 

@@ -204,6 +204,14 @@ public $temp_advertiser_invoice_sum;
 	//前台供應商查詢
 	public function supplierDailyReport($tos_id,$reportType)
 	{
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$noPayCampaign = Campaign::model()->findAll($criteria);
+		$noPayCampaignId = array();
+		foreach ($noPayCampaign as $value) {
+			$noPayCampaignId[] = $value->tos_id;
+		}
+
 		// @todo Please modify the following code to remove attributes that should not be searched.
 		$criteria=new CDbCriteria;
 
@@ -242,6 +250,8 @@ public $temp_advertiser_invoice_sum;
 		$criteria = $this->addReportTime($criteria);
 
 		$criteria->addInCondition("ad_space_id",$adSpacArray);
+		
+		$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
