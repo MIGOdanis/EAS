@@ -78,17 +78,11 @@ if(isset($_GET['active']) && ($_GET['active'] > 0))
 	$(".active-btn").click(function(){
 		var url = $(this).prop('href');
 		$.ajax({
-			url: url,
-			dataType:"json",
-			success:function(data){
-				if(data.code == 1){
-					getReport();
-					alert("儲存完成-將重新讀取報表");
-					$('#modal').modal('hide');
-				}else{
-					alert("儲存失敗");
-				}					
-			}	
+			url:url,
+			success:function(html){
+				$('#modal-content').html(html);
+				$('#modal').modal('show');
+			}
 		})
         .fail(function(e) {
             if(e.status == 403){
@@ -235,8 +229,8 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 			'header'=>'結案',
 			'type'=>'raw',
-			'value'=> '"<div class=\'topItem\'>" . (($data->campaign->active == 0)? "已結案" : "-")  ."</div>" . CHtml::link((($data->campaign->active == 0)? "重啟" : "結案"),array("advertiserAccounts/selectActive","id"=>$data->campaign_id),array("class"=>"btn btn-default  btn-xs active-btn"))',
-			'htmlOptions'=>array('width'=>'55')
+			'value'=> '"<div class=\'topItem\'>" . (($data->campaign->active == 0)? "$".number_format($data->campaign->close_price, 0, "." ,",") : "-")  ."</div>" . CHtml::link((($data->campaign->active == 0)? "重啟" : "結案"),array("advertiserAccounts/selectActive","id"=>$data->campaign_id),array("class"=>"btn btn-default  btn-xs active-btn"))',
+			'htmlOptions'=>array('width'=>'80')
 		),			
 	),
 ));

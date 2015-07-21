@@ -86,18 +86,49 @@ class AdvertiserAccountsController extends Controller
 	{				
 		$criteria=new CDbCriteria;
 		$criteria->addCondition("t.tos_id = '" . $id . "'");
-		$campaign = Campaign::model()->find($criteria);
+		$model = Campaign::model()->find($criteria);
 
-		if($campaign !== null){
+		if(isset($_POST['closePrice'])){
 			header('Content-type: application/json');
-			$campaign->active = ($campaign->active == 1) ? 0 : 1;
-			if($campaign->save()){
+			$model->close_price = $_POST['closePrice'];
+			$model->active = 0;
+			if($model->save()){
 				echo json_encode(array("code" => "1"));
 			}else{
 				echo json_encode(array("code" => "2"));
 			}
-			Yii::app()->end();			
+			Yii::app()->end();
 		}
+
+
+		if(isset($_POST['reset'])){
+			header('Content-type: application/json');
+			$model->close_price = 0;
+			$model->active = 1;
+			if($model->save()){
+				echo json_encode(array("code" => "1"));
+			}else{
+				echo json_encode(array("code" => "2"));
+			}
+			Yii::app()->end();
+		}
+
+
+		// if($campaign !== null){
+		// 	header('Content-type: application/json');
+		// 	$campaign->active = ($campaign->active == 1) ? 0 : 1;
+		// 	if($campaign->save()){
+		// 		echo json_encode(array("code" => "1"));
+		// 	}else{
+		// 		echo json_encode(array("code" => "2"));
+		// 	}
+		// 	Yii::app()->end();			
+		// }
+
+		$this->renderPartial('selectActive',array(
+			"model" => $model,
+		));
+
 	}
 
 	public function actionCreatInvoice($id)
@@ -191,7 +222,7 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
 									 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 
-		$objPHPExcel->getActiveSheet()->mergeCells('A1:Z1');
+		$objPHPExcel->getActiveSheet()->mergeCells('A1:AA1');
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', "經銷對帳查詢");
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
 
@@ -227,6 +258,7 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X4","建單帳號");
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y4","訂單業務");
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z4","結案狀態");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA4","結案金額");
 
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("A4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("B4")->applyFromArray($title);
@@ -254,6 +286,7 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("X4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("Y4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("Z4")->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AA4")->applyFromArray($title);
 		
 		$r = 5;
 
@@ -287,6 +320,8 @@ class AdvertiserAccountsController extends Controller
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X" . $r, $data->campaign->upm->real_name);
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, ($data->campaign->belong_by > 0)? $data->campaign->belong->name : "未填寫");
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z" . $r, ($data->campaign->active == 0)? "已結案" : "未結案");			
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA" . $r, ($data->campaign->active == 0)? "$".number_format($data->campaign->close_price, 0, "." ,",") : "未結案");	
+
 				if(count($invoice) == 0){
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, "無發票");
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U" . $r, "無發票");

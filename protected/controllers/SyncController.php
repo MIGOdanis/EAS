@@ -662,6 +662,7 @@ class SyncController extends Controller
 		$model->product_id =  $tosCoreCampaign->product_id;
 		$model->brief_id =  $tosCoreCampaign->brief_id;
 		$model->create_user =  $tosCoreCampaign->create_user;
+		$model->close_price =  0;
 		$model->sync_time = time();
 
 		return $model;
