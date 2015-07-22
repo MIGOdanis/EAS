@@ -66,6 +66,70 @@ class TosSupplierController extends Controller
 		));
 	}
 
+	public function actionUploadContract($id)
+	{
+		$model = $this->loadModel($id);
+
+		$upload = false;
+		$uploadChk = false;
+		$uploadMsg = "";
+		if(isset($_FILES['pdf']) && !empty($_FILES['pdf']['name'])){
+			$upload = true;
+			if($_FILES['pdf']['type'] == "application/pdf"){
+				if($_FILES['pdf']['size']/1024000 < 20){
+					$upload_folder = Yii::app()->params['uploadFolder'] . "SupplierContract/" . $model->tos_id;
+					if(!is_dir($upload_folder)){
+						if(!mkdir($upload_folder, 0777, true)){
+							$uploadChk = false;
+							$uploadMsg = "上載錯誤";	
+							break;
+						}
+					}
+
+					$filename = date("Ymd_His") . "_" . $model->tos_id .".pdf";
+					
+					if(copy($_FILES['pdf']['tmp_name'],$upload_folder."/".$filename)){
+						$uploadChk = true;
+						$uploadMsg = "上載完成";
+						$uploadData = new UploadContract();
+						$uploadData->supplier_id = $id;
+						$uploadData->file_name = $filename;
+						$uploadData->time = time();
+						if(!$uploadData->save()){
+							$uploadChk = false;
+							$uploadMsg = "上載錯誤";
+						}else{
+							$this->redirect(array('uploadContract?id=' . $id));
+						}
+					}else{
+						$uploadChk = false;
+						$uploadMsg = "上載錯誤";						
+					}
+
+				}else{
+					$uploadChk = false;
+					$uploadMsg = "檔案大小超過 20MB";
+				}
+			}else{
+				$uploadChk = false;
+				$uploadMsg = "錯誤的格式";
+			}
+ 			
+		}
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("supplier_id = " . $id);
+		$allData = UploadContract::model()->findAll($criteria);
+
+		$this->render('uploadContract',array(
+			"upload" => $upload,
+			"uploadChk" => $uploadChk,
+			"uploadMsg" => $uploadMsg,
+			"allData" => $allData,
+			"model" => $model
+		));
+	}
+
 	public function actionUpdateLog()
 	{	
 		$model = new SupplierUpdated();

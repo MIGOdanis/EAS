@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-63;
 $ut=44;
-$ttffile='C:/Program Files (x86)/Ampps/www/eas/protected/extensions/phpexcel/MPDF/ttfonts/DejaVuSerifCondensed.ttf';
+$ttffile='C:/Program Files (x86)/Ampps/www/eas/protected/extensions/MPDF/ttfonts/DejaVuSerifCondensed.ttf';
 $TTCfontID='0';
 $originalsize=296976;
 $sip=false;

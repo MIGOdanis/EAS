@@ -13,7 +13,7 @@ $this->nav = array(
 					"update" => "更新使用者",
 					"create" => "新增使用者",
 					"active" => "停用/啟用使用者",
-					"view" => "檢視使用者資料"
+					"view" => "檢視使用者資料",
 				),
 			),
 			"userAuth" => array(
@@ -63,7 +63,7 @@ $this->nav = array(
 					"updateLog" => "查詢供應商編輯記錄",
 					"updateLogView" => "檢視供應商編輯記錄",
 					"gotoDashboard" => "模擬供應商前台",
-					"downloadContract" => "下載供應商合約"
+					"uploadContract" => "上載合約電子檔",
 				),
 			),
 			"tosSite" => array(

@@ -155,21 +155,6 @@ class SupplierController extends Controller
 		));
 	}
 
-	public function actionReport()
-	{
-		$this->layout = "supplier_column_report";
-
-		$criteria = new CDbCriteria;
-		$criteria->addCondition("t.supplier_id = " . $this->supplier->tos_id);
-		$criteria->addCondition("t.status = 1");
-		$criteria->addCondition("adSpace.status = 1");
-		$this->site = Site::model()->with("adSpace")->findAll($criteria);
-
-		$this->render('report',array(
-			'model'=>$model,
-		));
-	}
-
 	public function actionGetSupplierReport()
 	{
 		$model = new BuyReportDailyPc('search');

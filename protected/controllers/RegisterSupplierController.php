@@ -72,7 +72,7 @@ class RegisterSupplierController extends Controller
 				$model->scenario = 'companyRegister';
 			}
 
-			if($_POST['SupplierRegister']['read_contract'] == 1){
+			if($_POST['SupplierRegister']['read_contract'] == 1 || $model->read_contract == 1){
 				$model->read_contract = 1;
 			}else{
 				$model->read_contract = null;

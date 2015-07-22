@@ -312,11 +312,13 @@ class Controller extends CController
 		$mpdf->mirrorMargins = true;
 		$mpdf->useAdobeCJK = true;   
 		$mpdf->SetAutoFont(AUTOFONT_ALL);  
+		// $mpdf->autoScriptToLang = true;
 		$mpdf->SetDisplayMode('fullpage');
 
 		$mpdf->WriteHTML($html);
 
-		$mpdf->Output(date("Y-m-d") . $model->company_name . '域動行銷網站合作銷售合約書.pdf','D');
+		$mpdf->Output();
+		// $mpdf->Output(date("Y-m-d") . $model->company_name . '域動行銷網站合作銷售合約書.pdf','D');
 	}
 
 	public function exportExcel($Report){

@@ -134,6 +134,8 @@ $(function() {
 	</div>	
 	<?php endif;?>
 
+
+	<?php if($model->isNewRecord || $model->read_contract != 1){?>
 	<div class="modal fade" id="contract">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
@@ -186,7 +188,7 @@ $(function() {
 			</div>
 		</div>
 	</div>	
-
+	<?php };?>
 	<div class="panel panel-default">
 		<div class="panel-heading">基本資料</div>
 		<div class="panel-body">
