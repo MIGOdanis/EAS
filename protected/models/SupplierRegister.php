@@ -74,6 +74,10 @@ class SupplierRegister extends CActiveRecord
 
 			array('email, contacts_email', 'email', 'on'=>'register'),
 			array('email, contacts_email', 'email', 'on'=>'companyRegister'),
+
+			array('read_contract', 'required', 'on'=>'register', 'message'=>'請確認您已經了解合約內容'),
+			array('read_contract', 'required', 'on'=>'companyRegister', 'message'=>'請確認您已經了解合約內容'),
+
 		);
 	}
 

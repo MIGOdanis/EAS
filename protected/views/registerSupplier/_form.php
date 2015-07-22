@@ -6,6 +6,48 @@
 	.errorMessage{
 		color: red;
 	}
+	#SupplierRegister_read_contract{
+		width: 30px;
+		height: 30px;
+		margin-top: 5px;
+		display: none;
+	}
+	#read_box{
+		height: 30px;
+		line-height: 30px;
+		margin-top: 20px;
+	}
+	#read_box button{
+		margin-top: -20px;
+	}
+/*	.modal-lg{
+		height: 80%;
+	}*/
+
+	#check-btn-box{
+		width: 100%;
+		margin-top: 30px;
+		text-align: center;
+	}
+
+	.font-s-btn{
+		font-size: 14px;
+		height: 42px;
+		line-height: 27px;			
+	}
+	.font-m-btn{
+		font-size: 17px;
+		height: 42px;
+		line-height: 27px;
+	}
+	.font-l-btn{
+		font-size: 20px;
+		height: 42px;
+		line-height: 27px;
+	}	
+	.ok-lab{
+		display: none;
+	}	
 </style>
 <script type="text/javascript">
 $(function() {
@@ -47,6 +89,34 @@ $(function() {
 		$("#certificate_image").hide();
 	}
 
+	$(".read-btn").click(function(){
+		$("#contract").modal({ backdrop: 'static', keyboard: true });
+		$('#contract').modal('show');
+	});
+
+	$(".set-font").click(function(){
+		var size = $(this).data("size");
+		console.log(size);
+		$("#contract_body span").css("font-size",size);
+	});
+
+	$(".agree-btn").click(function(){
+		$('#contract').modal('hide');
+		$("#SupplierRegister_read_contract").prop("checked","true");
+		$(".ok-lab").show();
+		$(".def-lab").hide();
+	});
+	
+	$(".cancel-btn").click(function(){
+		$('#contract').modal('hide');
+		alert("若您有任何疑問可電洽 : <?php echo Yii::app()->params['cfTel']?>");
+	});
+	
+	<?php if($model->read_contract == 1){?>
+		$(".ok-lab").show();
+		$(".def-lab").hide();
+	<?php }?>
+
 });
 </script>
 <?php $form=$this->beginWidget('CActiveForm', array(
@@ -63,6 +133,59 @@ $(function() {
 		<?php echo $err; ?>
 	</div>	
 	<?php endif;?>
+
+	<div class="modal fade" id="contract">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">				
+					<h4 class="modal-title">域動行銷股份有限公司-網站合作銷售合約書</h4>
+				</div>
+				<div class="modal-body">
+					<div>字形大小</div>
+					<div class="btn-group" role="group" aria-label="">
+						<button type="button" class="btn btn-default font-s-btn set-font" data-size="14px">小</button>
+						<button type="button" class="btn btn-default font-m-btn set-font" data-size="16px">中</button>
+						<button type="button" class="btn btn-default font-l-btn set-font" data-size="20px">大</button>
+					</div>
+
+
+					<?php echo $this->renderPartial('_contract'); ?>
+					<div id="check-btn-box">
+						<button type="button" class="btn btn-primary btn-lg agree-btn">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+							我已確認並且同意合約內容
+						</button>	
+						<button type="button" class="btn btn-warning btn-lg cancel-btn">
+							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+							我無法同意合約內容(關閉)
+						</button>		
+					</div>
+				</div>
+	<!-- 			<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div> -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+	<div class="panel panel-default">
+		<div class="panel-heading">合約</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label>確認合約 <span class="label label-danger def-lab">未讀取</span><span class="label label-success ok-lab">已確認</span></label>
+				<div>
+					<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+					請先閱讀我們的定型化契約並由契約中確認您已了解合約內容!
+					<p class="text-danger"><?php echo $form->error($model,'read_contract'); ?></p>
+				</div>				
+				<div id="read_box">
+					<input type="checkbox" name="SupplierRegister[read_contract]" id="SupplierRegister_read_contract" value="1">
+					<button type="button" class="btn btn-primary btn-sm read-btn">了解合約</button>
+				</div>				
+			</div>
+		</div>
+	</div>	
 
 	<div class="panel panel-default">
 		<div class="panel-heading">基本資料</div>
@@ -275,8 +398,6 @@ $(function() {
 				<input class="image-upload" name="bank_book_img" type="file">
 				<p class="text-danger"><?php echo $form->error($model,'bank_book_img'); ?></p>	
 			</div>
-
-
 		</div>
 	</div>	
 

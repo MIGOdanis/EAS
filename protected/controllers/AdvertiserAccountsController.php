@@ -320,7 +320,7 @@ class AdvertiserAccountsController extends Controller
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X" . $r, $data->campaign->upm->real_name);
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, ($data->campaign->belong_by > 0)? $data->campaign->belong->name : "未填寫");
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z" . $r, ($data->campaign->active == 0)? "已結案" : "未結案");			
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA" . $r, ($data->campaign->active == 0)? "$".number_format($data->campaign->close_price, 0, "." ,",") : "未結案");	
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA" . $r, ($data->campaign->active == 0)? number_format($data->campaign->close_price, 0, "" ,"") : "未結案");	
 
 				if(count($invoice) == 0){
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, "無發票");

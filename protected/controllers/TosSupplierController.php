@@ -44,6 +44,12 @@ class TosSupplierController extends Controller
 		));
 	}
 
+	public function actionDownloadContract($id)
+	{				
+		$model = $this->loadModel($id);
+		$this->exportSupplierContract($model);
+	}
+
 	public function actionUpdate($id)
 	{				
 		$model = $this->loadModel($id);

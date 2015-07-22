@@ -269,6 +269,56 @@ class Controller extends CController
 		return true;
 	}	
 
+	public function exportSupplierContract($model){
+		require dirname(__FILE__).'/../extensions/MPDF/mpdf.php';
+
+		$html = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContract.html');
+		
+
+		// $html = str_replace ("{name}",$model->company_name,$html);
+		$html = str_replace ("{company_name}",$model->company_name,$html);
+		$html = str_replace ("{tax_id}",$model->tax_id,$html);
+		$html = str_replace ("{company_address}",$model->company_address,$html);
+		$html = str_replace ("{contacts}",$model->contacts,$html);
+		$html = str_replace ("{contacts_email}",$model->contacts_email,$html);
+		$html = str_replace ("{type}",Yii::app()->params['supplierTypeInList'][$model->type],$html);
+		$html = str_replace ("{bank_name}",$model->bank_name,$html);
+		$html = str_replace ("{bank_id}",$model->bank_id,$html);
+		$html = str_replace ("{bank_sub_name}",$model->bank_sub_name,$html);
+		$html = str_replace ("{bank_sub_id}",$model->bank_sub_id,$html);
+		$html = str_replace ("{account_name}",$model->account_name,$html);
+
+		if(isset($model->site) && is_array($model->site)){
+			foreach ($model->site as $site) {
+				$table = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTable.html');
+				$table = str_replace ("{site_name}",$site->name . (($site->status == 1) ? "" : "(停用)"),$table);
+				$table = str_replace ("{site_type}",Yii::app()->params["siteType"][$site->type],$table);
+				if(isset($site->adSpace) && is_array($site->adSpace)){
+					foreach ($site->adSpace as $adSpace) {
+						$tr .= file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTableTr.html');
+						$tr = str_replace ("{zone_name}",$adSpace->name . (($adSpace->status == 1) ? "" : "(停用)"),$tr);
+						$tr = str_replace ("{zone_size}",($site->type == 1) ? $adSpace->width . " x " . $adSpace->height : str_replace (":"," x ",$adSpace->ratio_id),$tr);
+						$tr = str_replace ("{pay_type}",Yii::app()->params['buyType'][$adSpace->buy_type],$tr);
+						$tr = str_replace ("{price}",Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type] . (($adSpace->buy_type == 2) ? "%" : ""),$tr);
+					}
+					$table = str_replace ("{tr}",$tr,$table);
+				}
+				$html .= $table;
+			}
+		}
+
+
+		$mpdf=new mPDF('UTF-8'); 
+		$mpdf->mirrorMargins = true;
+		$mpdf->useAdobeCJK = true;   
+		$mpdf->SetAutoFont(AUTOFONT_ALL);  
+		$mpdf->SetDisplayMode('fullpage');
+
+		$mpdf->WriteHTML($html);
+
+		$mpdf->Output(date("Y-m-d") . $model->company_name . '域動行銷網站合作銷售合約書.pdf','D');
+	}
+
 	public function exportExcel($Report){
 		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
 

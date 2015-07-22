@@ -38,6 +38,12 @@ class SupplierController extends Controller
 		));
 	}
 
+	public function actionDownloadContract()
+	{
+		$this->exportSupplierContract($this->supplier);
+		
+	}
+
 	public function actionPayments()
 	{
 

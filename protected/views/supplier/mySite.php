@@ -37,6 +37,7 @@ $(function(){
 	}	
 
 	getAdSpace();
+	
 })
 </script>
 <style type="text/css">

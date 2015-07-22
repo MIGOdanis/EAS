@@ -32,7 +32,8 @@ nav{
  	border-right: solid 1px #e7e7e7;
 	height: 100%;
 	position: absolute;
-	padding-top: 51px
+	padding-top: 51px;
+	overflow: auto;
 }
 .menu-list{
 	width: 100%;
