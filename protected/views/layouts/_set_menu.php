@@ -63,6 +63,7 @@ $this->nav = array(
 					"updateLog" => "查詢供應商編輯記錄",
 					"updateLogView" => "檢視供應商編輯記錄",
 					"gotoDashboard" => "模擬供應商前台",
+					"downloadContract" => "下載供應商合約",
 					"uploadContract" => "上載合約電子檔",
 				),
 			),
