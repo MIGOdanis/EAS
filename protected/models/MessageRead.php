@@ -1,22 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "{{uploadContract}}".
+ * This is the model class for table "{{messageRead}}".
  *
- * The followings are the available columns in table '{{uploadContract}}':
+ * The followings are the available columns in table '{{messageRead}}':
  * @property integer $id
- * @property integer $supplier_id
- * @property string $file_name
- * @property integer $time
+ * @property integer $message_id
+ * @property integer $user_id
+ * @property integer $read_time
  */
-class UploadContract extends CActiveRecord
+class MessageRead extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return '{{uploadContract}}';
+		return '{{messageRead}}';
 	}
 
 	/**
@@ -27,12 +27,11 @@ class UploadContract extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('supplier_id, file_name, time, create_by', 'required'),
-			array('supplier_id, time', 'numerical', 'integerOnly'=>true),
-			array('file_name', 'length', 'max'=>255),
+			array('message_id, user_id, read_time', 'required'),
+			array('message_id, user_id, read_time', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, supplier_id, file_name, time', 'safe', 'on'=>'search'),
+			array('id, message_id, user_id, read_time', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -44,7 +43,6 @@ class UploadContract extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'supplier' => array(self::HAS_ONE, 'Supplier', array('id' => 'supplier_id')),
 		);
 	}
 
@@ -55,9 +53,9 @@ class UploadContract extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'supplier_id' => 'Supplier',
-			'file_name' => 'File Name',
-			'time' => 'Time',
+			'message_id' => 'Message',
+			'user_id' => 'User',
+			'read_time' => 'Read Time',
 		);
 	}
 
@@ -80,9 +78,9 @@ class UploadContract extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('supplier_id',$this->supplier_id);
-		$criteria->compare('file_name',$this->file_name,true);
-		$criteria->compare('time',$this->time);
+		$criteria->compare('message_id',$this->message_id);
+		$criteria->compare('user_id',$this->user_id);
+		$criteria->compare('read_time',$this->read_time);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -93,7 +91,7 @@ class UploadContract extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return UploadContract the static model class
+	 * @return MessageRead the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{

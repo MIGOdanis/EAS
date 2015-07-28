@@ -171,7 +171,9 @@ class SupplierRegisterController extends Controller
 		$user->creat_time = time();		
 		$user->password = $user->hashPassword($passwd);
 		if($user->save()){
-			$this->email($model->email, "CLICKFORCE 電子合約申請通知", "您申請的" . $model->company_name . "供應商電子合約已完成審! <br> 您可以使用<br>帳號:" . $model->email . "<br>密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>登入您的後台</a>");
+			$Body = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/mailTemp.html');
+			$Body = str_replace ("{body}","您申請的" . $model->company_name . "供應商電子合約已完成審! <br> 您可以使用<br>帳號:" . $model->email . "<br>密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>登入您的後台</a>",$Body);			
+			$this->email($model->email, "CLICKFORCE 電子合約申請通知", $Body);
 			return true;
 		}else{
 			// print_r($user->getErrors()); exit;

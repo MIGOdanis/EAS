@@ -17,7 +17,7 @@
 	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/main_supplier.css" rel="stylesheet">
 	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.js"></script>
 	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.css" rel="stylesheet">
-	
+	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/supplierMain.js"></script>
 	</head>
 	<body>
 		<?php
@@ -32,11 +32,14 @@
 			</div>
 		</div>
 		<div class="modal fade" id="modal">
-			<div class="modal-dialog">
+			<div class="modal-dialog modal-lg">
 				<div class="modal-content" id="modal-content">
 
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->		
+		</div><!-- /.modal -->
+		<script type="text/javascript">
+			
+		</script>	
 	</body>
 </html>

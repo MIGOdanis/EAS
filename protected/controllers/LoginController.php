@@ -52,7 +52,9 @@ class LoginController extends Controller
 				$passwd = rand(0,9).rand(0,9).rand(0,9).rand(0,9).rand(0,9).rand(0,9);
 				$model->password = $model->hashPassword($passwd);
 				if($model->save()){
-					$this->email($model->user, "CLICKFORCE 密碼更換通知", "您於" . date("Y-m-d H:i:s") . "申請更換密碼<br> 您的新密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>請使用您的新密碼登入</a><br> 若您無申請此變更請立即與我們連繫!");
+					$Body = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/mailTemp.html');
+					$Body = str_replace ("{body}","您於" . date("Y-m-d H:i:s") . "申請更換密碼<br> 您的新密碼: " . $passwd ."<br> <a href='" . Yii::app()->params['baseUrl'] . "'>請使用您的新密碼登入</a><br> 若您無申請此變更請立即與我們連繫!",$Body);						
+					$this->email($model->user, "CLICKFORCE 密碼更換通知", $Body);
 					$this->render('afterResetPassword');
 					Yii::app()->end();
 				}

@@ -166,3 +166,7 @@ body , html{
 .datepicker-readonly{
 	cursor: pointer !important;
 }
+
+.errorMessage{
+	color: red;
+}

@@ -95,6 +95,7 @@ class TosSupplierController extends Controller
 						$uploadData->supplier_id = $id;
 						$uploadData->file_name = $filename;
 						$uploadData->time = time();
+						$uploadData->create_by = Yii::app()->user->id;
 						if(!$uploadData->save()){
 							$uploadChk = false;
 							$uploadMsg = "上載錯誤";
@@ -128,6 +129,26 @@ class TosSupplierController extends Controller
 			"allData" => $allData,
 			"model" => $model
 		));
+	}
+
+	public function actionGetUploadContract($id)
+	{	
+		$model = UploadContract::model()->with("supplier")->findByPk($id);
+		if($model !== null){
+			$folder = Yii::app()->params['uploadFolder'] . "SupplierContract/" . $model->supplier->tos_id;
+			$file = $folder . "/" . $model->file_name; 
+			$this->readPdfFile($file,$model->file_name);
+		}		
+	}
+
+	public function actionActiveUploadContract($id)
+	{	
+		$model = UploadContract::model()->with("supplier")->findByPk($id);
+		if($model !== null){
+			$model->active = ($model->active == 1) ? 0 : 1;
+			$model->save();
+			$this->redirect("uploadContract?id=" . $model->supplier->id);
+		}		
 	}
 
 	public function actionUpdateLog()

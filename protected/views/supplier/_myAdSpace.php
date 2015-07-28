@@ -26,8 +26,8 @@
 
 		<a target="_blank" href="<?php echo Yii::app()->params["androidSdkUrl"];?>" class="btn btn-primary download-btn">Android SDK (V <?php echo Yii::app()->params["androidSdkVersion"];?>)</a>
 		<a target="_blank" href="<?php echo Yii::app()->params["androidSdkDoc"];?>" class="btn btn-primary download-btn">Android SDK Document</a>
-		<a target="_blank" href="<?php echo Yii::app()->params["iosSdkUrl"];?>" class="btn btn-primary download-btn">IOS SDK (V <?php echo Yii::app()->params["iosSdkVersion"];?>)</a>
-		<a target="_blank" href="<?php echo Yii::app()->params["iosSdkDoc"];?>" class="btn btn-primary download-btn">IOS SDK Document</a>
+		<!-- <a target="_blank" href="<?php echo Yii::app()->params["iosSdkUrl"];?>" class="btn btn-primary download-btn">IOS SDK (V <?php echo Yii::app()->params["iosSdkVersion"];?>)</a> -->
+		<!-- <a target="_blank" href="<?php echo Yii::app()->params["iosSdkDoc"];?>" class="btn btn-primary download-btn">IOS SDK Document</a> -->
 	<?php }?>
 </div>
 <?php 

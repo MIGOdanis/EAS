@@ -26,6 +26,87 @@ class SupplierController extends Controller
 		$this->render('index');
 	}
 
+	public function actionMessage()
+	{
+		$model=new Message('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Message']))
+			$model->attributes=$_GET['Message'];
+
+		$this->render('message',array(
+			'model'=>$model,
+		));
+	}
+
+	public function actionMessageView($id)
+	{	
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.user_id LIKE '%:" . Yii::app()->user->id . ":%'");
+		$criteria->addCondition("t.active = 1");
+		$criteria->addCondition("t.publish_time <= " . time());
+		$criteria->addCondition("t.expire_time >= " . time() . " OR t.expire_time = 0");
+		$criteria->addCondition("t.id = :id");
+		$criteria->params = array(
+			':id' => $id
+		);
+		$model = Message::model()->find($criteria);
+
+		if($model !== null){
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("t.message_id = :mid");
+			$criteria->addCondition("t.user_id = :uid");
+			$criteria->params = array(
+				':uid' => Yii::app()->user->id,
+				':mid' => $id,
+			);
+			$read = MessageRead::model()->find($criteria);
+			if($read === null){
+				$read = new MessageRead();
+				$read->message_id = $model->id;
+				$read->user_id = Yii::app()->user->id;
+				$read->read_time = time();
+				$read->save();
+			}
+		}
+		
+
+		$this->renderPartial('_messageView',array(
+			'model'=>$model,
+		));
+	}
+
+	public function actionSetAllMessageRead()
+	{
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.user_id LIKE '%:" . Yii::app()->user->id . ":%'");
+		$criteria->addCondition("t.active = 1");
+		$criteria->addCondition("t.publish_time <= " . time());
+		$criteria->addCondition("t.expire_time >= " . time() . " OR t.expire_time = 0");
+		$model = Message::model()->findAll($criteria);
+
+		if($model !== null){
+			foreach ($model as $value) {
+				$criteria = new CDbCriteria;
+				$criteria->addCondition("t.message_id = :mid");
+				$criteria->addCondition("t.user_id = :uid");
+				$criteria->params = array(
+					':uid' => Yii::app()->user->id,
+					':mid' => $value->id,
+				);
+				$read = MessageRead::model()->find($criteria);
+				if($read === null){
+					$read = new MessageRead();
+					$read->message_id = $value->id;
+					$read->user_id = Yii::app()->user->id;
+					$read->read_time = time();
+					$read->save();
+				}
+			}
+		}
+
+		Yii::app()->end();
+	}
+
 	public function actionReport()
 	{
 		$this->layout = "supplier_column_report";
@@ -55,8 +136,20 @@ class SupplierController extends Controller
 
 	public function actionDownloadContract()
 	{
-		$this->exportSupplierContract($this->supplier);
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("supplier_id = " . $this->supplier->id);
+		$criteria->addCondition("active = 1");
+		$criteria->order = "id DESC";
+		$model = UploadContract::model()->find($criteria);
+		if($model === null){
+			$this->exportSupplierContract($this->supplier);
+			Yii::app()->end();
+		}
 		
+		$folder = Yii::app()->params['uploadFolder'] . "SupplierContract/" . $this->supplier->tos_id;
+		$file = $folder . "/" . $model->file_name; 
+		$this->readPdfFile($file,$model->file_name);
 	}
 
 	public function actionPayments()

@@ -65,6 +65,8 @@ $this->nav = array(
 					"gotoDashboard" => "模擬供應商前台",
 					"downloadContract" => "下載供應商合約",
 					"uploadContract" => "上載合約電子檔",
+					"getUploadContract" => "下載已上載合約電子檔",
+					"activeUploadContract" => "廢棄已上載合約電子檔"
 				),
 			),
 			"tosSite" => array(
@@ -162,6 +164,25 @@ $this->nav = array(
 				),					
 			)						
 		)
-	),	
+	),
+	"Message" => array(
+		"title" => "訊息推播",
+		"url"=>"Message/admin",
+		"controllers" => array("Message"),
+		"list" => array(
+			"Message" => array(
+				"title" => "訊息推播",
+				"url"=>"Message/admin",
+				"action" => array(
+					"admin" => "訊息管理",
+					"update" => "更新訊息",
+					"create" => "新增訊息",
+					"getGroupUser" => "使用者列表(新增訊息請選擇此項)",
+					"active" => "停用/啟用訊息",
+					"view" => "訊息檢視"
+				),
+			),						
+		)
+	),		
 );
 ?>

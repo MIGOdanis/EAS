@@ -29,8 +29,14 @@ return array(
 
 	'cfTel' => '02-27198500',
 
+	'messageRank' => array(
+		"1" => "訊息",
+		"2" => "緊急通知",
+	),
+
 	'mail' => array(
 		"adminEmail" => "web.service@clickforce.com.tw",
+		"adminEmailName" => "CLICKFORCE",
 		'smtpHost'=>'mail.clickforce.com.tw',
 		'smtpAuth'=>true,
 		'smtpUsername'=>'web.service@clickforce.com.tw',
@@ -57,7 +63,7 @@ return array(
 	'iosSdkVersion' => "1.15",
 	'iosSdkUrl' => "http://eas.doublemax.net/sdk/ios/MFAD115.zip",
 	'iosSdkDoc' => "http://eas.doublemax.net/sdk/ios/MFAD115.pdf",
-	'iosSdkVersionNowNew' => true,
+	'iosSdkVersionNowNew' => false,
 
 	'buyType' => array(
 		"0" => "未選擇",

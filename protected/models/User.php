@@ -47,6 +47,7 @@ class User extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'auth' => array(self::HAS_ONE, 'AuthGroup', array('id' => 'auth_id')),
+			'supplier' => array(self::HAS_ONE, 'Supplier', array('id' => 'supplier_id')),
 		);
 	}
 

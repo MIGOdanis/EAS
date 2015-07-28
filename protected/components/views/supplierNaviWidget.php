@@ -45,9 +45,13 @@
                         <li><a href="payments">付費</a></li>
                     </ul>
                 </li> -->
-<!--                 <li>
-                    <a href="#"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span></a>
-                </li> -->
+                <li id="message-box">
+                    <?php
+                        if(Yii::app()->user->id > 0){
+                            $this->widget('SupplierMessageWidget');
+                        }
+                    ?>
+                </li>
             </ul>
         </div>              
     </div>  

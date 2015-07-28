@@ -77,12 +77,12 @@
 </div>
 <div class="modal-body">
 	<div id="form-end-ok">
-		<h1><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>審核完成</h1>
-		<p>審核完成! 帳號已經發送至供應商信箱!</p>	
+		<h1><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>建立完成</h1>
+		<p>建立完成! 帳號已經發送至供應商信箱!</p>	
 	</div>
 	<div id="form-end-fail">
-		<h1><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>審核失敗</h1>
-		<p id="fail-msg">審核完成! 帳號已經發送至供應商信箱!</p>	
+		<h1><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>建立失敗</h1>
+		<p id="fail-msg">建立完成! 帳號已經發送至供應商信箱!</p>	
 	</div>	
 	<div class="form-group" id="form-box">
 		<label>名稱</label>

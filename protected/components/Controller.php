@@ -92,23 +92,29 @@ class Controller extends CController
 		);
 	}
 
-
-
-
 	// 使用者啟用停用
 	public function actionActive($id)
 	{
 		$model=$this->loadModel($id);
         $model->scenario = 'active';
 		$model->active = ($model->active == 1) ? 0 : 1;
-		if($model->save())
-			echo 1;
+		if($model->save()){
+			echo $model->active;
 			if(isset($_GET['redirect']))
 				$this->redirect(array($_GET['redirect']));
-		else
+		}else{
 			echo 'Error';
+		}
 	}
 
+	// 使用者啟用停用
+	public function actionUpdateMessage()
+	{
+		if(Yii::app()->user->id > 0){
+			$this->widget('SupplierMessageWidget');
+		}
+		Yii::app()->end();
+	}
 	//log
 	public function writeLog($str,$dir,$fileName){
 		if (!is_dir(dirname(__FILE__) . "/../../logs/" . $dir)){     //檢察upload資料夾是否存在
@@ -287,6 +293,8 @@ class Controller extends CController
 		$html = str_replace ("{bank_sub_name}",$model->bank_sub_name,$html);
 		$html = str_replace ("{bank_sub_id}",$model->bank_sub_id,$html);
 		$html = str_replace ("{account_name}",$model->account_name,$html);
+		$html = str_replace ("{account_number}",$model->account_number,$html);
+
 
 		if(isset($model->site) && is_array($model->site)){
 			foreach ($model->site as $site) {
@@ -312,14 +320,21 @@ class Controller extends CController
 		$mpdf->mirrorMargins = true;
 		$mpdf->useAdobeCJK = true;   
 		$mpdf->SetAutoFont(AUTOFONT_ALL);  
-		// $mpdf->autoScriptToLang = true;
 		$mpdf->SetDisplayMode('fullpage');
 
 		$mpdf->WriteHTML($html);
 
-		$mpdf->Output();
-		// $mpdf->Output(date("Y-m-d") . $model->company_name . '域動行銷網站合作銷售合約書.pdf','D');
+		$mpdf->Output(date("Y-m-d") . $model->company_name . '域動行銷網站合作銷售合約書.pdf','D');
 	}
+
+	public function readPdfFile($file,$file_name){
+		header("Content-disposition: attachment; filename=" . $file_name);
+		header("Content-type: application/pdf");
+		readfile($file);
+		Yii::app()->end();
+	}
+
+
 
 	public function exportExcel($Report){
 		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';

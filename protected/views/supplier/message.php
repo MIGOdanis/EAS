@@ -1,35 +1,11 @@
-<div class="page-header">
-  <h1>Hi! Welcome</h1>
-</div>
 <style type="text/css">
-	#content-singe{
-		width: 100%;
+	th{
+		text-align: center;
 	}
 </style>
-<script type="text/javascript">
-$(function(){
-	$('.viewMessage').click(function() {
-		var url = $(this).prop('href');
-		$.ajax({
-			url:url,
-			success:function(html){
-				$('#modal-content-lg').html(html);
-				$('#modal-lg').modal('show');
-			}
-		})
-	    .fail(function(e) {
-	        if(e.status == 403){
-	        	alert('您的權限不足');
-	            window.location.reload();
-	        }
-	        if(e.status == 500){
-	        	alert('請稍後再試，或聯繫管理人員');
-	        }            
-	    });
-		return false;//阻止a标签		
-	});	
-})
-</script>
+<div class="page-header">
+  <h1>訊息中心</h1>
+</div>
 <?php
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -69,7 +45,7 @@ $('.search-form form').submit(function(){
 		array(
 			'name'=>'title',
 			'type'=>'raw',
-			'value'=>'CHtml::link($data->title,array("index/messageView","id"=>$data->id),array("class" => "viewMessage"))',
+			'value'=>'CHtml::link($data->title,array("supplier/messageView","id"=>$data->id),array("target" => "_blank", "class" => "viewMessage"))',
 		),	
 		array(
 			'header' => '發布時間',
