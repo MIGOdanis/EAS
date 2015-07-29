@@ -26,7 +26,7 @@ class TosTreporBuyDrDisplayDailyMobReport extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{buy_dr_display_daily_mob_report}}';
+		return '{{buy_dr_display_daily_mob_report_nct}}';
 	}
 
 	/**

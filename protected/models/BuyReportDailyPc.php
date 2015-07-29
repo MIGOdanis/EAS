@@ -41,7 +41,7 @@ public $temp_advertiser_invoice_sum;
 	 */
 	public function tableName()
 	{
-		return '{{buyReportDailyPc}}';
+		return '{{buyReportDaily}}';
 	}
 
 	/**
