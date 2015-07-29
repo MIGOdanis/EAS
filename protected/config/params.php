@@ -19,7 +19,7 @@ return array(
 	// 'baseUrl' => 'http://eas.doublemax.net',
 	'baseUrl' => 'http://192.168.1.10/eas',
 
-	'noPayAdvertiser' => '100235377', 
+	'noPayAdvertiser' => array('100235377','100367'), 
 
 	'userGroup' => array(
 		'1'=>'管理員','2'=>'域動_PM','3'=>'域動_財務','4'=>'域動_BD','5'=>'域動_業務','6'=>'域動_行銷','7'=>'供應商','8'=>'經銷商','9'=>'廣告主','10'=>'代理商'

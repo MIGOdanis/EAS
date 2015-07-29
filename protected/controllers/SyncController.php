@@ -171,7 +171,7 @@ class SyncController extends Controller
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyPcTosTime");
 
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
 		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
 		$this->noPayCampaign = array();
 		foreach ($noPayCampaign as $value) {
@@ -262,6 +262,34 @@ class SyncController extends Controller
 		return $model;
 	}	
 
+	public function actionClearReportNoPay()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		$criteria = new CDbCriteria;
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
+		$this->noPayCampaign = array();
+		foreach ($noPayCampaign as $value) {
+			$this->noPayCampaign[] = $value->id;
+		}	
+		
+		$criteria = new CDbCriteria;
+		$criteria->addInCondition("campaign_id",$this->noPayCampaign);
+		// $report = TosTreporBuyDrDisplayDailyMobReport::model()->findAll($criteria);
+		BuyReportDailyPc::model()->updateAll(
+			array(
+				"media_cost" => 0,
+				"media_tax_cost" => 0,
+				"media_ops_cost" => 0,
+				"income" => 0,
+				"income_ten_sec" => 0,
+				"agency_income" => 0,
+			),
+			$criteria
+		);
+	}
+
 	public function actionSyncBuyReportDailyMob()
 	{
 		set_time_limit(0);
@@ -269,7 +297,7 @@ class SyncController extends Controller
 		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyMobTosTime");
 
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
 		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
 		$this->noPayCampaign = array();
 		foreach ($noPayCampaign as $value) {

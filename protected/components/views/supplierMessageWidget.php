@@ -1,5 +1,5 @@
 <a id="message-btn" href="#">
-	<span class="glyphicon glyphicon-bullhorn <?php if($unRead) { echo "message-active"; } ; ?> " aria-hidden="true"></span>
+	<span class="glyphicon glyphicon-bullhorn <?php if($unRead > 0) { echo "message-active"; } ; ?> " aria-hidden="true"></span>
 	<?php if($unRead > 0): ?>
 		<div id="count-box">
 			<?php 

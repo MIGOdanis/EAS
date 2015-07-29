@@ -336,7 +336,9 @@ class SupplierController extends Controller
 				$model->attributes=$_POST['User'];
 				$model->password = $model->hashPassword($_POST['User']['new_password']);
 				if ($model->save()) {
-					$this->email($model->user, "CLICKFORCE 密碼修改通知", "您的密碼已於".date("Y-m-d H:i:s") . "修改完成");
+					$Body = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/mailTemp.html');
+					$Body = str_replace ("{body}","您的密碼已於".date("Y-m-d H:i:s") . "修改完成",$Body);					
+					$this->email($model->user, "CLICKFORCE 密碼修改通知", $Body);
 					$this->redirect(array('login/out'));
 				}			
 			}else{

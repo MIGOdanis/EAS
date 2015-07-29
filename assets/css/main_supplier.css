@@ -183,6 +183,7 @@ nav{
 
 #contents-singe{
 	padding: 70px;
+	overflow: auto;
 }
 
 .repasswd{

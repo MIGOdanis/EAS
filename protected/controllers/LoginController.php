@@ -5,7 +5,7 @@ class LoginController extends Controller
 	public function actionIndex()
 	{
 
-		$this->layout='column_list';
+		$this->layout='column_login';
 
 		if(Yii::app()->user->id > 0)
 			$this->redirect(Yii::app()->homeUrl);
@@ -36,7 +36,7 @@ class LoginController extends Controller
 
 	public function actionResetPassword()
 	{
-		$this->layout='column_list';
+		$this->layout='column_login';
 		$err = false;
 		if(Yii::app()->user->id > 0)
 			$this->redirect(Yii::app()->homeUrl);

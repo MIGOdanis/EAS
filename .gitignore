@@ -68,3 +68,4 @@ protected/runtime/application.log
 admin/protected/runtime/application.log
 *.log
 sql.txt
+aws/*

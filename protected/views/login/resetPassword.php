@@ -1,12 +1,3 @@
-<style type="text/css">
-	#contents{
-		max-width: 450px;
-		min-width: 350px;
-		margin-left: auto;
-		margin-right: auto;
-		/*padding-top: 50px;*/
-	}
-</style>
 <div class="page-header">
   <h3><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>忘記密碼</h3>
 </div>

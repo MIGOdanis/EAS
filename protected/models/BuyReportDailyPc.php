@@ -205,7 +205,7 @@ public $temp_advertiser_invoice_sum;
 	public function supplierDailyReport($tos_id,$reportType)
 	{
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("advertiser_id = '" . Yii::app()->params['noPayAdvertiser'] . "'");		
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
 		$noPayCampaign = Campaign::model()->findAll($criteria);
 		$noPayCampaignId = array();
 		foreach ($noPayCampaign as $value) {

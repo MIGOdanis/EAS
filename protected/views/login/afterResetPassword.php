@@ -1,11 +1,4 @@
 <style type="text/css">
-	#contents{
-		max-width: 450px;
-		min-width: 350px;
-		margin-left: auto;
-		margin-right: auto;
-		/*padding-top: 50px;*/
-	}
 	.text{
 		text-align: center;
 	}
