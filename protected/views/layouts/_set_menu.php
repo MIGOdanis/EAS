@@ -66,7 +66,8 @@ $this->nav = array(
 					"downloadContract" => "下載供應商合約",
 					"uploadContract" => "上載合約電子檔",
 					"getUploadContract" => "下載已上載合約電子檔",
-					"activeUploadContract" => "廢棄已上載合約電子檔"
+					"activeUploadContract" => "廢棄已上載合約電子檔",
+					"createToRegister" => "申請資料補充連結",
 				),
 			),
 			"tosSite" => array(

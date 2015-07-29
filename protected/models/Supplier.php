@@ -189,7 +189,7 @@ class Supplier extends CActiveRecord
 				'pageSize' => 50
 			),
 			'sort' => array(
-				'defaultOrder' => 't.id DESC',
+				'defaultOrder' => 't.status DESC, t.id DESC',
 			),
 			'criteria'=>$criteria,
 		));

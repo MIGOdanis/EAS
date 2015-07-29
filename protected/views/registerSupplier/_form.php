@@ -266,7 +266,7 @@ $(function() {
 				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您的身份證(本國人士) / 護照影本(非本國人士)，JPG格式4MB以內</div>				
 				<div>
 					<?php 
-					if(isset($model->certificate_image)){
+					if(isset($model->certificate_image) && !empty($model->certificate_image)){
 							if (strpos($model->certificate_image,"http") === false) {
 								$img = Yii::app()->params['baseUrl'] . "/upload/registerSupplier/" . $model->certificate_image;
 							} 
@@ -385,7 +385,7 @@ $(function() {
 				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請上傳您做為銀行帳戶的存摺影本，JPG格式4MB以內</div>				
 				<div>
 					<?php 
-					if(isset($model->bank_book_img)){
+					if(isset($model->bank_book_img) && !empty($model->certificate_image)){
 							if (strpos($model->bank_book_img,"http") === false) {
 								$img = Yii::app()->params['baseUrl'] . "/upload/registerSupplier/" . $model->bank_book_img;
 							} 

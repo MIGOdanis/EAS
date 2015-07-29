@@ -234,4 +234,32 @@ class TosSupplierController extends Controller
 		//Yii::app()->session['virtual_time_out'] = time() + 600;
 	}	
 
+	public function actionCreateToRegister($id)
+	{	
+		$model = Supplier::model()->findByPk($id);
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.tos_id = " . $model->tos_id);
+		$supplierRegister = SupplierRegister::model()->find($criteria);
+		if($supplierRegister === null)
+			$supplierRegister = new SupplierRegister();
+		
+		$supplierRegister->attributes = $model->attributes;
+		if($supplierRegister->public_time == 0)
+			$supplierRegister->public_time = time();
+		$supplierRegister->check_time = time();
+		$supplierRegister->check = 5; //通過
+		$supplierRegister->check_by = Yii::app()->user->id;		
+		$supplierRegister->read_contract = 1;
+		if(!$supplierRegister->save()){
+			$check = false;
+		}else{
+			$check = true;
+		}
+		
+		$this->renderPartial('_createToRegister',array(
+			"model" => $supplierRegister,
+			"check" => $check
+		));		
+	}
+
 }

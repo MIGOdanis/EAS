@@ -88,6 +88,8 @@ function setting($data){
 					<li><a target="_blank" href="downloadContract?id=' . $data->id . '">下載最新合約</a></li>
 					<li><a href="uploadContract?id=' . $data->id . '">上載合約電子檔</a></li>
 					<li><a target="_blank" href="gotoDashboard?id=' . $data->id . '">前往模擬前台</a></li>					
+					<li role="separator" class="divider"></li>
+					<li><a target="_blank" href="createToRegister?id=' . $data->id . '" class="set-btn">申請資料補充連結</a></li>					
 				</ul>
 			</div>';
 
