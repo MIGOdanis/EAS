@@ -30,7 +30,7 @@ class User extends CActiveRecord
 			array('user, password, name, auth_id, group, creat_time, active', 'required'),
 			array('active, creat_time,supplier_id', 'numerical', 'integerOnly'=>true),
 			array('name, password, name', 'length', 'max'=>255),
-			array('id, name, password, name, active, creat_time,supplier_id', 'safe', 'on'=>'search'),
+			array('id, name, password, name, active, creat_time, supplier_id, last_login', 'safe', 'on'=>'search'),
 			array('user', 'unique', 'message'=>'{attribute}"{value}"已經使用', 'on'=>'register'),
 			array('name', 'unique', 'message'=>'{attribute}"{value}"已經使用', 'on'=>'register'),
 			array('new_password', 'compare', 'compareAttribute'=>'repeat_password', 'on'=>'repassword', 'message'=>'新{attribute}與再次輸入的密碼不同'),
@@ -66,6 +66,7 @@ class User extends CActiveRecord
 			'auth_id' => '權限',
 			'group' => '群組',
 			'creat_time' => '建立時間',
+			'last_login' => '最後登入',
 			'active' => '啟用',
 		);
 	}
@@ -97,6 +98,13 @@ class User extends CActiveRecord
 		$criteria->compare('creat_time',$this->creat_time);
 		$criteria->compare('active',$this->active);
 
+		if(isset($_GET['gid']) && !empty($_GET['gid'])){
+			$criteria->addCondition("t.group = :gid");
+			$criteria->params = array(
+				":gid" => (int)$_GET['gid']
+			);
+		}
+		
 		return new CActiveDataProvider($this, array(
 			'pagination' => array(
 				'pageSize' => 50

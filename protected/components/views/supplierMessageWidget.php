@@ -17,7 +17,7 @@
 		<img src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/image/arrow.png">
 	</div>
 
-	<?php if(count($model)){ ?>
+	<?php if(count($model) > 0){ ?>
 	<div id="message-top">
 		<?php echo CHtml::link("查看更多",array("supplier/message")); ?> |
 		<?php echo CHtml::link("設為已讀",array("supplier/setAllMessageRead"), array("class" => "setAllReadBtn")); ?>

@@ -15,7 +15,24 @@ $('.search-form form').submit(function(){
 });
 ");
 ?>
-<a class="btn btn-default" href="create">新增使用者</a>
+<div class="btn-group" role="group" aria-label="...">
+	<div class="dropdown btn-group">
+		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+			選擇群組
+			<span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+			<li><a href="admin">全部</a></li>
+			<?php foreach (Yii::app()->params["userGroup"] as $key => $value) {?>
+				<li><a href="admin?gid=<?php echo $key; ?>"><?php echo $value; ?></a></li>
+			<?php }?>
+		</ul>
+	</div>	
+	<a class="btn btn-default" href="create">新增使用者</a>
+</div>
+
+
+
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered table-striped',
@@ -49,6 +66,12 @@ $('.search-form form').submit(function(){
 			'name'=>'group',
 			'value'=>'Yii::app()->params["userGroup"][$data->group]',
 			'htmlOptions'=>array('width'=>'120'),
+			'filter'=>false,
+		),
+		array(
+			'name'=>'last_login',
+			'value'=>'($data->last_login > 0) ? date("Y-m-d H:i:s", $data->last_login) : "-"',
+			'htmlOptions'=>array('width'=>'165'),
 			'filter'=>false,
 		),
 		array(
