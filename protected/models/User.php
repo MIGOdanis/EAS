@@ -116,6 +116,34 @@ class User extends CActiveRecord
 		));
 	}
 
+	public function userAuthList()
+	{
+		// @todo Please modify the following code to remove attributes that should not be searched.
+
+		$criteria=new CDbCriteria;
+
+		$criteria->compare('id',$this->id);
+		$criteria->compare('user',$this->user,true);
+		$criteria->compare('password',$this->password,true);
+		$criteria->compare('name',$this->name,true);
+		$criteria->compare('auth_id',$this->auth_id);
+		$criteria->compare('group',$this->group);
+		$criteria->compare('creat_time',$this->creat_time);
+		$criteria->compare('active',$this->active);
+
+		$criteria->addInCondition('t.group',array(1,2,3,4,5,6));
+		
+		return new CActiveDataProvider($this, array(
+			'pagination' => array(
+				'pageSize' => 50
+			),
+			'sort' => array(
+				'defaultOrder' => 't.id DESC',
+			),
+			'criteria'=>$criteria,
+		));
+	}
+
 	public function getUserBySupplier($supplier_id)
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.

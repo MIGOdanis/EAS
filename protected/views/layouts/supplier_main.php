@@ -18,7 +18,9 @@
 	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.js"></script>
 	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/jquery-ui/jquery-ui.min.css" rel="stylesheet">
 	<script src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/supplierMain.js"></script>
-	
+	<!--[if IE]>
+	<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/ie.css" rel="stylesheet">
+	<![endif]-->	
 	<script>
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -37,6 +39,7 @@
 		}
 		?>
 		<div id="main">	
+
 			<div id="contents">	
 				<?php echo $content; ?>
 			</div>

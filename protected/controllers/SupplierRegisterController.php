@@ -113,7 +113,7 @@ class SupplierRegisterController extends Controller
 			if($model->public_time == 0)
 				$model->public_time = time();
 			$model->check_time = time();
-			$model->check = ($model->check == 6 || $model->check == 5) ? 7 : 2; //退回
+			$model->check = ($model->check == 6 || $model->check == 5 || $model->check == 7) ? 7 : 2; //退回
 			$model->check_by = Yii::app()->user->id;
 			$model->save();
 			$this->renderPartial('_turnBack',array(

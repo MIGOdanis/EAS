@@ -10,9 +10,7 @@
 		background-color: #f8f8f8;
 		
 	}
-	#right-main{
-		padding-left: 0px;
-	}
+
 	.filter-box{
 		float: right;
 		margin-right: 15px;
@@ -37,7 +35,9 @@
 		padding:15px;
 	}
 </style>
-
+<!--[if IE]>
+<p>您正在使用的瀏覽器為 ie 。</p>
+<![endif]-->
 <div id="report">
 	<div id="filter">
 		<div class="filter-box">

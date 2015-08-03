@@ -39,7 +39,7 @@ Session_start();
 | -------------------------------------------------------------------*/
 
 	
-	$config['img_path'] = '/CFC/upload/'; // 跟目錄www之後的目錄位置
+	$config['img_path'] = '/upload/image'; // 跟目錄www之後的目錄位置
 	$config['upload_path'] = $_SERVER['DOCUMENT_ROOT'] . $config['img_path']; // Physical path. [Usually works fine like this]
 
 
@@ -77,7 +77,7 @@ Session_start();
 | -------------------------------------------------------------------*/
 
 	
-	$config['max_width'] = 300;
+	$config['max_width'] = 600;
 
 
 /*-------------------------------------------------------------------
@@ -89,7 +89,7 @@ Session_start();
 | -------------------------------------------------------------------*/
 
 	
-	$config['max_height'] = 300;
+	$config['max_height'] = 600;
 
 
 /*-------------------------------------------------------------------
