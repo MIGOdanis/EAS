@@ -34,7 +34,8 @@ return array(
 		"2" => "緊急通知",
 	),
 
-	'alertMailGroup' => array('danis@clickforce.com.tw','j0sdarg05@gmail.com'),
+	'alertMailGroup' => array('danis@clickforce.com.tw'),
+	'adminMail' => array('danis@clickforce.com.tw'),
 
 	'mail' => array(
 		"adminEmail" => "web.service@clickforce.com.tw",

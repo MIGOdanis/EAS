@@ -9,7 +9,7 @@ $ctx = stream_context_create(array('http'=>
 ));
 
 //檢查未執行排程
-$checkCron = file_get_contents($baseUrl . "cronCheckHourly/CronHourlyPc", false, $ctx);
+$checkCron = file_get_contents($baseUrl . "cronCheckHourly/CronHourlyPc?type=PC", false, $ctx);
 
-$checkCron = file_get_contents($baseUrl . "cronCheckHourly/CronHourlyMob", false, $ctx);
+$checkCron = file_get_contents($baseUrl . "cronCheckHourly/CronHourlyMob?type=MOB", false, $ctx);
 
