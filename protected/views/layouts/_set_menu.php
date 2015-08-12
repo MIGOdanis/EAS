@@ -149,8 +149,8 @@ $this->nav = array(
 				"url"=>"advertiserReport/categoryReport",
 				"action" => array(
 					"categoryReport" => "媒體分類報表",
-					"campaignBannerReport" => "廣告活動總表"
-
+					"campaignBannerReport" => "廣告活動總表",
+					"ytbReport" => "影音廣告報表"
 				),					
 			),
 			"advertiserAccounts" => array(
