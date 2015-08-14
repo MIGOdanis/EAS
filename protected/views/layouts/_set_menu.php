@@ -133,7 +133,7 @@ $this->nav = array(
 	"mediaReport" => array(
 		"title" => "報表查詢",
 		"url"=>"mediaReport/supplierReport",
-		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts"),
+		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts","downloadData"),
 		"list" => array(
 			"mediaReport" => array(
 				"title" => "供應商日報",
@@ -163,7 +163,19 @@ $this->nav = array(
 					"creatInvoice" => "建立發票",
 					"delInvoice" => "註銷發票"
 				),					
-			)						
+			),
+			"downloadData" => array(
+				"title" => "資料輸出",
+				"url"=>"downloadData/index",
+				"action" => array(
+					"index" => "資料輸出列表",
+					"siteAdSpaceInfor" => "網站版位資訊",
+					"strategyInfor" => "訂單策略資訊",
+					"creativeInfor" => "訂單素材資訊",
+				),					
+			),
+
+
 		)
 	),
 	"Message" => array(

@@ -1,5 +1,5 @@
 <?php
-class TosCoreSite extends CActiveRecord
+class TosCoreMediaCategory extends CActiveRecord
 {
 	public static $conection; 
 
@@ -26,7 +26,7 @@ class TosCoreSite extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{site}}';
+		return '{{media_category}}';
 	}
 
 	/**
@@ -36,9 +36,7 @@ class TosCoreSite extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array(
-
-		);
+		return array();
 	}
 
 	/**
@@ -49,7 +47,6 @@ class TosCoreSite extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'category' => array(self::HAS_ONE, 'TosCoreSiteMediaCategory', array('site_id' => 'id')),
 		);
 	}
 

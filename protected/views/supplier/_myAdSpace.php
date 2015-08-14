@@ -36,8 +36,8 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 		<div class="display-supplier-adSpace">
 			<h4><?php echo $value->name;?></h4>
 
+			<h5>版位編號 : <?php echo $value->tos_id;?></h5>
 			<h5>版位大小 : <?php echo ($model->type == 1) ? $value->width . " x " . $value->height : str_replace (":"," x ",$value->ratio_id);?></h5>
-
 			<h5>拆分方式 : <?php echo Yii::app()->params['buyType'][$value->buy_type]; ?></h5>
 			<h5>
 			價格 : <?php echo Yii::app()->params['chrgeType'][$value->charge_type] . $value->price * Yii::app()->params['priceType'][$value->charge_type]; ?>
