@@ -198,13 +198,17 @@ class MediaReportController extends Controller
 			$media_cost = 0;			
 			foreach ($model as $value) {
 				$data[] = array(
-					"A" => $value->adSpace->name,
-					"B" => number_format($value->impression, 0, "." ,""),
-					"C" => number_format($value->click, 0, "." ,""),
-					"D" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
-					"E" => number_format($value->media_cost, 2, "." ,""),
-					"F" => (($value->impression > 0) ? number_format(($value->media_cost / $value->impression) * 1000, 2, "." ,"") : 0),
-					"G" => (($value->click > 0) ? number_format(($value->media_cost / $value->click), 2, "." ,"") : 0),
+					"A" => $value->adSpace->site->name,
+					"B" => Yii::app()->params["siteType"][$value->adSpace->site->type],
+					"C" => $value->adSpace->site->category->mediaCategory->name,
+					"D" => $value->adSpace->name,
+					"E" => ($value->adSpace->site->type == 1) ? $value->adSpace->width . " x " . $value->adSpace->height : str_replace (":"," x ",$value->adSpace->ratio_id),
+					"F" => number_format($value->impression, 0, "." ,""),
+					"G" => number_format($value->click, 0, "." ,""), 
+					"H" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
+					"I" => number_format($value->media_cost, 2, "." ,""),
+					"J" => (($value->impression > 0) ? number_format(($value->media_cost / $value->impression) * 1000, 2, "." ,"") : 0),
+					"K"	=> (($value->click > 0) ? number_format(($value->media_cost / $value->click), 2, "." ,"") : 0)			
 				);
 				$impression += $value->impression;
 				$click += $value->click;
@@ -212,29 +216,39 @@ class MediaReportController extends Controller
 
 			}
 
+
+
 			$data[] = array(
 				"A" => "合計",
-				"B" => number_format($impression, 0, "." ,""),
-				"C" => number_format($click, 0, "." ,""),
-				"D" => (($impression > 0) ? round(($click / $impression) * 100, 2) : 0) . "%",
-				"E" => number_format($media_cost, 2, "." ,""),
-				"F" => (($impression > 0) ? number_format(($media_cost / $impression) * 1000, 2, "." ,"") : 0),
-				"G" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
+				"B" => "",
+				"C" => "",
+				"D" => "",
+				"E" => "",
+				"F" => number_format($impression, 0, "." ,""), 
+				"G" => number_format($click, 0, "." ,""), 
+				"H" => (($impression > 0) ? round(($click / $impression) * 100, 2) : 0) . "%",
+				"I" => number_format($media_cost, 2, "." ,""),
+				"J" => (($impression > 0) ? number_format(($media_cost / $impression) * 1000, 2, "." ,"") : 0),
+				"K" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
 			);
 
 			$report = array(
 				"name" => "供應商版位日報表",
 				"titleName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"fileName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
-				"width" => "G1",
+				"width" => "K1",
 				"title" => array(
-					"A2" => "版位",
-					"B2" => "曝光",
-					"C2" => "點擊",
-					"D2" => "點擊率",
-					"E2" => "媒體成本",
-					"F2" => "eCPM",
-					"G2" => "eCPC",
+					"A2" => "網站名稱",
+					"B2" => "網站類型",
+					"C2" => "網站分類",
+					"D2" => "版位名稱",
+					"E2" => "版位尺寸",
+					"F2" => "曝光",
+					"G2" => "點擊",
+					"H2" => "點擊率",
+					"I2" => "媒體成本",
+					"J2" => "eCPM",
+					"K2" => "eCPC",					
 				),
 				"data" => $data
 			);	

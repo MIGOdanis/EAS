@@ -278,10 +278,10 @@ class AdvertiserReportController extends Controller
 			$day = $this->getDay();
 			$campaign = $this->getCampaign($_GET['CampaignId']);
 			//print_r($_GET['CampaignId']); exit;
-			$model = new EveTestYtbLogs('search');
+			$model = new BuyReportDailyPc('search');
 			$model->unsetAttributes();  // clear any default values
-			if(isset($_GET['EveTestYtbLogs']))
-				$model->attributes=$_GET['EveTestYtbLogs'];
+			if(isset($_GET['BuyReportDailyPc']))
+				$model->attributes=$_GET['BuyReportDailyPc'];
 
 			$this->renderPartial('_ytbReport',array(
 				'model'=>$model,
@@ -293,6 +293,76 @@ class AdvertiserReportController extends Controller
 		}
 
 		$this->render('ytbReport');
+	}
+
+
+	public function actionFunctionReport()
+	{	
+		
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			$model = BuyReportDailyPc::model()->functionReport($_GET['CampaignId']);
+	
+			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$income = 0;				
+			foreach ($model as $value) {
+				$data[] = array(
+					"A" => date("Y-m-d",$value["settled_time"]),
+					"B" => $value["campaign"]->campaign_name,
+					"C" => $value["creative"]->creativeGroup->name,
+					"D" => number_format($value["data"]->impression, 0, "." ,","),
+					"E" => number_format($value["data"]->click, 0, "." ,","),
+					"F" => (($value["data"]->impression > 0) ? round(($value["data"]->click / $value["data"]->impression) * 100, 2) : 0) . "%",
+					"G" => $value["temp_table"]["functionName"],
+					"H" => $value["temp_table"]["totClick"],
+
+				);
+			}
+
+			$report = array(
+				"name" => "加值功能報表",
+				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 加值功能報表 查詢時間" . $day[0] . "~" . $day[1],
+				"fileName" => "加值功能報表 查詢時間" . $day[0] . "~" . $day[1],
+				"width" => "H1",
+				"title" => array(
+					"A2" => "日期",
+					"B2" => "訂單名稱",
+					"C2" => "素材名稱",
+					"D2" => "曝光",
+					"E2" => "點擊",
+					"F2" => "點擊率",
+					"G2" => "加值功能",
+					"H2" => "加值功能點擊"
+				),
+				"data" => $data
+			);	
+
+			$this->exportExcel($report);
+			Yii::app()->end();	
+
+		}
+		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			$model = new BuyReportDailyPc('search');
+			$model->unsetAttributes();  // clear any default values
+			if(isset($_GET['BuyReportDailyPc']))
+				$model->attributes=$_GET['BuyReportDailyPc'];
+
+			$this->renderPartial('_functionReport',array(
+				'model'=>$model,
+				'campaign'=>$campaign,
+				'day'=>$day
+
+			));	
+			Yii::app()->end();
+		}
+
+		$this->render('functionReport');
 	}
 
 }

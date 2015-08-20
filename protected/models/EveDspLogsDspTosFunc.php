@@ -1,5 +1,5 @@
 <?php
-class EveTestYtbLogs extends CActiveRecord
+class EveDspLogsDspTosFunc extends CActiveRecord
 {
 	public static $conection; 
 
@@ -13,7 +13,7 @@ class EveTestYtbLogs extends CActiveRecord
             return self::$conection;
         else
         {
-            self::$conection = Yii::app()->eveTest;
+            self::$conection = Yii::app()->dspAlert;
             if (self::$conection instanceof CDbConnection)
             {
                 self::$conection->setActive(true);
@@ -26,7 +26,7 @@ class EveTestYtbLogs extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{log}}';
+		return '{{tosfunc}}';
 	}
 
 	/**
@@ -97,92 +97,40 @@ class EveTestYtbLogs extends CActiveRecord
 		return $criteria;
 	}
 
-	public function ytbReport($criteria)
+	public function funcReport($criteria)
 	{
+
 		$report = $this->findAll($criteria);
 
-		$rawData = array();
+		$countFunction = array();
+		$functionName =array();
 
 		foreach ($report as $key => $value) {
-			$sp = explode(":", $value->queryStr);
-			$ratings = $this->ratings($value->play_duration, $value->video_duration);
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]]["totView"]++;
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]][$ratings]++;
+			$countFunction[date("Y-m-d",$value->creat_time)][$value->creative]++;
+			$functionName[date("Y-m-d",$value->creat_time)][$value->creative] = $value->func;
 		}
 
-		$rawData = $this->transInfoByCount($rawData);
+		$rawData = $this->transInfoByCount($countFunction,$functionName);
 
-		// if(isset($_GET['export']) && $_GET['export'] == 1){
-			return $rawData;
-		// }
-		
-		// return new CArrayDataProvider($rawData, array(
-		// 	'pagination'=>false
-		// ));	
+
+		return $rawData;
 		
 	}
 
 
-	function transInfoByCount($rawData){
+	function transInfoByCount($countFunction,$functionName){
 		$data = array();
-		foreach ($rawData as $date => $dateValue) {
-			foreach ($dateValue as $adspace => $adspaceValue) {
-				$criteria=new CDbCriteria;
-				$criteria->addCondition("t.tos_id = '" . $adspace . "'");
-				$adspace = AdSpace::model()->find($criteria);
-				foreach ($adspaceValue as $strategy => $strategyValue) {
-					$criteria=new CDbCriteria;
-					$criteria->addCondition("t.tos_id = '" . $strategy . "'");
-					$strategy = Strategy::model()->find($criteria);		
-	
-					foreach ($strategyValue as $creative => $creativeValue) {
-						$criteria=new CDbCriteria;
-						$criteria->addCondition("t.tos_id = '" . $creative . "'");
-						$creative = CreativeMaterial::model()->find($criteria);
-
-						$data[$date][$strategy->tos_id][$creative->tos_id][$adspace->site->category->mediaCategory->id] = array(
-							"totView" => $creativeValue["totView"],
-							"0" => (int)$creativeValue["0"],
-							"25" => (int)$creativeValue["25"],
-							"50" => (int)$creativeValue["50"],							
-							"75" => (int)$creativeValue["75"],
-							"100" => (int)$creativeValue["100"],
-							"adspace" => $adspace->name,
-							"adspaceId" => $adspace->tos_id,
-							"strategy" => $strategy->strategy_name,
-							"strategyId" => $strategy->tos_id,
-							"creative" =>  $creative->creativeGroup->name,
-							"creativeId" =>  $creative->tos_id,
-							"siteCategory"=> $adspace->site->category->mediaCategory->name
-						);	
-					}							
-													
-				}				
+		foreach ($countFunction as $date => $dateValue) {
+			foreach ($dateValue as $creative => $click) {
+				$data[$date][$creative] = array(
+					"totClick" => (int)$click,
+					"functionName" => $functionName[$date][$creative],
+				);				
 			}
 		}
 
 		return $data;
 
-	}
-
-	function ratings($play_duration, $video_duration){
-		$video_duration = $video_duration-1;
-		$ratings = ($play_duration / $video_duration) * 100;
-		if($ratings > 25){
-			if($ratings < 49){
-				return 25;
-			}
-			if($ratings < 74){
-				return 50;
-			}
-			if($ratings < 99){
-				return 75;
-			}
-			if($ratings = 100){
-				return 100;		
-			}
-		}
-		return 0;
 	}
 
 	/**

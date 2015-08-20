@@ -30,12 +30,12 @@
 class BuyReportDailyPc extends CActiveRecord
 {
 	public $media_cost_count; 
-
-public $click_sum;
-public $impression_sum;
-public $income_sum;
-public $temp_income_sum;
-public $temp_advertiser_invoice_sum;
+	public $click_sum;
+	public $impression_sum;
+	public $income_sum;
+	public $temp_income_sum;
+	public $temp_advertiser_invoice_sum;
+	public $temp_table;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -164,36 +164,36 @@ public $temp_advertiser_invoice_sum;
 		return $keySum;
 	}
 
-	public function addReportTime($criteria)
+	public function addReportTime($criteria, $columns = "settled_time")
 	{
 		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
 		}
 
 		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
 		}
 
 		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
 		}
 
 		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition($columns ." <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
 		}
 
 		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-01 00:00:00")));
+			$criteria->addCondition($columns ." <= " . strtotime(date("Y-m-t 00:00:00")));
 		}	
 
 		if($_GET['type'] == "custom"){
 			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
+				$criteria->addCondition($columns ." >= " . strtotime($_GET['startDay'] . "00:00:00"));
 			}
 			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
+				$criteria->addCondition($columns ." <= " . strtotime($_GET['endDay'] . "00:00:00"));
 			}			
 
 		}
@@ -561,6 +561,144 @@ public $temp_advertiser_invoice_sum;
 		return $this->temp_advertiser_invoice_sum;
 		
 	}
+
+	public function ytbReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+
+		$this->temp_table = EveTestYtbLogs::model()->ytbReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign","strategy","creative","creative.creativeGroup");
+
+		$criteria->group = "t.settled_time, t.strategy_id, t.creative_id, category.category_id"; 
+		
+		$criteria->order = "t.settled_time DESC, t.strategy_id DESC, t.creative_id DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"strategy" => $value->strategy ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"mediaCategory" => $value->adSpace->site->category->mediaCategory,
+				"temp_table" => $this->temp_table[date("Y-m-d",$value->settled_time)][$value->strategy->tos_id][$value->creative->tos_id][$value->adSpace->site->category->mediaCategory->id]
+			);
+		}
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC';
+			return $data;
+		}
+
+		return new CArrayDataProvider($data, array(
+			'pagination'=>false
+		));	
+
+		// return new CActiveDataProvider($this, array(
+		// 	'pagination' => false,
+			
+		// 	'sort' => array(
+		// 		'defaultOrder' => 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC',
+		// 	),			
+		// 	'criteria'=>$criteria,
+		// ));
+	}
+
+	public function functionReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`creative` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		
+		$this->temp_table = EveDspLogsDspTosFunc::model()->funcReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("adSpace","campaign","creative","creative.creativeGroup");
+		$criteria->group = "t.settled_time,creativeGroup.tos_id"; 
+		$criteria->order = "t.settled_time DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"temp_table" => $this->temp_table[date("Y-m-d",$value->settled_time)][$value->creative->tos_id]
+			);
+		}
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			return $data;
+		}
+
+		return new CArrayDataProvider($data, array(
+			'pagination'=>false
+		));	
+	}
+
 
 	/**
 	 * Returns the static model of the specified AR class.

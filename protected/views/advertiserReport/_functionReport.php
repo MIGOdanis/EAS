@@ -43,7 +43,7 @@ Yii::app()->clientScript->registerScript('search', "
 $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered',
-	'dataProvider'=>$allData = $model->ytbReport($_GET['CampaignId']),
+	'dataProvider'=>$allData = $model->functionReport($_GET['CampaignId']),
 	'filter'=>$model,
 	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
 	'emptyText'=>'沒有資料',
@@ -74,14 +74,15 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value'=>'$data["campaign"]->campaign_name',
 			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
 			'filter'=>false,
-		),	
+		),
 		array(	
-			'name' => "strategy_id",
-			'header' => "策略名稱",
-			'value'=>'$data["strategy"]->strategy_name',
+			'name' => "creative_id",
+			'header' => "素材ID",
+			'value'=>'$data["creative"]->creativeGroup->tos_id',
 			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
 			'filter'=>false,
-		),	
+			// 'footer'=>"總計",
+		),			
 		array(	
 			'name' => "creative_id",
 			'header' => "素材名稱",
@@ -89,21 +90,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
 			'filter'=>false,
 			// 'footer'=>"總計",
-		),	
-		array(	
-			'name' => "width_height",
-			'header' => "尺寸",
-			'value'=>'$data["data"]->width_height',
-			'htmlOptions'=>array('width'=>'50','class'=>'sm-text'),
-			'filter'=>false,
-		),
-		array(	
-			'name' => "adSpace.site.category.mediaCategory.id",
-			'header' => "媒體分類",
-			'value'=>'$data["mediaCategory"]->name',
-			// 'htmlOptions'=>array('width'=>'100','class'=>'sm-text'),
-			'filter'=>false,
-		),					
+		),				
 		array(
 			'name' => "impression",
 			'header' => "曝光",
@@ -120,37 +107,18 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'header' => "點擊率",
 			'value'=>'(($data["data"]->impression > 0) ? round(($data["data"]->click / $data["data"]->impression) * 100, 2) : 0) . "%"',
 			'filter'=>false,
-		),	
+		),
 		array(
-			'header' => "收視",
-			'value'=>'(int)$data["temp_table"]["totView"]',
-			'filter'=>false,
-		),	
-		array(
-			'header' => "收視率",
-			'value'=>'(($data["data"]->impression > 0) ? round(($data["temp_table"]["totView"] / $data["data"]->impression) * 100, 2) : 0) . "%"',
-			'filter'=>false,
-		),	
-		array(
-			'header' => "25%收視",
-			'value'=>'(int)$data["temp_table"]["25"]',
+			'header' => "加值功能",
+			'value'=>'$data["temp_table"]["functionName"]',
 			'filter'=>false,
 		),
 		array(
-			'header' => "50%收視",
-			'value'=>'(int)$data["temp_table"]["50"]',
+			'header' => "加值功能點擊",
+			'value'=>'$data["temp_table"]["totClick"]',
 			'filter'=>false,
-		),
-		array(
-			'header' => "75%收視",
-			'value'=>'(int)$data["temp_table"]["75"]',
-			'filter'=>false,
-		),
-		array(
-			'header' => "100%收視",
-			'value'=>'(int)$data["temp_table"]["100"]',
-			'filter'=>false,
-		)		
+		),		
+
 	),
 ));
 

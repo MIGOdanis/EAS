@@ -13,7 +13,8 @@
 			<div class="alert alert-success" role="alert">
 				<?php if(Yii::app()->params["androidSdkVersionNowNew"]){ ?>
 					<div>
-						最新版本的 Android SDK <?php echo Yii::app()->params["androidSdkVersion"];?> 現已開放下載!!
+						最新版本的 Android SDK <?php echo Yii::app()->params["androidSdkVersion"];?> 現已開放下載!!<br><br>
+						<p>Android SDK 1.17 修正以下 : <br> LOGO顯示的問題</p>
 					</div>
 				<?php }?>
 				<?php if(Yii::app()->params["iosSdkVersionNowNew"]){ ?>
@@ -36,6 +37,7 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 		<div class="display-supplier-adSpace">
 			<h4><?php echo $value->name;?></h4>
 
+			<h5>網站編號 : <?php echo $value->site->tos_id;?></h5>
 			<h5>版位編號 : <?php echo $value->tos_id;?></h5>
 			<h5>版位大小 : <?php echo ($model->type == 1) ? $value->width . " x " . $value->height : str_replace (":"," x ",$value->ratio_id);?></h5>
 			<h5>拆分方式 : <?php echo Yii::app()->params['buyType'][$value->buy_type]; ?></h5>
