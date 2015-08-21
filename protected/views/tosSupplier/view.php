@@ -36,6 +36,11 @@ $this->widget('zii.widgets.CDetailView', array(
 			'value' => Yii::app()->params['supplierTypeInList'][$model->type],
 		),	
 		array(
+			'name' => '統一編號 / 身分證字號',
+			'type' => 'raw',
+			'value' => (empty($model->tax_id)) ? "無資料" : $model->tax_id,
+		),			
+		array(
 			'name' => '營利登記證 / 身份證 / 護照',
 			'type' => 'raw',
 			'value' => (empty($model->certificate_image)) ? "無資料" : '<img src="' . Yii::app()->params['baseUrl'] . "/upload/registerSupplier/" . $model->certificate_image . '" alt="certificate_image" class="img-thumbnail">',

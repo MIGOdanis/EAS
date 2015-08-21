@@ -56,7 +56,7 @@
 
 				<div class="filter-box">
 					<label>
-						<input type="checkbox" class="xl-checkbox"><span>隱藏墊檔</span>
+						<input type="checkbox" class="xl-checkbox" id="showNoPay"><span>隱藏墊檔</span>
 					</label>
 				</div>
 			</div>		

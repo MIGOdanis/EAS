@@ -3,6 +3,7 @@ var endDay;
 var supplierId;
 var siteId;
 var adSpaceId;
+var showNoPay;
 var filterStatus = "close";
 
 if(typeof(type == "undefined")){
@@ -18,6 +19,7 @@ function moveFilter(){
 			filterStatus = "open";
 			$( "#filter" ).css("overflow","");
 			$( "#filter-list" ).toggle("normal");
+			$( "#filter-list" ).css("overflow","");
 		});
 	}else if(filterStatus == "open"){
 		$( "#filter-list" ).toggle("normal");
@@ -27,6 +29,7 @@ function moveFilter(){
 		}, 800, function() {
 			filterStatus = "close";
 			$( "#filter" ).css("overflow","");
+			$( "#filter-list" ).css("overflow","");
 		});		
 	}
 }
@@ -41,6 +44,12 @@ function getReport(){
 	adSpaceId = $("#adSpace-id").val();
 	startDay = $("#startDay").val();
 	endDay = $("#endDay").val();
+	if($("#showNoPay").prop("checked") == true){
+		showNoPay = 1;
+	}else{
+		showNoPay = 0;
+	}
+	
 	$.ajax({
 			url:reportUrl,
 			data: { 
@@ -50,7 +59,8 @@ function getReport(){
 				endDay : endDay,
 				supplierId : supplierId,
 				siteId : siteId,
-				adSpaceId : adSpaceId
+				adSpaceId : adSpaceId,
+				showNoPay : showNoPay
 			},
 			success:function(html){
 				$("#export").prop("href", this.url + "&export=1");
