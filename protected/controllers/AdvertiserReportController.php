@@ -209,70 +209,8 @@ class AdvertiserReportController extends Controller
 		if(isset($_GET['export']) && $_GET['export'] == 1){
 			$day = $this->getDay();
 			$campaign = $this->getCampaign($_GET['CampaignId']);
-			$model = EveTestYtbLogs::model()->ytbReport($_GET['CampaignId']);
-	
-			$data = array();
-
-			$impression = 0;
-			$click = 0;
-			$income = 0;				
-			foreach ($model as $value) {
-				$data[] = array(
-					"A" => $value["date"],
-					"B" => "(" . $value["strategyId"] . ")" . $value["strategy"],
-					"C" => "(" . $value["creativeId"] . ")" . $value["creative"],
-					"D" => "(" . $value["adspaceId"] . ")" . $value["adspace"],
-					"E" => $value["siteCategory"],
-					"F" => $value["totView"],
-					"G" => $value["25"],
-					"H" => $value["50"],
-					"I" => $value["75"],
-					"J" => $value["100"],
-
-				);
-				$totView += $value["totView"];
-				$tot25 += $value["25"];
-				$tot50 += $value["50"];
-				$tot75 += $value["75"];
-				$tot100 += $value["100"];
-			}
-
-			$data[] = array(
-				"A" => "",
-				"B" => "",
-				"C" => "",
-				"D" => "",
-				"E" => "合計",
-				"F" => $totView,
-				"G" => $tot25,
-				"H" => $tot50,
-				"I" => $tot75,
-				"J" => $tot100,
-			);
-
-			$report = array(
-				"name" => "影音活動報表",
-				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 影音活動報表 查詢時間" . $day[0] . "~" . $day[1],
-				"fileName" => "影音活動報表 查詢時間" . $day[0] . "~" . $day[1],
-				"width" => "J1",
-				"title" => array(
-					"A2" => "日期",
-					"B2" => "策略",
-					"C2" => "素材",
-					"D2" => "版位",
-					"E2" => "類別",
-					"F2" => "收視數",
-					"G2" => "25%收視數",
-					"H2" => "50%收視數", 
-					"I2" => "75%收視數", 
-					"J2" => "100%收視數", 
-				),
-				"data" => $data
-			);	
-
-			$this->exportExcel($report);
-			Yii::app()->end();	
-
+			$this->exportYtbReport($campaign,$day);
+			Yii::app()->end();
 		}
 		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
 			$day = $this->getDay();
@@ -293,6 +231,134 @@ class AdvertiserReportController extends Controller
 		}
 
 		$this->render('ytbReport');
+	}
+
+	public function exportYtbReport($campaign,$day){
+		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
+
+		$data = BuyReportDailyPc::model()->exportYtbReport($campaign->tos_id);
+		$category = BuyReportDailyPc::model()->exportYtbCategoryReport($campaign->tos_id);
+
+		$reportName = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E86D4B'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+
+		);
+
+		$title = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E8BE93'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+		$title2 = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E8C7C7'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+
+
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
+									 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
+		$objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:G1');
+
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', "(" . $campaign->tos_id . ")" . $campaign->campaign_name . '影音報表 - 每日成效報表(' .$day[0] . " - " .$day[1] . ')');
+
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('B2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('C2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('D2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('E2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('F2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('G2')->applyFromArray($title);
+
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', '日期');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B2', '曝光');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C2', '有效觀看數');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D2', '導頁連結');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E2', '加值功能');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F2', '有效VTR');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G2', '100%收視數');
+
+		$r = 3;
+		foreach ($data as $value) {
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.$r, date("Y-m-d",$value['settled_time']));
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('B'.$r, $value["data"]->impression);
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C'.$r, (int)$value["ytbReport"]["totView"]);
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D'.$r, $value["data"]->click);
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E'.$r, (int)$value['functionReport']["totClick"]);
+			
+			if((int)$value["data"]->impression > 0){
+				$Vcount = (int)$value["ytbReport"]["totView"] + (int)$value["data"]->click + (int)$value['functionReport']["totClick"];
+				$vtr = ($Vcount / (int)$value["data"]->impression) * 100;
+			}else{
+				$vtr = 0;
+			}
+
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F'.$r, number_format($vtr , 2, "." ,","). "%");
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('G'.$r, (int)$value["ytbReport"]["100"]);			
+			$r++;
+		}
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A".$r, "資料時間" . date("Y-m-d H:i:s"));	
+
+		$objPHPExcel->setActiveSheetIndex(0)->setTitle("每日成效報告");
+
+
+		$objPHPExcel->createSheet();
+		$objPHPExcel->setActiveSheetIndex(1)->mergeCells('A1:E1');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', "(" . $campaign->tos_id . ")" . $campaign->campaign_name . '影音報表 - 分類成效報告(' .$day[0] . " - " .$day[1] . ')');
+		$objPHPExcel->setActiveSheetIndex(1)->setTitle("分類成效報告");
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('A1')->applyFromArray($reportName);
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('A2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('B2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('C2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('D2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(1)->getStyle('E2')->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A2', '日期');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('B2', '曝光');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('C2', '有效觀看數');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('D2', '導頁連結');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('E2', '100%收視數');
+
+		$r = 3;
+		foreach ($category as $value) {
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A'.$r, $value['data']->adSpace->site->category->mediaCategory->name);
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('B'.$r, $value["data"]->impression);
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('C'.$r, (int)$value['ytb']['totView']);
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('D'.$r, $value["data"]->click);
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('E'.$r, (int)$value['ytb']['100']);
+					
+			$r++;
+		}
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue("A".$r, "資料時間" . date("Y-m-d H:i:s"));	
+
+
+
+		$objPHPExcel->setActiveSheetIndex(0);
+
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="' .$day[0] . "-" .$day[1] . '影音報表.xlsx"');
+		header('Cache-Control: max-age=0');
+		// If you're serving to IE 9, then the following may be needed
+		header('Cache-Control: max-age=1');
+		// If you're serving to IE over SSL, then the following may be needed
+		header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+		header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+		header ('Pragma: public'); // HTTP/1.0
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		
 	}
 
 

@@ -151,14 +151,14 @@ $this->nav = array(
 					"categoryReport" => "媒體分類報表",
 					"campaignBannerReport" => "廣告活動總表",
 					"ytbReport" => "影音廣告報表",
-					"functionReport" => "影音廣告報表",
+					"functionReport" => "加值功能報表",
 				),					
 			),
 			"advertiserAccounts" => array(
 				"title" => "經銷對帳查詢",
 				"url"=>"advertiserAccounts/admin",
 				"action" => array(
-					"admin" => "媒體分類報表",
+					"admin" => "經銷對帳查詢",
 					"selectBelong" => "設定訂單業務",
 					"selectActive" => "設定結案",
 					"creatInvoice" => "建立發票",

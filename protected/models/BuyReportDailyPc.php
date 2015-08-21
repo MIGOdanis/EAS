@@ -1,32 +1,4 @@
 <?php
-
-/**
- * This is the model class for table "{{buyReportDailyPc}}".
- *
- * The followings are the available columns in table '{{buyReportDailyPc}}':
- * @property string $id
- * @property integer $settled_time
- * @property string $campaign_id
- * @property string $ad_space_id
- * @property string $strategy_id
- * @property string $creative_id
- * @property integer $media_category_id
- * @property integer $screen_pos
- * @property integer $adformat
- * @property string $width_height
- * @property string $pv
- * @property string $impression
- * @property string $impression_ten_sec
- * @property string $click
- * @property string $media_cost
- * @property string $media_tax_cost
- * @property string $media_ops_cost
- * @property string $income
- * @property string $income_ten_sec
- * @property string $agency_income
- * @property integer $is_outside_tracking
- * @property integer $sync_time
- */
 class BuyReportDailyPc extends CActiveRecord
 {
 	public $media_cost_count; 
@@ -403,8 +375,22 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
-	//--------------Make Adv report--------------------
+	/*
+	======   ================      ===========   ==============   ====
+	===    ==    ============   ===   =========   ============   =====
+	===   ====   ============   =====   ========   ==========   ======
+	===   ====   ============   ======   ========   ========   =======
+	===          ============   ======   =========   ======   ========
+	===   ====   ============   =====   ===========   ====   =========
+	===   ====   ============   ===    =============   ==   ==========
+	===   ====   ============      ==================      ===========
+	
+	廣告主報表
 
+	*/
+
+
+	//訂單類別報表
 	public function supplierCategoryReport($campaignId)
 	{
 		$criteria=new CDbCriteria;
@@ -439,6 +425,7 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+	//訂單活動報表
 	public function campaignBannerReport($campaignId)
 	{
 		$criteria=new CDbCriteria;
@@ -534,11 +521,9 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
-
+	//經銷對帳查詢-成本
 	public function getCampaignAllIncome($campaign_id)
 	{
-		//print_r($campaign_id); exit;
-		set_time_limit(0);
 		$criteria=new CDbCriteria;
 		$criteria->select = 'sum(t.income) / 100000 as income_sum';		
 		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
@@ -548,10 +533,9 @@ class BuyReportDailyPc extends CActiveRecord
 		
 	}
 
+	//經銷對帳查詢-發票
 	public function getCampaignAdvertiserInvoice($campaign_id)
 	{
-		//print_r($campaign_id); exit;
-		set_time_limit(0);
 		$criteria=new CDbCriteria;
 		$criteria->select = 'sum(t.price) as price';		
 		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
@@ -562,6 +546,7 @@ class BuyReportDailyPc extends CActiveRecord
 		
 	}
 
+	//收視報表
 	public function ytbReport($campaignId)
 	{
 
@@ -629,16 +614,135 @@ class BuyReportDailyPc extends CActiveRecord
 			'pagination'=>false
 		));	
 
-		// return new CActiveDataProvider($this, array(
-		// 	'pagination' => false,
-			
-		// 	'sort' => array(
-		// 		'defaultOrder' => 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC',
-		// 	),			
-		// 	'criteria'=>$criteria,
-		// ));
 	}
 
+	//輸出收視報表
+	public function exportYtbReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$creative = CreativeMaterial::model()->findAll($criteria);
+
+		$FnWhere = array();
+		$YtbWhere = array();
+		foreach ($creative as $value) {
+			$FnWhere[] =  "`creative` LIKE '%" . $value->tos_id . "%' ";
+			$YtbWhere[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($FnWhere)){
+			$FnWhere = implode(" OR ", $FnWhere);
+			$criteria->addCondition($FnWhere);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		
+		$functionReport = EveDspLogsDspTosFunc::model()->funcReporByDay($criteria);
+		
+
+
+		$criteria=new CDbCriteria;
+		if(!empty($YtbWhere)){
+			$YtbWhere = implode(" OR ", $YtbWhere);
+			$criteria->addCondition($YtbWhere);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		$ytbReport =  EveTestYtbLogs::model()->ytbReport($criteria);
+
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("campaign");
+		$criteria->group = "t.settled_time"; 
+		$criteria->order = "t.settled_time DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"functionReport" => $functionReport[date("Y-m-d",$value->settled_time)],
+				"ytbReport" => $ytbReport[date("Y-m-d",$value->settled_time)]
+			
+			); 
+		}
+
+		return $data;
+
+	}
+
+	//輸出收視類別報表
+	public function exportYtbCategoryReport($campaignId)
+	{
+
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+
+		$ytb = EveTestYtbLogs::model()->ytbCategoryReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign",);
+		$criteria->group = "category.category_id"; 
+		$criteria->order = "category.category_id";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"data" => $value,
+				"ytb" => $ytb[$value->adSpace->site->category->category_id]
+			);
+		}
+
+		return $data;
+
+	}
+
+	//加值報表
 	public function functionReport($campaignId)
 	{
 
