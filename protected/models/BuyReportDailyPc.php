@@ -639,8 +639,10 @@ class BuyReportDailyPc extends CActiveRecord
 			$criteria->addCondition("t.id = 0");
 		}
 		
-		$functionReport = EveDspLogsDspTosFunc::model()->funcReport($criteria);
+		$functionReport = EveDspLogsDspTosFunc::model()->funcReporByDay($criteria);
 		
+
+
 		$criteria=new CDbCriteria;
 		if(!empty($YtbWhere)){
 			$YtbWhere = implode(" OR ", $YtbWhere);
@@ -679,7 +681,7 @@ class BuyReportDailyPc extends CActiveRecord
 				"functionReport" => $functionReport[date("Y-m-d",$value->settled_time)],
 				"ytbReport" => $ytbReport[date("Y-m-d",$value->settled_time)]
 			
-			);
+			); 
 		}
 
 		return $data;

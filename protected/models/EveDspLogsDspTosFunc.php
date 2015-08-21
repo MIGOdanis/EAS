@@ -97,6 +97,26 @@ class EveDspLogsDspTosFunc extends CActiveRecord
 		return $criteria;
 	}
 
+	public function funcReporByDay($criteria)
+	{
+		$criteria = $this->addReportTime($criteria);
+		$report = $this->findAll($criteria);
+		
+		$countFunction = array();
+		$functionName =array();
+
+
+		foreach ($report as $key => $value) {
+			$countFunction[date("Y-m-d",$value->creat_time)]++;
+			$functionName[date("Y-m-d",$value->creat_time)] = $value->func;
+		}
+
+		$rawData = $this->transInfoByCountDay($countFunction,$functionName);
+		
+		return $rawData;
+		
+	}
+
 	public function funcReport($criteria)
 	{
 		$criteria = $this->addReportTime($criteria);
@@ -105,22 +125,13 @@ class EveDspLogsDspTosFunc extends CActiveRecord
 		$countFunction = array();
 		$functionName =array();
 
-		if(isset($_GET['export']) && $_GET['export'] == 1){
-			foreach ($report as $key => $value) {
-				$countFunction[date("Y-m-d",$value->creat_time)]++;
-				$functionName[date("Y-m-d",$value->creat_time)] = $value->func;
-			}
-
-			$rawData = $this->transInfoByCountDay($countFunction,$functionName);
-		}else{
-			foreach ($report as $key => $value) {
-				$countFunction[date("Y-m-d",$value->creat_time)][$value->creative]++;
-				$functionName[date("Y-m-d",$value->creat_time)][$value->creative] = $value->func;
-			}
-
-			$rawData = $this->transInfoByCount($countFunction,$functionName);
+		foreach ($report as $key => $value) {
+			$countFunction[date("Y-m-d",$value->creat_time)][$value->creative]++;
+			$functionName[date("Y-m-d",$value->creat_time)][$value->creative] = $value->func;
 		}
 
+		$rawData = $this->transInfoByCount($countFunction,$functionName);
+		
 		return $rawData;
 		
 	}
@@ -129,7 +140,7 @@ class EveDspLogsDspTosFunc extends CActiveRecord
 		$data = array();
 		foreach ($countFunction as $date => $dateValue) {
 			$data[$date] = array(
-				"totClick" => (int)$click,
+				"totClick" => (int)$dateValue,
 				"functionName" => $functionName[$date],
 			);				
 		}

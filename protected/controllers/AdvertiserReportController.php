@@ -271,7 +271,7 @@ class AdvertiserReportController extends Controller
 									 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 		$objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:G1');
 
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '影音報表 - 每日成效報表(' .$day[0] . " - " .$day[1] . ')');
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', "(" . $campaign->tos_id . ")" . $campaign->campaign_name . '影音報表 - 每日成效報表(' .$day[0] . " - " .$day[1] . ')');
 
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A2')->applyFromArray($title);
@@ -316,7 +316,7 @@ class AdvertiserReportController extends Controller
 
 		$objPHPExcel->createSheet();
 		$objPHPExcel->setActiveSheetIndex(1)->mergeCells('A1:E1');
-		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '影音報表 - 分類成效報告(' .$day[0] . " - " .$day[1] . ')');
+		$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', "(" . $campaign->tos_id . ")" . $campaign->campaign_name . '影音報表 - 分類成效報告(' .$day[0] . " - " .$day[1] . ')');
 		$objPHPExcel->setActiveSheetIndex(1)->setTitle("分類成效報告");
 		$objPHPExcel->setActiveSheetIndex(1)->getStyle('A1')->applyFromArray($reportName);
 		$objPHPExcel->setActiveSheetIndex(1)->getStyle('A2')->applyFromArray($title);
