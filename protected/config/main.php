@@ -70,6 +70,17 @@ return array(
 		    'tablePrefix' => '',		
 		),
 
+		//events
+		'eve'=>array(
+		    'class'=>'CDbConnection',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3308;dbname=TEST',
+		    'emulatePrepare' => true,
+		    'username' => 'root',
+		    'password' => '87976705',
+		    'charset' => 'utf8',
+		    'tablePrefix' => 'ytb_',		
+		),
+
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'site/error',

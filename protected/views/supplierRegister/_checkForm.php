@@ -43,6 +43,12 @@
 							$("#form-box").html("");
 							$("#form-end-ok").show();
 							$(".btn-save").hide();
+						}else if(data.code == 7){
+							$("#form-box").hide();
+							$("#form-box").html("");
+							$("#form-end-ok").show();
+							$("#ok-msg").html("資料已回填!部份資料請至TOS更新")
+							$(".btn-save").hide();
 						}else if(data.code == 2){
 							$("#form-box").hide();
 							$("#form-box").html("");
@@ -64,6 +70,12 @@
 						}else if(data.code == 4){
 							$("#form-end-fail").show();
 							$("#fail-msg").html("TOS-ID 已經存在，請確認後再次啟用！");
+						}else if(data.code == 8){
+							$("#form-box").hide();
+							$("#form-box").html("");
+							$("#form-end-fail").show();
+							$("#fail-msg").html("審核完成! 但供應商資料回填失敗!");
+							$(".btn-save").hide();
 						}else{
 							$("#form-box").hide();
 							$("#form-box").html("");
@@ -98,15 +110,19 @@
 <div class="modal-body">
 	<div id="form-end-ok">
 		<h1><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>審核完成</h1>
-		<p>審核完成! 帳號已經發送至供應商信箱!</p>	
+		<p id="ok-msg">審核完成! 帳號已經發送至供應商信箱!</p>	
 	</div>
 	<div id="form-end-fail">
 		<h1><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>審核失敗</h1>
 		<p id="fail-msg">審核完成! 帳號已經發送至供應商信箱!</p>	
 	</div>	
 	<div class="form-group" id="form-box">
-		<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請到TOS系統中建立供應商取得ID後填寫</div>
-		<input size="60" maxlength="255" class="form-control" placeholder="TOS-ID" id="tos_id" type="text">
+
+		<?php if($model->check == 1){?>
+			<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請到TOS系統中建立供應商取得ID後填寫</div>
+		<?php }?>
+
+		<input size="60" maxlength="255" class="form-control" placeholder="TOS-ID" id="tos_id" type="text" <?php if($model->check == 6){ echo 'value="' . $model->tos_id . '" readonly="true"'; }?> >
 
 		<p>基本資料</p>
 		<?php 

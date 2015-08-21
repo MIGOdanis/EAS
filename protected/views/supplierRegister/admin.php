@@ -76,7 +76,7 @@ function supplierType($data){
 	return '<span class="label label-' . $class[$data->type] . '">' . $types[$data->type] . '</span>';
 }
 function check($data){
-	$checks = array("未填寫", "未核准", "退回修改", "已核准", "審核未過");
+	$checks = array("未填寫", "待審核", "退回修改", "已核准", "審核未過", "資料補充申請" , "補充待審核", "補充退回修改", "補充資料已核准");
 	return $checks[$data->check];	
 }
 $this->widget('zii.widgets.grid.CGridView', array(

@@ -164,6 +164,52 @@ class SyncController extends Controller
 		return $model;
 	}
 
+	public function actionSyncBuyReportDailyPcByDay()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+
+		$criteria = new CDbCriteria;
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
+		$this->noPayCampaign = array();
+		foreach ($noPayCampaign as $value) {
+			$this->noPayCampaign[] = $value->id;
+		}
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("settled_time = '" . $_GET['day'] . "'");
+		$buyReportDailyPc = TosTreporBuyDrDisplayDailyPcReport::model()->findAll($criteria);
+		
+		foreach ($buyReportDailyPc as $value) {
+			$lastTime = $value->settled_time;
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$criteria->addCondition("report_type = 1");
+			$model = BuyReportDailyPc::model()->find($criteria);
+			if($model === null){
+				$model = new BuyReportDailyPc();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingBuyReportDailyPc($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyPcByday/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyPcByday/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+	}
+
 	public function actionSyncBuyReportDailyPc()
 	{
 		set_time_limit(0);
@@ -289,6 +335,54 @@ class SyncController extends Controller
 			$criteria
 		);
 	}
+
+	public function actionSyncBuyReportDailyMobByDay()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+		$lastTimeLog = Log::model()->getValByName("lastSyncBuyReportDailyMobTosTime");
+
+		$criteria = new CDbCriteria;
+		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = TosCoreCampaign::model()->findAll($criteria);
+		$this->noPayCampaign = array();
+		foreach ($noPayCampaign as $value) {
+			$this->noPayCampaign[] = $value->id;
+		}
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("settled_time = '" . $_GET['day'] . "'");
+		$buyReportDailyMob = TosTreporBuyDrDisplayDailyMobReport::model()->findAll($criteria);
+		foreach ($buyReportDailyMob as $value) {
+			$lastTime = $value->settled_time;
+			$type = "update";
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . $value->id);
+			$criteria->addCondition("report_type = 2");
+
+			$model = BuyReportDailyPc::model()->find($criteria);
+			if($model === null){
+				$model = new BuyReportDailyPc();
+				$type = "creat";
+			}
+			
+			$model = $this->mappingBuyReportDailyMob($model,$value);
+			if(!$model->save()){
+				$this->writeLog(
+					"儲存同步資料時發生錯誤 : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyMob/error",
+					date("Ymd") . "errorLog.log"
+				);
+			}else{
+				$this->writeLog(
+					"Save : SID=" . $model->id . ",TYPE=" . $type . ",TID=" . $value->id,
+					"SyncBuyReportDailyMob/run",
+					date("YmdH") . "log.log"
+				);
+			}
+		}
+	}
+
 
 	public function actionSyncBuyReportDailyMob()
 	{

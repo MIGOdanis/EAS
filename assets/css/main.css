@@ -48,6 +48,10 @@ body , html{
 	}
 }
 
+#contents{
+	padding-bottom: 50px;
+}
+
 #content-singe{
 	width: 40%;
 	margin: 20px;

@@ -9,7 +9,7 @@ class RegisterSupplierController extends Controller
 			$criteria = new CDbCriteria; 
 			$criteria->addCondition("t.id = " . (int)$_GET['id']);
 			$criteria->addCondition("t.public_time = " . $_GET['k']);
-			$criteria->addCondition("t.check = 2");
+			$criteria->addCondition("t.check = 2 OR t.check = 5 OR t.check = 7");
 			$model = SupplierRegister::model()->find($criteria);
 
 			if($model === null)
@@ -32,7 +32,7 @@ class RegisterSupplierController extends Controller
 			$model->public_time = 0;
 			$model->create_time = time();
 			$model->check_time = 0;
-			$model->check = 1;
+			$model->check = ($model->check == 5 || $model->check == 7) ? 6 : 1;
 			$model->check_by = 0;
 
 			if (isset($_FILES['bank_book_img']) && !empty($_FILES['bank_book_img']['name'])) {

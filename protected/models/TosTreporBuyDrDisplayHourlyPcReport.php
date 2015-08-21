@@ -1,5 +1,5 @@
 <?php
-class TosTreporBuyDrDisplayDailyMobReport extends CActiveRecord
+class TosTreporBuyDrDisplayHourlyPcReport extends CActiveRecord
 {
 	public static $conection; 
 
@@ -26,7 +26,7 @@ class TosTreporBuyDrDisplayDailyMobReport extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{buy_dr_display_daily_mob_report_nct}}';
+		return '{{buy_dr_display_hourly_pc_report_nct}}';
 	}
 
 	/**
@@ -47,6 +47,7 @@ class TosTreporBuyDrDisplayDailyMobReport extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id'))	
 		);
 	}
 

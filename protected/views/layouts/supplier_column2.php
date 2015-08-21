@@ -1,6 +1,11 @@
 <?php
 $this->beginContent('/layouts/supplier_main');
 ?>
+<style type="text/css">
+#contents{
+	overflow: hidden;
+}	
+</style>
 <div id="left-main">
 	<div id="menu-list-group">
 		<?php if (in_array($this->action->id, array("payments","paymentSetting"))) {?>

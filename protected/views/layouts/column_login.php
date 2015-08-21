@@ -20,7 +20,7 @@
 			width: 500px;
 			margin-left: auto;
 			margin-right: auto;
-			margin-top: 200px;
+			/*margin-top: 100px;*/
 			/*padding-top: 50px;*/
 			background-color: #fff;
 			border: 15px solid rgba(255, 255, 255, 0.2);
@@ -29,25 +29,38 @@
 			opacity: 0.9;
 			border-radius: 10px;		
 		}
-		html,body{
+		html,body, #main{
 			margin: 0px;
 			padding: 0px;
 			height: 100%;
-			overflow: hidden;
+			/*overflow: hidden;*/
 		}	
 		body{
 			background-image: url("<?php echo Yii::app()->params['baseUrl']; ?>/assets/image/loginbg.jpg");
 		    background-repeat: no-repeat;
-		    /*background-position: 50% 50%;*/
-		    background-size: 100% 100%;
+		    background-position: 50% 50%;
+		    background-size: auto;
 		    background-attachment: fixed; 
-		    margin-top: -20px;
+		    /*margin-top: -20px;*/
+		    padding-top: 100px;
 		}
 		#login-boxs{
 			padding: 15px;
 			width: 450px;
 			margin-left: auto;
 			margin-right: auto;		
+		}
+		.page-header{
+			color: #9C9C9C;
+			text-align: center;
+		}
+		#floor{
+			width: 100%;
+			position: absolute;
+			bottom: 20px;
+			margin-top: 10px;
+			text-align: center;	
+			color: #fff;			
 		}
 	</style>	
 	</head>
@@ -57,6 +70,9 @@
 				<div id="login-boxs">
 					<?php echo $content; ?>
 				</div>
+			</div>
+			<div id="floor">
+				Copyright © 2015 Powered by ClickForce. All rights reserved
 			</div>
 		</div>
 	</body>

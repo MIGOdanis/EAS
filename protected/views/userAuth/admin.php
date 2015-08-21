@@ -41,7 +41,7 @@ $('.search-form form').submit(function(){
 $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered table-striped',
-	'dataProvider'=>$model->search(),
+	'dataProvider'=>$model->userAuthList(),
 	'filter'=>$model,
 	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
 	'emptyText'=>'沒有資料',

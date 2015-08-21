@@ -41,7 +41,7 @@ public $temp_advertiser_invoice_sum;
 	 */
 	public function tableName()
 	{
-		return '{{buyReportDailyPc}}';
+		return '{{buyReportDaily}}';
 	}
 
 	/**
@@ -561,7 +561,6 @@ public $temp_advertiser_invoice_sum;
 		return $this->temp_advertiser_invoice_sum;
 		
 	}
-
 
 	/**
 	 * Returns the static model of the specified AR class.

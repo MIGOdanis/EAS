@@ -22,6 +22,7 @@ body a:hover{
 	width: 100%;
 	height: 100%;
 	margin-top: 0px;
+	padding-top: 51px;
 }
 nav{
 	z-index: 999;
@@ -32,8 +33,9 @@ nav{
  	border-right: solid 1px #e7e7e7;
 	height: 100%;
 	position: absolute;
-	padding-top: 51px;
+	/*padding-top: 51px;*/
 	overflow: auto;
+	left: 0px;
 }
 .menu-list{
 	width: 100%;
@@ -45,11 +47,11 @@ nav{
 	line-height: 40px;
 }
 #right-main{
-	width: auto;
+	width: 100%;
 	height: 100%;
-	padding-left: 15px;
-	margin-left: 250px;
-	padding-top: 51px;
+	padding-left: 250px;
+	/*margin-left: 250px;*/
+	/*padding-top: 51px;*/
 	overflow: auto;
 }
 #right-main .alert{
@@ -74,22 +76,21 @@ nav{
 	font-weight: bold;
 }
 #contents{
-	width: auto;
+	width: 100%;
 	height: 100%;
-	overflow: hidden;
 	border-radius: 2px;
 	background-color: #fff;
 	margin-top: -51px;
 }
 #content-singe{
 	width: 40%;
-	/*margin: 20px;*/
+	margin: 20px;
 	margin-right: auto;
 	margin-left: auto;
 	border-radius: 2px;
 	background-color: #fff;
 	border:1px #CACACA solid;
-	/*overflow: hidden;	*/
+	overflow: auto;	
 }
 
 /*表格*/
@@ -173,7 +174,7 @@ nav{
 }
 
 #index-report-box{
-	max-width: 800px;
+	/*max-width: 800px;*/
 	margin: 0px auto;
 }
 
@@ -182,8 +183,11 @@ nav{
 }
 
 #contents-singe{
+	width: 90%;
 	padding: 70px;
 	overflow: auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .repasswd{
@@ -282,4 +286,13 @@ nav{
 	right: 0px;
 	top: 25px;
 	font-size: 10px;	
+}
+
+#supplier-mySite{
+	padding-left: 20px;
+	padding-right: 20px;
+}
+#payments{
+	padding-left: 20px;
+	padding-right: 20px;
 }

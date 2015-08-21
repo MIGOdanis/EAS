@@ -203,4 +203,96 @@ class AdvertiserReportController extends Controller
 		$this->render('campaignBannerReport');
 	}
 
+	public function actionYtbReport()
+	{	
+		
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			$model = EveTestYtbLogs::model()->ytbReport($_GET['CampaignId']);
+	
+			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$income = 0;				
+			foreach ($model as $value) {
+				$data[] = array(
+					"A" => $value["date"],
+					"B" => "(" . $value["strategyId"] . ")" . $value["strategy"],
+					"C" => "(" . $value["creativeId"] . ")" . $value["creative"],
+					"D" => "(" . $value["adspaceId"] . ")" . $value["adspace"],
+					"E" => $value["siteCategory"],
+					"F" => $value["totView"],
+					"G" => $value["25"],
+					"H" => $value["50"],
+					"I" => $value["75"],
+					"J" => $value["100"],
+
+				);
+				$totView += $value["totView"];
+				$tot25 += $value["25"];
+				$tot50 += $value["50"];
+				$tot75 += $value["75"];
+				$tot100 += $value["100"];
+			}
+
+			$data[] = array(
+				"A" => "",
+				"B" => "",
+				"C" => "",
+				"D" => "",
+				"E" => "合計",
+				"F" => $totView,
+				"G" => $tot25,
+				"H" => $tot50,
+				"I" => $tot75,
+				"J" => $tot100,
+			);
+
+			$report = array(
+				"name" => "影音活動報表",
+				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 影音活動報表 查詢時間" . $day[0] . "~" . $day[1],
+				"fileName" => "影音活動報表 查詢時間" . $day[0] . "~" . $day[1],
+				"width" => "J1",
+				"title" => array(
+					"A2" => "日期",
+					"B2" => "策略",
+					"C2" => "素材",
+					"D2" => "版位",
+					"E2" => "類別",
+					"F2" => "收視數",
+					"G2" => "25%收視數",
+					"H2" => "50%收視數", 
+					"I2" => "75%收視數", 
+					"J2" => "100%收視數", 
+				),
+				"data" => $data
+			);	
+
+			$this->exportExcel($report);
+			Yii::app()->end();	
+
+		}
+		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			//print_r($_GET['CampaignId']); exit;
+			$model = new EveTestYtbLogs('search');
+			$model->unsetAttributes();  // clear any default values
+			if(isset($_GET['EveTestYtbLogs']))
+				$model->attributes=$_GET['EveTestYtbLogs'];
+
+			$this->renderPartial('_ytbReport',array(
+				'model'=>$model,
+				'campaign'=>$campaign,
+				'day'=>$day
+
+			));	
+			Yii::app()->end();
+		}
+
+		$this->render('ytbReport');
+	}
+
 }

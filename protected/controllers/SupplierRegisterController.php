@@ -45,15 +45,16 @@ class SupplierRegisterController extends Controller
 
 		if($_GET['type'] == 2){
 			if(isset($_POST['tosId'])){
+				header('Content-type: application/json');
 				$model->tos_id = $_POST['tosId'];
 				$model->check_time = time();
-				$model->check = 3; //通過
+				$model->check = ($model->check == 6) ? 8 : 3; //通過
 				$model->check_by = Yii::app()->user->id;
 				if($model->save()){
 					$criteria = new CDbCriteria;
 					$criteria->addCondition("tos_id = '" . $_POST['tosId'] . "'");
 					$checkSupplier = Supplier::model()->find($criteria);
-					if($checkSupplier === null){
+					if($checkSupplier === null && $model->check = 3){
 						$supplier = $this->creatSupplier($model);
 						if($supplier->id){
 							$criteria = new CDbCriteria;
@@ -61,42 +62,46 @@ class SupplierRegisterController extends Controller
 							$criteria->addCondition("name = '" . $model->company_name . "'", "OR");
 							$checkUser = User::model()->find($criteria);
 							if($checkUser !== null){
-								//使用者重複
-								header('Content-type: application/json');
+								//使用者重複								
 								echo json_encode(array("code" => "6"));
 								Yii::app()->end();
 							}							
 							if($this->creatNewUser($model,$supplier)){
-								//完成
-								header('Content-type: application/json');
+								//完成								
 								echo json_encode(array("code" => "1"));
 								Yii::app()->end();
 							}else{
-								//使用者建立失敗
-								header('Content-type: application/json');
+								//使用者建立失敗								
 								echo json_encode(array("code" => "2"));
 								Yii::app()->end();							
 							}
 
 						}else{
-							//供應商建立失敗
-							header('Content-type: application/json');
+							//供應商建立失敗							
 							echo json_encode(array("code" => "3"));
 							Yii::app()->end();
 						}
 					}else{
-						//tos-id已經存在
-						header('Content-type: application/json');
-						echo json_encode(array("code" => "4"));
-						Yii::app()->end();						
+						if($model->check = 8){
+							$checkSupplier->attributes = $model->attributes;
+							if($checkSupplier->save()){
+								echo json_encode(array("code" => "7"));
+								Yii::app()->end();
+							}else{
+								echo json_encode(array("code" => "8"));
+								Yii::app()->end();									
+							}
+						}else{
+							//tos-id已經存在							
+							echo json_encode(array("code" => "4"));
+							Yii::app()->end();	
+						}					
 					}
 				}else{
-					//更新審核狀態失敗
-					header('Content-type: application/json');
+					//更新審核狀態失敗					
 					echo json_encode(array("code" => "5"));
 					Yii::app()->end();
-				}
-				header('Content-type: application/json');
+				}				
 				echo json_encode(array("code" => "0"));
 				Yii::app()->end();
 			}else{
@@ -108,7 +113,7 @@ class SupplierRegisterController extends Controller
 			if($model->public_time == 0)
 				$model->public_time = time();
 			$model->check_time = time();
-			$model->check = 2; //通過
+			$model->check = ($model->check == 6 || $model->check == 5 || $model->check == 7) ? 7 : 2; //退回
 			$model->check_by = Yii::app()->user->id;
 			$model->save();
 			$this->renderPartial('_turnBack',array(
