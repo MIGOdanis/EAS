@@ -97,8 +97,9 @@ class EveTestYtbLogs extends CActiveRecord
 		return $criteria;
 	}
 
-	public function ytbReport($criteria)
+	public function ytbCategoryReport($criteria)
 	{
+		$criteria = $this->addReportTime($criteria);
 		$report = $this->findAll($criteria);
 
 		$rawData = array();
@@ -106,22 +107,66 @@ class EveTestYtbLogs extends CActiveRecord
 		foreach ($report as $key => $value) {
 			$sp = explode(":", $value->queryStr);
 			$ratings = $this->ratings($value->play_duration, $value->video_duration);
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]]["totView"]++;
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]][$ratings]++;
-		}
 
-		$rawData = $this->transInfoByCount($rawData);
+			$criteria=new CDbCriteria;
+			$criteria->addCondition("t.tos_id = '" . $sp[1] . "'");				
+			$siteCategory = AdSpace::model()->with("site")->find($criteria);
 
-		// if(isset($_GET['export']) && $_GET['export'] == 1){
-			return $rawData;
-		// }
+			$rawData[$siteCategory->site->category->category_id]["totView"]++;
+			$rawData[$siteCategory->site->category->category_id][$ratings]++;
+		}			
 		
-		// return new CArrayDataProvider($rawData, array(
-		// 	'pagination'=>false
-		// ));	
+		return $rawData;
 		
 	}
 
+	public function ytbReport($criteria)
+	{
+		$criteria = $this->addReportTime($criteria);
+		$report = $this->findAll($criteria);
+
+		$rawData = array();
+
+
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			foreach ($report as $key => $value) {
+				$sp = explode(":", $value->queryStr);
+				$ratings = $this->ratings($value->play_duration, $value->video_duration);
+				$rawData[date("Y-m-d",$value->starttime)]["totView"]++;
+				$rawData[date("Y-m-d",$value->starttime)][$ratings]++;
+			}			
+			$rawData = $this->transInfoByCountDay($rawData);
+		}else{
+			foreach ($report as $key => $value) {
+				$sp = explode(":", $value->queryStr);
+				$ratings = $this->ratings($value->play_duration, $value->video_duration);
+				$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]]["totView"]++;
+				$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]][$ratings]++;
+			}			
+			$rawData = $this->transInfoByCount($rawData);	
+		}
+		
+		return $rawData;
+		
+	}
+
+	function transInfoByCountDay($rawData){
+		$data = array();
+		foreach ($rawData as $date => $dateValue) {
+			$data[$date] = array(
+				"totView" => $dateValue["totView"],
+				"0" => (int)$dateValue["0"],
+				"25" => (int)$dateValue["25"],
+				"50" => (int)$dateValue["50"],							
+				"75" => (int)$dateValue["75"],
+				"100" => (int)$dateValue["100"],
+			);	
+		}
+
+		return $data;
+
+	}
 
 	function transInfoByCount($rawData){
 		$data = array();
