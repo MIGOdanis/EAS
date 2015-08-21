@@ -3,12 +3,37 @@ var endDay;
 var supplierId;
 var siteId;
 var adSpaceId;
+var filterStatus = "close";
 
 if(typeof(type == "undefined")){
 	var type = "yesterday";
 }
 
+function moveFilter(){
+	if (filterStatus == "close") {
+		filterStatus = "runing";
+		$( "#filter" ).animate({
+			width: "350",
+		}, 800, function() {
+			filterStatus = "open";
+			$( "#filter" ).css("overflow","");
+			$( "#filter-list" ).toggle("normal");
+		});
+	}else if(filterStatus == "open"){
+		$( "#filter-list" ).toggle("normal");
+		filterStatus = "runing";
+		$( "#filter" ).animate({
+			width: "0",
+		}, 800, function() {
+			filterStatus = "close";
+			$( "#filter" ).css("overflow","");
+		});		
+	}
+}
+
+
 function getReport(){
+	moveFilter();
 	$('#loading-supplier-report').show();
 	$('#display-supplier-report').html("");
 	supplierId = $("#supplier-id").val();
@@ -83,6 +108,10 @@ $(function(){
 		});
 	});
 
+	$("#filter-open-btn").click(function(){
+		moveFilter();
+	});
+
 	$('#sandbox-container .input-daterange').datepicker({
 	    language: "zh-TW",
 	    format: "yyyy-mm-dd"
@@ -119,5 +148,7 @@ $(function(){
 		adSpace = $(this).data("adspace");
 		getReport();
 	});	
+
+	moveFilter();
     
 })
