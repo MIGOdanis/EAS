@@ -173,22 +173,30 @@ class BuyReportDailyPc extends CActiveRecord
 		return $criteria;
 	}
 
-	//前台供應商查詢
-	public function supplierDailyReport($tos_id,$reportType)
-	{
-		$criteria = new CDbCriteria;
-		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
-		$noPayCampaign = Campaign::model()->findAll($criteria);
+	public function addNoPayCampaign($criteria){
+		$noPayCriteria = new CDbCriteria;
+		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
 		$noPayCampaignId = array();
 		foreach ($noPayCampaign as $value) {
 			$noPayCampaignId[] = $value->tos_id;
 		}
 
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "only"){
+			$criteria->addInCondition("campaign_id",$noPayCampaignId);
+		}else{
+			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+		}
+		
+		return $criteria;
+	}
+
+	//前台供應商查詢
+	public function supplierDailyReport($tos_id,$reportType)
+	{
+		
 		$criteria=new CDbCriteria;
-
 		$criteria->addCondition("t.tos_id = '" . $tos_id ."'");
-
 		if($reportType == "supplier"){
 			if(isset($_GET['site']) && $_GET['site'] > 0){
 				$criteria->addCondition("site.tos_id = '" . $_GET['site'] . "'");
@@ -223,7 +231,7 @@ class BuyReportDailyPc extends CActiveRecord
 
 		$criteria->addInCondition("ad_space_id",$adSpacArray);
 		
-		$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+		$criteria = $this->addNoPayCampaign($criteria);
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
@@ -254,6 +262,10 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+
+
+
+
 	//後台查詢供應商
 	public function adminSupplierDailyReport($adSpacArray)
 	{
@@ -275,6 +287,10 @@ class BuyReportDailyPc extends CActiveRecord
 		}
 
 		$criteria->addCondition("supplier.tos_id IS NOT NULL");
+
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
+		}
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
@@ -317,6 +333,10 @@ class BuyReportDailyPc extends CActiveRecord
 
 		$criteria->addCondition("site.tos_id IS NOT NULL");
 
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
+		}
+
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
 		$criteria->group = "site.tos_id";
@@ -353,6 +373,10 @@ class BuyReportDailyPc extends CActiveRecord
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
+
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
+		}		
 
 		$criteria->addCondition("adSpace.tos_id IS NOT NULL");
 

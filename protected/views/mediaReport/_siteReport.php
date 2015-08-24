@@ -21,7 +21,16 @@
 <?php if(isset($_GET['siteId']) && $_GET['siteId'] > 0){ ?>
 	<h5>網站 : <?php echo CHtml::link($supplier->site[0]->name,array("mediaReport/siteReport","site_id"=>$supplier->site[0]->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"])); ?></h5>
 <?php }?>
-
+<?php
+if(isset($_GET['showNoPay']) && !empty($_GET['showNoPay'])){
+	$NoPay = array(
+		"all" => "包含墊檔",
+		"hide" => "不含墊檔",
+		"only" => "只有墊檔",
+	)
+?>
+	<h5>墊檔 : <?php echo $NoPay[$_GET['showNoPay']]; ?></h5>
+<?php }?>
 <?php
 Yii::app()->clientScript->registerScript('search', "
 	$('.search-button, .sort-link').click(function(){
@@ -68,7 +77,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'name' => "adSpace.site.id",
 			'header' => "網站",
 			'type' => 'raw',
-			'value'=>'CHtml::link($data->adSpace->site->name,array("mediaReport/adSpaceReport","site_id"=>$data->adSpace->site->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"]))',	
+			'value'=>'CHtml::link($data->adSpace->site->name,array("mediaReport/adSpaceReport","site_id"=>$data->adSpace->site->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"], "showNoPay" => $_GET["showNoPay"]))',	
 			'htmlOptions'=>array('width'=>'250','class'=>'name'),
 			'filter'=>false,
 		),	

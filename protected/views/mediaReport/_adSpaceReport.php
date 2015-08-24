@@ -26,6 +26,16 @@
 	<h5>版位 : <?php echo $supplier->site[0]->adSpace[0]->name; ?></h5>
 <?php }?>
 <?php
+if(isset($_GET['showNoPay']) && !empty($_GET['showNoPay'])){
+	$NoPay = array(
+		"all" => "包含墊檔",
+		"hide" => "不含墊檔",
+		"only" => "只有墊檔",
+	)
+?>
+	<h5>墊檔 : <?php echo $NoPay[$_GET['showNoPay']]; ?></h5>
+<?php }?>
+<?php
 Yii::app()->clientScript->registerScript('search', "
 	$('.search-button, .sort-link').click(function(){
 		$('.search-form').toggle();

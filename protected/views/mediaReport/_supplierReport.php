@@ -18,6 +18,18 @@
 <?php if(isset($_GET['supplierId']) && $_GET['supplierId'] > 0){ ?>
 	<h5>供應商 : <?php echo $supplier->name; ?></h5>
 <?php }?>
+
+<?php
+if(isset($_GET['showNoPay']) && !empty($_GET['showNoPay'])){
+	$NoPay = array(
+		"all" => "包含墊檔",
+		"hide" => "不含墊檔",
+		"only" => "只有墊檔",
+	)
+?>
+	<h5>墊檔 : <?php echo $NoPay[$_GET['showNoPay']]; ?></h5>
+<?php }?>
+
 <?php
 Yii::app()->clientScript->registerScript('search', "
 	$('.search-button, .sort-link').click(function(){
@@ -65,7 +77,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'name' => "adSpace.site.supplier.id",
 			'header' => "供應商",
 			'type' => 'raw',
-			'value'=>'CHtml::link($data->adSpace->site->supplier->name,array("mediaReport/siteReport","supplier_id"=>$data->adSpace->site->supplier->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"]))',
+			'value'=>'CHtml::link($data->adSpace->site->supplier->name,array("mediaReport/siteReport","supplier_id"=>$data->adSpace->site->supplier->tos_id, "type" => $_GET["type"], "startDay" => $_GET["startDay"], "endDay" => $_GET["endDay"], "showNoPay" => $_GET["showNoPay"]))',
 			'htmlOptions'=>array('width'=>'250','class'=>'day'),
 			'filter'=>false,
 		),							
