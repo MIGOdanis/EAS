@@ -11,38 +11,6 @@
 	<div id="filter-list">
 		<h2>篩選報表</h2>	
 		<div class="panel panel-default">
-			<div class="panel-heading">時間</div>
-			<div class="panel-body">
-				<div class="filter-box">
-					<div class="filter-datepicker">
-						<div class="span5 col-md-5" id="sandbox-container">
-							<div class="input-daterange input-group" id="datepicker">
-							<input type="text" class="input-sm form-control" id="startDay" value="<?php echo $_GET['startDay'];?>">
-							<span class="input-group-addon">至</span>
-							<input type="text" class="input-sm form-control" id="endDay" value="<?php echo $_GET['endDay'];?>">
-							</div>
-						</div>
-					</div>					
-				</div>
-				<div class="filter-box">
-					<div class="dropdown">
-						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-							<span id="supplier-report-dropup-now">昨天</span>
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-							<li><a href="#" data-type="yesterday" class="select-report">昨天</a></li>
-							<li><a href="#" data-type="7day" class="select-report">最近7天</a></li>
-							<li><a href="#" data-type="30day" class="select-report">最近30天</a></li>
-							<li><a href="#" data-type="pastMonth" class="select-report">上個月</a></li>
-							<li><a href="#" data-type="thisMonth" class="select-report">本月</a></li>
-							<li><a href="#" data-type="thisMonth" class="select-report">自訂</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="panel panel-default">
 			<div class="panel-heading">查詢條件</div>
 			<div class="panel-body">		
 				<div class="filter-box">
@@ -55,12 +23,23 @@
 				</div>
 
 				<div class="filter-box">
-					<label>
-						<input type="checkbox" class="xl-checkbox" id="showNoPay"><span>隱藏墊檔</span>
-					</label>
+					<div class="btn-group nopay-btn-group" data-toggle="buttons">
+						<label class="btn btn-primary active" data-status="all">
+							<input type="radio" name="options" id="option1" autocomplete="off" checked> 包含墊檔 
+						</label>
+						<label class="btn btn-primary" data-status="hide">
+							<input type="radio" name="options" id="option2" autocomplete="off"> 不含墊檔 
+						</label>
+						<label class="btn btn-primary" data-status="only">
+							<input type="radio" name="options" id="option3" autocomplete="off"> 只看墊檔 
+						</label>
+					</div>
 				</div>
 			</div>		
 		</div>
+		<?php
+			echo $this->renderPartial('_datepick');
+		?>			
 		<div class="filter-box">
 			<button class="btn btn-default" id="run-day" type="submit">套用</button>
 		</div>	
@@ -81,8 +60,22 @@
 	?>
 	</div>
 	<div><h3>供應商日報表</h3></div>
-	<div id="loading-supplier-report">載入中..</div>
-	<div id="display-supplier-report">請操作條件!</div>
+
+	<ul class="nav nav-tabs" role="tablist">
+		<li role="presentation" class="active tabs-btn" id="def">
+			<a href="#home" aria-controls="home" role="tab" data-toggle="tab">媒體日報表</a>
+		</li>
+		<li role="presentation" id="createNewTab" >
+			<a href="#profile"  >
+				<span class="glyphicon glyphicon-plus" aria-hidden="true">
+			</a>
+		</li>
+	</ul>
+	<div id="report-group">
+		<div class="tab-body" id="def-body">
+			<div class="display-supplier-report">請操作條件!</div>		
+		</div>
+	</div>
 </div>
 <script>
 	var reportUrl = 'supplierReport';

@@ -13,6 +13,10 @@
 		
 	}
 
+	.nav-tabs{
+		height: 42px;
+	}
+
 	#filter-list{
 		height: 100%;
 		width: 100%;
@@ -56,6 +60,12 @@
 		width: 100%;
 		margin-right: 15px;
 		margin-bottom: 15px;
+	}
+	.nopay-btn-group{
+		width: 100%;
+	}
+	.nopay-btn-group .btn{
+		width: 33.4%;
 	}
 	.filter-datepicker{
 		/*width: 280px;*/
@@ -117,11 +127,17 @@
 		float: none;
 	}
 
-	#loading-supplier-report{
+	.loading-supplier-report{
 		display: none;
 	}
 
+	.tab-body{
+		display: none;
+	}
 
+	#def-body{
+		display: block;
+	}
 	/*表格*/
 	.tbody{
 		border-width: 1px !important;

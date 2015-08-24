@@ -101,8 +101,8 @@
 		</div>		
 		
 		<script type="text/javascript">
+		keyEvent = false;
 		$(function(){
-			var keyEvent = false;
 			var leftNavStatus = true;
 			$(document).keydown(function(e) {
 				if(e.keyCode == 16)
