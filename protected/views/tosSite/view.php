@@ -30,6 +30,10 @@ $this->widget('zii.widgets.CDetailView', array(
 			'name' => '網站類型',
 			'value' => typeStr($model->type),
 		),
+		array(
+			'name' => '網站分類',
+			'value' => $model->category->mediaCategory->name,
+		),		
 		'domain',
 		array(
 			'name' => '資料建立時間',

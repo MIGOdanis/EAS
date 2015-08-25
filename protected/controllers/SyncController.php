@@ -487,8 +487,8 @@ class SyncController extends Controller
 		ini_set("memory_limit","2048M");
 		// $lastTimeLog = Log::model()->getValByName("lastSyncSiteMediaCategoryTosTime");
 
-		// $criteria = new CDbCriteria;
-		// $criteria->addCondition("settled_time > '" . $lastTimeLog->value . "'");
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("status = 1");
 		$SyncSiteMediaCategory = TosCoreSiteMediaCategory::model()->findAll($criteria);
 		foreach ($SyncSiteMediaCategory as $value) {
 			$type = "update";
