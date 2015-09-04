@@ -26,6 +26,7 @@ class DownloadDataController extends Controller
 
 	public function actionSiteAdSpaceInfor()
 	{
+		set_time_limit(0);
 		$model = TosCoreAdSpace::model()->with("site", "site.category", "site.category.mediaCategory")->findAll();
 		$data = array();		
 		foreach ($model as $value) {
@@ -59,6 +60,7 @@ class DownloadDataController extends Controller
 
 	public function actionStrategyInfor()
 	{
+		set_time_limit(0);
 		$model = TosCoreStrategy::model()->with("campaign", "campaign.industry")->findAll();
 
 		$data = array();		
@@ -93,7 +95,8 @@ class DownloadDataController extends Controller
 
 	public function actionCreativeInfor()
 	{
-		$model = TosCoreCreativeGroups::model()->with("campaign")->findAll();
+		set_time_limit(0);
+		$model = TosCoreCreativeMaterial::model()->with("campaign","group")->findAll();
 
 		$data = array();		
 		foreach ($model as $value) {
@@ -101,8 +104,9 @@ class DownloadDataController extends Controller
 				"A" => $value->campaign->id,
 				"B" => $value->campaign->campaign_name,
 				"C" => $value->campaign->industry->name,
-				"D" => $value->id,
-				"E" => $value->name,
+				"D" => $value->group->id,
+				"E" => $value->id,
+				"F" => $value->group->name,
 			);
 		}
 
@@ -110,13 +114,14 @@ class DownloadDataController extends Controller
 			"name" => "訂單素材資訊",
 			"titleName" => "訂單素材資訊 資料時間" . date("Y-m-d H:i:s"),
 			"fileName" => "訂單素材資訊 資料時間" . date("Y-m-d H:i:s"),
-			"width" => "E1",
+			"width" => "F1",
 			"title" => array(
 				"A2" => "訂單ID",
 				"B2" => "訂單名稱",
 				"C2" => "產業名稱",
-				"D2" => "素材ID",
-				"E2" => "素材名稱",
+				"D2" => "素材群組ID (後台)",
+				"E2" => "素材ID(前台)",
+				"F2" => "素材名稱",
 			),
 			"data" => $data
 		);	
