@@ -55,6 +55,8 @@ class CampaignBooking extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id')),
+			'strategy' => array(self::HAS_ONE, 'Strategy', array('tos_id' => 'strategy_id')),
+
 		);
 	}
 
@@ -125,16 +127,36 @@ class CampaignBooking extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->addCondition("t.start_time <= '" . time() ."'");
 		$criteria->addCondition("t.end_time >= '" . time() ."'");
-		$criteria->with = "campaign";
 
-		$noPayCriteria = new CDbCriteria;
-		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
-		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
-		$noPayCampaignId = array();
-		foreach ($noPayCampaign as $value) {
-			$noPayCampaignId[] = $value->tos_id;
+		if(isset($_GET['resetFilter'])){
+			unset($_COOKIE['noPayCampaignId']);
 		}
-		$criteria->addNotInCondition("campaign_id", $noPayCampaignId);
+
+		$noPayCampaignId = array();
+
+		if(isset($_POST['noPayCampaignId']) && !empty($_POST['noPayCampaignId'])){
+			$noPayCampaignId = $_POST['noPayCampaignId'];
+		}else if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
+			$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+		}
+
+		if(empty($noPayCampaignId)){
+			$noPayCriteria = new CDbCriteria;
+			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
+			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);
+			foreach ($noPayCampaign as $value) {
+				$noPayCampaignId[] = $value->id;
+			}		
+		}
+
+		setcookie("noPayCampaignId", implode(":", $noPayCampaignId), time() + 3600);
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
+		$criteria->addNotInCondition("t.campaign_id", $noPayCampaignId);
+
+		$criteria->with = array("strategy","campaign");
 
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,

@@ -10,13 +10,14 @@ class CronBookingController extends Controller
 		$criteria->addCondition("t.start_time <= '" . date("Y-m-d H:i:s", strtotime(date("Y-m-d") . ' +16 day')) . "'");
 		$criteria->addCondition("t.end_time >= '" . date("Y-m-d H:i:s") . "'");
 		$criteria->addCondition("t.status = 1");
-		$campaign = TosCoreCampaign::model()->with("budget","strategy","strategy.strategyBudget","strategy.strategyTotalHit")->findAll($criteria);
+		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit")->findAll($criteria);
 		foreach ($campaign as $value) {
 			
 			//計算訂單booking
 			$campaignBudgetQuota = ceil($value->budget->total_budget / 100);
 
 			//計算扣除已設定策略後剩下的BOOKING
+			$strategyTotal = 0;
 			$strategyBudget = 0;
 			$unsetBudget = 0;
 
@@ -27,13 +28,25 @@ class CronBookingController extends Controller
 					$unsetBudget++;
 				}
 				$strategyBudget = $strategyBudget + $budget;
+				$strategyTotal++;
 			}
 
 			$campaignBudgetQuota = $campaignBudgetQuota - $strategyBudget;
+
+			//檢查策略總計是否超過訂單
+			$maxBudget = 0;
+			if($strategyBudget > $campaignBudgetQuota){
+				if($strategyTotal < 1)
+					$strategyTotal = 1;
+
+				$maxBudget = ceil($strategyBudget / $strategyTotal);
+			}
+
 			if($unsetBudget < 1)
 				$unsetBudget = 1;
 
 			foreach($value->strategy as $strategy){
+				print_r($value->id . "|" .$strategy->id . "<br>");
 				$bookingDay = strtotime($strategy->end_time) -  strtotime($strategy->start_time);
 				$bookingDay = ceil($bookingDay / 86400);
 				$remainingDay = strtotime($strategy->end_time) - time();
@@ -51,18 +64,17 @@ class CronBookingController extends Controller
 				//預定天數與剩餘天數
 				$booking->booking_day = $bookingDay;
 				$booking->remaining_day = $remainingDay;	
-				$booking = $this->countBudger($booking,$strategy,$campaignBudgetQuota,$unsetBudget);
-				$booking = $this->countClick($booking,$strategy);
-				$booking = $this->countImp($booking,$strategy);
+				$booking = $this->countBudger($booking,$value,$campaignBudgetQuota,$unsetBudget,$maxBudget);
+				$booking = $this->countClick($booking,$strategy,$maxBudget);
+				$booking = $this->countImp($booking,$strategy,$maxBudget);
 				$booking->start_time = strtotime($strategy->start_time);
 				$booking->end_time = strtotime($strategy->end_time);
-				$booking->sync_time = time();				
-			}
+				$booking->sync_time = "1441209600";				
+				if(!$booking->save()){
+					print_r($booking); exit;
+				}
 
-			if(!$booking->save()){
-				// print_r($booking); exit;
 			}
-
 		}
 
 		$this->clearRemainingDay();
@@ -70,18 +82,30 @@ class CronBookingController extends Controller
 	}
 
 	//計算預算
-	public function countBudger($booking,$value,$campaignBudgetQuota,$unsetBudget){
+	public function countBudger($booking,$value,$campaignBudgetQuota,$unsetBudget,$maxBudget){
 
-		$budget = ceil($value->strategyBudget->total_budget / 100);
+		$status = 1;
+		$budget = ceil($value->strategy->strategyBudget->total_budget / 100);
 		if($budget == 0){
+			$status = 2;
 			$budget = ceil($campaignBudgetQuota / $unsetBudget);
 		}		
 
+		if($maxBudget > 0){
+			$status = 3;
+			$budget = $maxBudget;
+		}
+
 		$booking->booking_budget = $budget;
-		$booking->remaining_budget = ceil($booking->booking_budget - ($value->strategyTotalHit->cost / 100));
+		
+		$remainingBudget = ceil($booking->booking_budget - ($value->strategy->strategyTotalHit->cost / 100));
+		if($status == 2)
+			$remainingBudget = ceil( $booking->booking_budget - ( ($value->totalHit->total_hit_budget / 100) /  $unsetBudget) );
+
+		$booking->remaining_budget = $remainingBudget;
 		$booking->day_budget = ceil(($booking->remaining_day == 0) ? 0 : ($booking->remaining_budget / $booking->remaining_day));
-		if($value->strategyBudget->max_daily_budget > 0){
-			$booking->day_budget = ceil($value->strategyBudget->max_daily_budget / 100);
+		if($value->strategy->strategyBudget->max_daily_budget > 0){
+			$booking->day_budget = ceil($value->strategy->strategyBudget->max_daily_budget / 100);
 		}
 
 		return  $booking;
@@ -90,12 +114,12 @@ class CronBookingController extends Controller
 
 
 	//計算點擊
-	public function countClick($booking,$value){
+	public function countClick($booking,$value,$maxBudget){
 
 		$status = 1; // 1=實際值 2=預估值
 		//如果未填寫click booking 用5cpc算
 		$click = $value->strategyBudget->total_click;
-		if($click == 0){
+		if($click == 0 || $maxBudget > 0){
 			$status = 2;
 			$click = $this->transClick($booking->booking_budget);
 		}
@@ -143,12 +167,12 @@ class CronBookingController extends Controller
 
 
 	//計算曝光
-	public function countImp($booking,$value){
+	public function countImp($booking,$value,$maxBudget){
 
 		$status = 1;
 		//如果位置設定總IMP以CTR回推
 		$imp = $value->strategyBudget->total_imp;
-		if($imp == 0){
+		if($imp == 0 || $maxBudget > 0){
 			$status = 2;
 			$imp = $this->transImp($booking->booking_click,$value->strategyTotalHit);
 		}
@@ -195,12 +219,14 @@ class CronBookingController extends Controller
 	public function transImp($click,$strategyTotalHit){
 		if($strategyTotalHit->impression > 0){
 			$ctr = (($strategyTotalHit->click / $strategyTotalHit->impression) * 100);
+
 		}else{
 			$ctr = 0.1;
 		}
 		
 		if($ctr <= 0)
 			$ctr = 0.1;
+
 
 		return ceil(($click / $ctr)  * 100);
 	}
@@ -224,18 +250,30 @@ class CronBookingController extends Controller
 	{
 		set_time_limit(0);
 		ini_set("memory_limit","2048M");
+	public function actionCronCountBookingHistory()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("remaining_day > 0");
+		$criteria->addCondition("remaining_day <= booking_day");
 		$model = CampaignBooking::model()->findAll($criteria);
+		$syncTime = $value->sync_time;
+		if(isset($_GET['syncTime']))
+			$syncTime = $_GET['syncTime'];
+
+
 		foreach ($model as $value) {
 			$criteria = new CDbCriteria;
 			$criteria->addCondition("strategy_id = '" . $value->strategy_id . "'");
-			$criteria->addCondition("date = '" . date("Y-m-d 00:00:00", $value->sync_time) . "'");
+			$criteria->addCondition("date = '" . date("Y-m-d 00:00:00", $syncTime) . "'");
 			$run = TosCoreStrategyDailyHit::model()->find($criteria);
+
 
 			$criteria = new CDbCriteria;
 			$criteria->addCondition("strategy_id = '" . $value->strategy_id . "'");
-			$criteria->addCondition("history_time = '" . strtotime(date("Y-m-d 00:00:00", $value->sync_time)) . "'");
+			$criteria->addCondition("history_time = '" . strtotime(date("Y-m-d 00:00:00", $syncTime)) . "'");
 			$history = CampaignBookingHistory::model()->find($criteria);	
 			
 			if($history === null)		
@@ -243,6 +281,7 @@ class CronBookingController extends Controller
 			
 			$history->campaign_id = $value->campaign_id;
 			$history->strategy_id = $value->strategy_id;
+			$history->type = $value->type;
 			$history->booking_day = $value->booking_day;
 			$history->remaining_day = $value->remaining_day;
 			$history->booking_click = $value->booking_click;
@@ -256,20 +295,23 @@ class CronBookingController extends Controller
 			$history->booking_budget = $value->booking_budget;
 			$history->remaining_budget = $value->remaining_budget;
 			$history->day_budget = $value->day_budget;
-			$history->history_time = strtotime(date("Y-m-d 00:00:00", $value->sync_time));
+			$history->history_time = strtotime(date("Y-m-d 00:00:00", $syncTime));
 
 			if($run === null){
 				$history->run_click = 0;
 				$history->run_imp = 0;
 				$history->run_budget = 0;
+				print_r("NORUN:" . $value->strategy_id . "<br>");
 			}else{
+
 				$history->run_click = $run->click;
 				$history->run_imp = $run->impression;
 				$history->run_budget = ceil($run->cost / 100);
+				print_r("RUN:" . $value->strategy_id . "<br>");
 			}
 
 			if(!$history->save()){
-				// print_r($history); exit;
+				print_r($history); exit;
 			}
 		}
 

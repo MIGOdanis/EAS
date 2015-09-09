@@ -11,13 +11,27 @@
 		}
 		table{
 			border: solid 1px #ACACAC;
+			font-size: 12px;
 		}	
-		.day{
-			font-weight: bold;
+		.click{
+			background-color: #FF988A;
+			color: #fff;
+			text-align: center;
 		}
+		.imp{
+			background-color: #75AF75;
+			color: #fff;
+			text-align: center;
+		}
+		.budget{
+			background-color: #4696AA;
+			color: #fff;
+			text-align: center;			
+		}		
 	/*	th{
 			background-color: #DCDCDC;
 		}*/
+
 	</style>
 	<script type="text/javascript">
 		$(function(){
@@ -42,9 +56,9 @@
 		})
 	</script>
 	<div class="btn-group" role="group" aria-label="...">
-		<a href="campaignList" class="btn btn-default">全部</a>
-		<a href="campaignList?type=1" class="btn btn-default">只看PC</a>
-		<a href="campaignList?type=2" class="btn btn-default">只看MOB</a>
+		<a href="campaignListHistory?day=<?php echo $_GET['day'];?>" class="btn btn-default">全部</a>
+		<a href="campaignListHistory?type=1&day=<?php echo $_GET['day'];?>" class="btn btn-default">只看PC</a>
+		<a href="campaignListHistory?type=2&day=<?php echo $_GET['day'];?>" class="btn btn-default">只看MOB</a>
 		<button type="button" class="btn btn-default" id="filter-btn">
 		  	<span class="glyphicon glyphicon-filter" aria-hidden="true"></span> 訂單濾除
 		</button>
@@ -113,55 +127,98 @@
 				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
 				'filter'=>false,
 			),	
-			array(	
-				'name' => "booking_day",
-				'header' => "走期(D)",
-				'value'=>'$data->booking_day',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),			
-			array(	
-				'name' => "remaining_day",
-				'header' => "剩餘走期(D)",
-				'value'=>'$data->remaining_day',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),
-			array(	
-				'name' => "booking_click",
-				'header' => "總點擊",
-				'value'=>'number_format($data->booking_click, 0, "." ,",")',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),
-			array(	
-				'name' => "remaining_click",
-				'header' => "剩餘點擊",
-				'value'=>'number_format($data->remaining_click, 0, "." ,",")',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),							
+			// array(	
+			// 	'name' => "booking_day",
+			// 	'header' => "走期(D)",
+			// 	'value'=>'$data->booking_day',
+			// 	// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
+			// 	'filter'=>false,
+			// ),			
+			// array(	
+			// 	'name' => "remaining_day",
+			// 	'header' => "剩餘走期(D)",
+			// 	'value'=>'$data->remaining_day',
+			// 	// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
+			// 	'filter'=>false,
+			// ),							
 			array(	
 				'name' => "day_click",
-				'header' => "日點擊預估",
+				'header' => "當日點擊預估",
 				'value'=>'number_format($data->day_click, 0, "." ,",")',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
+				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
 			),
+			array(	
+				'name' => "run_click",
+				'header' => "實際實行點擊",
+				'value'=>'number_format($data->run_click, 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'click'),
+				'filter'=>false,
+			),	
+			array(	
+				'header' => "未執行點擊",
+				'value'=>'number_format(($data->day_click - $data->run_click), 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'click'),
+				'filter'=>false,
+			),	
+			array(	
+				'header' => "點擊執行率",
+				'value'=>'number_format((($data->day_click > 0) ? ($data->run_click / $data->day_click) * 100 : 0), 2, "." ,",") . "%"',
+				'htmlOptions'=>array('class'=>'click'),
+				'filter'=>false,
+			),								
 			array(	
 				'name' => "day_imp",
 				'header' => "日曝光預估",
 				'value'=>'number_format($data->day_imp, 0, "." ,",")',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
+				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
 			),
+			array(	
+				'name' => "run_imp",
+				'header' => "實際實行曝光",
+				'value'=>'number_format($data->run_imp, 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'imp'),
+				'filter'=>false,
+			),
+			array(	
+				'header' => "未執行曝光",
+				'value'=>'number_format(($data->day_imp - $data->run_imp), 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'imp'),
+				'filter'=>false,
+			),	
+			array(	
+				'header' => "曝光執行率",
+				'value'=>'number_format((($data->day_imp > 0) ? ($data->run_imp / $data->day_imp) * 100 : 0), 2, "." ,",") . "%"',
+				'htmlOptions'=>array('class'=>'imp'),
+				'filter'=>false,
+			),							
 			array(	
 				'name' => "day_budget",
 				'header' => "日預算預估",
 				'value'=>'number_format($data->day_budget, 0, "." ,",")',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
+				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
-			),		
+			),	
+			array(	
+				'name' => "run_budget",
+				'header' => "實際實行預算",
+				'value'=>'number_format($data->run_budget, 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'budget'),
+				'filter'=>false,
+			),	
+			array(	
+				'header' => "未執行預算",
+				'value'=>'number_format(($data->day_budget - $data->run_budget), 0, "." ,",")',
+				'htmlOptions'=>array('class'=>'budget'),
+				'filter'=>false,
+			),	
+			array(	
+				'header' => "預算執行率",
+				'value'=>'number_format((($data->day_budget > 0) ? ($data->run_budget / $data->day_budget) * 100 : 0), 2, "." ,",") . "%"',
+				'htmlOptions'=>array('class'=>'budget'),
+				'filter'=>false,
+			),						
 		),
 	));
 

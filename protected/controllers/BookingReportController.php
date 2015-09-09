@@ -5,7 +5,6 @@ class BookingReportController extends Controller
 	public function actionCampaignList()
 	{
 
-
 		$model = new CampaignBooking('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['CampaignBooking']))
@@ -16,20 +15,76 @@ class BookingReportController extends Controller
 		));
 	}
 
+	public function actionCampaignListHistory()
+	{
+
+		$model = new CampaignBookingHistory('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['CampaignBookingHistory']))
+			$model->attributes=$_GET['CampaignBookingHistory'];
+
+		$this->render('campaignListHistory',array(
+			'model'=>$model
+		));
+	}
+
+	public function actionFilterCampaign()
+	{
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("remaining_day > 0");	
+		$criteria->group = "t.campaign_id";
+		$future = CampaignBooking::model()->with("campaign")->findAll($criteria);	
+		$campaignId = array();
+		foreach ($future as $value) {
+			$campaignId[] = $value->campaign->tos_id;
+		}	
+		$criteria = new CDbCriteria;
+		$criteria->group = "t.campaign_id";
+		$criteria->addNotInCondition("t.campaign_id", $campaignId);
+		$criteria->addCondition("t.history_time >= '" . strtotime(date("Y-m-d") . ' -5 day') . "'");
+		$past = CampaignBookingHistory::model()->with("campaign")->findAll($criteria);
+
+		$this->renderPartial('filterCampaign',array(
+			'future'=>$future,
+			'past'=>$past,
+		));
+	}
+
 	public function actionWeekBooking()
 	{
-		$noPayCriteria = new CDbCriteria;
-		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
-		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
-		$noPayCampaignId = array();
-		foreach ($noPayCampaign as $value) {
-			$noPayCampaignId[] = $value->tos_id;
+		if(isset($_GET['resetFilter'])){
+			unset($_COOKIE['noPayCampaignId']);
 		}
+
+		$noPayCampaignId = array();
+
+		if(isset($_POST['noPayCampaignId']) && !empty($_POST['noPayCampaignId'])){
+			$noPayCampaignId = $_POST['noPayCampaignId'];
+		}else if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
+			$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+		}
+
+		if(empty($noPayCampaignId)){
+			$noPayCriteria = new CDbCriteria;
+			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
+			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);
+			foreach ($noPayCampaign as $value) {
+				$noPayCampaignId[] = $value->id;
+			}		
+		}
+
+		setcookie("noPayCampaignId", implode(":", $noPayCampaignId), time() + 3600);
 
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("remaining_day > 0");
 		$criteria->addNotInCondition("campaign_id", $noPayCampaignId);
+		
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
 		$future = CampaignBooking::model()->findAll($criteria);
+		// print_r($future); exit;
 		// print_r($future); exit;
 		// $criteria = new CDbCriteria;
 		// $criteria->addCondition("remaining_day > 0");
@@ -105,6 +160,8 @@ class BookingReportController extends Controller
 	public function countByPastDay($day,$noPayCampaignId)
 	{
 		$day = strtotime(date("Y-m-d 00:00:00") . ' -' . $day. ' day');
+
+
 		$criteria = new CDbCriteria;
 		$criteria->select = '
 			sum(t.booking_click) as booking_click,
@@ -118,10 +175,13 @@ class BookingReportController extends Controller
 			sum(t.booking_budget) as booking_budget,
 			sum(t.remaining_budget) as remaining_budget,
 			sum(t.day_budget) as day_budget,
-			(sum(t.run_budget) / 100) as run_budget
+			(sum(t.run_budget) ) as run_budget
 		';	
 		$criteria->addCondition("t.history_time = '" . $day . "'");
-		$criteria->group = "t.history_time";
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
 		$criteria->addNotInCondition("campaign_id", $noPayCampaignId);
 		$model = CampaignBookingHistory::model()->find($criteria);
 		return $model;

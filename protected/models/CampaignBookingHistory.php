@@ -59,6 +59,9 @@ class CampaignBookingHistory extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id')),
+			'strategy' => array(self::HAS_ONE, 'Strategy', array('tos_id' => 'strategy_id')),
+
 		);
 	}
 
@@ -129,6 +132,54 @@ class CampaignBookingHistory extends CActiveRecord
 		$criteria->compare('history_time',$this->history_time);
 
 		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+
+	public function campaignList()
+	{
+		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria=new CDbCriteria;
+
+		if(isset($_GET['resetFilter'])){
+			unset($_COOKIE['noPayCampaignId']);
+		}
+
+		$noPayCampaignId = array();
+
+		if(isset($_POST['noPayCampaignId']) && !empty($_POST['noPayCampaignId'])){
+			$noPayCampaignId = $_POST['noPayCampaignId'];
+		}else if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
+			$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+		}
+
+		if(empty($noPayCampaignId)){
+			$noPayCriteria = new CDbCriteria;
+			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
+			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);
+			foreach ($noPayCampaign as $value) {
+				$noPayCampaignId[] = $value->id;
+			}		
+		}
+
+		setcookie("noPayCampaignId", implode(":", $noPayCampaignId), time() + 3600);
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
+		$criteria->addNotInCondition("t.campaign_id", $noPayCampaignId);
+
+		$criteria->with = array("strategy","campaign");
+
+		$day = strtotime($_GET['day'] . "00:00:00");
+		// print_r($day); exit;
+		$criteria->addCondition("t.history_time = '" . $day . "'");
+		// print_r($criteria); exit;
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 'remaining_day ASC',
+			),			
 			'criteria'=>$criteria,
 		));
 	}

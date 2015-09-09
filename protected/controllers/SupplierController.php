@@ -406,17 +406,17 @@ class SupplierController extends Controller
 		if($value->supplier->type == 1 && $count_monies < 20000)
 			$tax = 1;
 
-		return $count_monies * $tax;
+		return round($count_monies * $tax);
 		
 	}
 
 	public function taxDeductTot($value,$count_monies){
 		$tax =  $this->tax($value,$count_monies);
 		$taxDeduct = Yii::app()->params['taxTypeDeduct'][$value->supplier->type];
-		if($value->supplier->type == 1 && $count_monies >= 20000)
-			$taxDeduct = 0.9;
+		if($value->supplier->type == 1 && $count_monies < 20000)
+			$taxDeduct = 1;
 
-		return $tax * $taxDeduct;
+		return ($tax * $taxDeduct);
 		
 	}
 
