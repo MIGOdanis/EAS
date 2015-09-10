@@ -64,29 +64,29 @@
 
 	<?php foreach ($past as $value) { ?>
 		<tr>
-		<td><?php echo CHtml::link($value['date'] . "(-" . $value['day'] . "D)",array("bookingReport/campaignListHistory","day"=>$value['date'])); ?></td>
-		<td><?php echo number_format($value['day_budget'], 0, "." ,","); ?></td>
-		<td><?php echo number_format($value['run_budget'], 0, "." ,","); ?></td>
-		<td><?php echo number_format((($value['day_budget'] > 0)? (($value['run_budget'] / $value['day_budget']) * 100) : 0), 2, "." ,",") ?>%</td>
-		<td><?php echo number_format($value['day_imp'], 0, "." ,","); ?></td>
-		<td><?php echo number_format($value['run_imp'], 0, "." ,","); ?></td>
-		<td><?php echo number_format((($value['day_imp'] > 0)? (($value['run_imp'] / $value['day_imp']) * 100) : 0), 2, "." ,",") ?>%</td>
-		<td><?php echo number_format($value['day_click'], 0, "." ,","); ?></td>
-		<td><?php echo number_format($value['run_click'], 0, "." ,","); ?></td>
-		<td><?php echo number_format((($value['day_click'] > 0)? (($value['run_click'] / $value['day_click']) * 100) : 0), 2, "." ,",") ?>%</td>
+		<td><?php echo CHtml::link(date("Y-m-d",$value->booking_time),array("bookingReport/campaignListHistory","day"=>date("Y-m-d",$value->booking_time)),array("target"=>"_blank")); ?></td>
+		<td><?php echo number_format($value->day_budget, 0, "." ,","); ?></td>
+		<td><?php echo number_format($value->run_budget, 0, "." ,","); ?></td>
+		<td><?php echo number_format((($value->day_budget > 0)? (($value->run_budget / $value->day_budget) * 100) : 0), 2, "." ,",") ?>%</td>
+		<td><?php echo number_format($value->day_imp, 0, "." ,","); ?></td>
+		<td><?php echo number_format($value->run_imp, 0, "." ,","); ?></td>
+		<td><?php echo number_format((($value->day_imp > 0)? (($value->run_imp / $value->day_imp) * 100) : 0), 2, "." ,",") ?>%</td>
+		<td><?php echo number_format($value->day_click, 0, "." ,","); ?></td>
+		<td><?php echo number_format($value->run_click, 0, "." ,","); ?></td>
+		<td><?php echo number_format((($value->day_click > 0)? (($value->run_click / $value->day_click) * 100) : 0), 2, "." ,",") ?>%</td>
 		<tr>
 	<?php } ?>
 
 	<?php foreach ($future as $value) { ?>
 		<tr>
-		<td><?php echo $value['date'] . "(+" . $value['day'] . "D)"; ?></td>
-		<td><?php echo number_format($value['day_budget'], 0, "." ,","); ?></td>
+		<td><?php echo CHtml::link(date("Y-m-d",$value->booking_time),array("bookingReport/campaignListHistory","day"=>date("Y-m-d",$value->booking_time)),array("target"=>"_blank")); ?></td>
+		<td><?php echo number_format($value->day_budget, 0, "." ,","); ?></td>
 		<td>-</td>
 		<td>-</td>
-		<td><?php echo number_format($value['day_imp'], 0, "." ,","); ?></td>
+		<td><?php echo number_format($value->day_imp, 0, "." ,","); ?></td>
 		<td>-</td>
 		<td>-</td>
-		<td><?php echo number_format($value['day_click'], 0, "." ,","); ?></td>
+		<td><?php echo number_format($value->day_click, 0, "." ,","); ?></td>
 		<td>-</td>
 		<td>-</td>
 		<tr>

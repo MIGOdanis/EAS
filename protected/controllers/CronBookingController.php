@@ -6,315 +6,337 @@ class CronBookingController extends Controller
 	{
 		set_time_limit(0);
 		ini_set("memory_limit","2048M");
+
+		//取出走期內的所有訂單
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("t.start_time <= '" . date("Y-m-d H:i:s", strtotime(date("Y-m-d") . ' +16 day')) . "'");
 		$criteria->addCondition("t.end_time >= '" . date("Y-m-d H:i:s") . "'");
 		$criteria->addCondition("t.status = 1");
+		// $criteria->addCondition("t.id = 100275056");
 		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit")->findAll($criteria);
 		foreach ($campaign as $value) {
-			
-			//計算訂單booking
-			$campaignBudgetQuota = ceil($value->budget->total_budget / 100);
+			$campaignBookingDay = strtotime($value->end_time) -  strtotime($value->start_time);
+			$campaignBookingDay = ceil($campaignBookingDay / 86400);
+			if($campaignBookingDay == 0)
+				$campaignBookingDay = 1;
 
-			//計算扣除已設定策略後剩下的BOOKING
-			$strategyTotal = 0;
-			$strategyBudget = 0;
-			$unsetBudget = 0;
-
-			foreach ($value->strategy as $strategy) {
-				
-				$budget = ceil($strategy->strategyBudget->total_budget / 100);
-				if($budget == 0){
-					$unsetBudget++;
-				}
-				$strategyBudget = $strategyBudget + $budget;
-				$strategyTotal++;
-			}
-
-			$campaignBudgetQuota = $campaignBudgetQuota - $strategyBudget;
-
-			//檢查策略總計是否超過訂單
-			$maxBudget = 0;
-			if($strategyBudget > $campaignBudgetQuota){
-				if($strategyTotal < 1)
-					$strategyTotal = 1;
-
-				$maxBudget = ceil($strategyBudget / $strategyTotal);
-			}
-
-			if($unsetBudget < 1)
-				$unsetBudget = 1;
-
-			foreach($value->strategy as $strategy){
-				print_r($value->id . "|" .$strategy->id . "<br>");
-				$bookingDay = strtotime($strategy->end_time) -  strtotime($strategy->start_time);
-				$bookingDay = ceil($bookingDay / 86400);
-				$remainingDay = strtotime($strategy->end_time) - time();
-				$remainingDay = ceil($remainingDay / 86400);	
-
-				$criteria = new CDbCriteria;
-				$criteria->addCondition("t.strategy_id = '" . $strategy->id . "'");
-				$booking = CampaignBooking::model()->find($criteria);
-				if($booking === null)
-					$booking = new CampaignBooking();
-
-				$booking->campaign_id = $value->id;
-				$booking->strategy_id = $strategy->id;
-				$booking->type = $strategy->medium;
-				//預定天數與剩餘天數
-				$booking->booking_day = $bookingDay;
-				$booking->remaining_day = $remainingDay;	
-				$booking = $this->countBudger($booking,$value,$campaignBudgetQuota,$unsetBudget,$maxBudget);
-				$booking = $this->countClick($booking,$strategy,$maxBudget);
-				$booking = $this->countImp($booking,$strategy,$maxBudget);
-				$booking->start_time = strtotime($strategy->start_time);
-				$booking->end_time = strtotime($strategy->end_time);
-				$booking->sync_time = "1441209600";				
-				if(!$booking->save()){
-					print_r($booking); exit;
-				}
-
-			}
-		}
-
-		$this->clearRemainingDay();
-
-	}
-
-	//計算預算
-	public function countBudger($booking,$value,$campaignBudgetQuota,$unsetBudget,$maxBudget){
-
-		$status = 1;
-		$budget = ceil($value->strategy->strategyBudget->total_budget / 100);
-		if($budget == 0){
-			$status = 2;
-			$budget = ceil($campaignBudgetQuota / $unsetBudget);
-		}		
-
-		if($maxBudget > 0){
-			$status = 3;
-			$budget = $maxBudget;
-		}
-
-		$booking->booking_budget = $budget;
-		
-		$remainingBudget = ceil($booking->booking_budget - ($value->strategy->strategyTotalHit->cost / 100));
-		if($status == 2)
-			$remainingBudget = ceil( $booking->booking_budget - ( ($value->totalHit->total_hit_budget / 100) /  $unsetBudget) );
-
-		$booking->remaining_budget = $remainingBudget;
-		$booking->day_budget = ceil(($booking->remaining_day == 0) ? 0 : ($booking->remaining_budget / $booking->remaining_day));
-		if($value->strategy->strategyBudget->max_daily_budget > 0){
-			$booking->day_budget = ceil($value->strategy->strategyBudget->max_daily_budget / 100);
-		}
-
-		return  $booking;
-	}
-
-
-
-	//計算點擊
-	public function countClick($booking,$value,$maxBudget){
-
-		$status = 1; // 1=實際值 2=預估值
-		//如果未填寫click booking 用5cpc算
-		$click = $value->strategyBudget->total_click;
-		if($click == 0 || $maxBudget > 0){
-			$status = 2;
-			$click = $this->transClick($booking->booking_budget);
-		}
-
-		//總計click
-		$booking->booking_click = $click;
-		
-		//如果未填寫click booking
-		$remainingClick = ceil($booking->booking_click - $value->strategyTotalHit->click);
-		if($status == 2){
-			$remainingClick = ceil($booking->remaining_budget / 5);
-		}
-
-		if($remainingClick < 0){
-			$remainingClick = 0;
-		}
-
-		$booking->remaining_click = $remainingClick;
-
-		//計算click
-		$dayClick = ceil(($booking->remaining_day == 0) ? 0 : ($booking->remaining_click / $booking->remaining_day));
-		if($value->strategyBudget->max_daily_click > 0){
-			$dayClick = $value->strategyBudget->max_daily_click;
-		}
-
-		//如果有設置每日預算上限
-		if($value->strategyBudget->max_daily_budget > 0){
-			$status = 2;
-			$budgetDayClick = ceil( $value->strategyBudget->max_daily_budget / 5 );
-
-			//CPC5元每日預算上限回推低於日點擊上限應以預算上限為準
-			if($budgetDayClick < $dayClick){
-				$dayClick = $budgetDayClick;
-			}
-		}
-
-		if($dayClick < 0){
-			$dayClick = 0;
-		}
-
-		$booking->day_click = $dayClick;
-		$booking->click_status = $status;
-		return  $booking;
-	}
-
-
-	//計算曝光
-	public function countImp($booking,$value,$maxBudget){
-
-		$status = 1;
-		//如果位置設定總IMP以CTR回推
-		$imp = $value->strategyBudget->total_imp;
-		if($imp == 0 || $maxBudget > 0){
-			$status = 2;
-			$imp = $this->transImp($booking->booking_click,$value->strategyTotalHit);
-		}
-
-		$booking->booking_imp = $imp;
-
-		if($status == 1){
-
-			$booking->remaining_imp = $booking->booking_imp - $value->strategyTotalHit->impression;
-			$booking->day_imp = ceil(($booking->remaining_day == 0) ? 0 : ($booking->remaining_imp / $booking->remaining_day));
-
-		}else{
-
-			if($booking->remaining_click == 0 && $value->strategyBudget->total_imp == 0){
-				//結束的訂單將數字歸零
-				$booking->remaining_imp = 0;
-				$booking->day_imp = 0;
+			if($value->totalHit->total_hit_pv > 0){
+				$campaignCTR = (($value->totalHit->total_hit_click / $value->totalHit->total_hit_pv) * 100);
+				if($campaignCTR < 0.07)
+					$campaignCTR = 0.07;
 			}else{
-				if($booking->day_click >= $booking->remaining_click){
-					//預算還沒花完但是click超過預計
-					$booking->remaining_imp = $this->transImp($booking->day_click,$value->strategyTotalHit);
-				}else{
-					$booking->remaining_imp = $this->transImp($booking->remaining_click,$value->strategyTotalHit);
-				}
-
-				$booking->day_imp = $this->transImp($booking->day_click,$value->strategyTotalHit);	
+				$campaignCTR = 0.07;
 			}
 
-		}
-		if($value->strategyBudget->max_daily_imp > 0){
-			$booking->day_imp = $value->strategyBudget->max_daily_imp;
-		}
+			$campaignBudget = $this->transCampaignBudget($value->budget,$value->totalHit,$campaignBookingDay,$campaignCTR);
 
-		$booking->imp_status = $status;
+			$maxDay = $campaignBookingDay;
+			if($maxDay > 20)
+				$maxDay = 20;
 
-		return  $booking;
+			for ($i=0; $i < $maxDay; $i++) { 
+				$day = strtotime(date("Y-m-d 00:00:00") . "+" . $i . "day");
+				$strategy = $this->transStrategyBudget($value,$campaignBudget,$day);
+				if(!empty($strategy)){
+					foreach ($strategy as $strategyData) {
+
+						$criteria = new CDbCriteria;
+						$criteria->addCondition("t.strategy_id = '" . $strategyData['id'] . "'");
+						$criteria->addCondition("t.booking_time = '" . $strategyData['day'] . "'");
+						$model = Booking::model()->find($criteria);
+
+						if($model === null)
+							$model = new Booking();
+						
+						$model->campaign_id = $value->id;
+						$model->strategy_id = $strategyData['id'];
+						$model->type = $strategyData['type'];
+						$model->booking_click = $strategyData['totalClick'];
+						$model->day_click = $strategyData['dayClick'];
+						$model->run_click = 0;
+						$model->click_status = $strategyData['budgetStatus'];  
+						$model->booking_imp = $strategyData['totalPv'];
+						$model->day_imp = $strategyData['dayPv'];
+						$model->run_imp = 0;
+						$model->imp_status = $strategyData['pvStatus'];
+						$model->booking_budget = $strategyData['totalBudget'];
+						$model->day_budget = $strategyData['dayBudget'];
+						$model->run_budget = 0;
+						$model->budget_status = $strategyData['budgetStatus'];
+						$model->booking_time = $strategyData['day'];
+						$model->update_time = time();
+						$model->status = 1;
+						if(!$model->save()){
+							print_r($model->getErrors());
+							print_r($model);
+							// exit;
+						}
+
+					}
+				}				
+			}
+
+			$this->updateStrategyStatus($value->id);
+
+		}
 	}
 
 
-	public function transClick($budget){
-		return  ceil($budget / 5);
-	}
-
-	public function transImp($click,$strategyTotalHit){
-		if($strategyTotalHit->impression > 0){
-			$ctr = (($strategyTotalHit->click / $strategyTotalHit->impression) * 100);
-
-		}else{
-			$ctr = 0.1;
-		}
-		
-		if($ctr <= 0)
-			$ctr = 0.1;
-
-
-		return ceil(($click / $ctr)  * 100);
-	}
-
-	public function clearRemainingDay(){
+	public function updateStrategyStatus($campaignId){
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("end_time < '" . time() ."'");
-		CampaignBooking::model()->updateAll(array(
-			'remaining_day' => 0,
-			'remaining_click' => 0,
-			'day_click' => 0,
-			'remaining_imp' => 0,
-			'day_imp' => 0,
-			'remaining_budget' => 0,
-			'day_budget' => 0,
-			'sync_time' => time(),
-		),$criteria);
-	}
-
-	public function actionCronCountBookingHistory()
-	{
-		set_time_limit(0);
-		ini_set("memory_limit","2048M");
-	public function actionCronCountBookingHistory()
-	{
-		set_time_limit(0);
-		ini_set("memory_limit","2048M");
-
-		$criteria = new CDbCriteria;
-		$criteria->addCondition("remaining_day > 0");
-		$criteria->addCondition("remaining_day <= booking_day");
-		$model = CampaignBooking::model()->findAll($criteria);
-		$syncTime = $value->sync_time;
-		if(isset($_GET['syncTime']))
-			$syncTime = $_GET['syncTime'];
-
-
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = TosCoreStrategy::model()->findAll($criteria);
 		foreach ($model as $value) {
 			$criteria = new CDbCriteria;
-			$criteria->addCondition("strategy_id = '" . $value->strategy_id . "'");
-			$criteria->addCondition("date = '" . date("Y-m-d 00:00:00", $syncTime) . "'");
-			$run = TosCoreStrategyDailyHit::model()->find($criteria);
+			$criteria->addCondition("strategy_id = '" . $value->id . "'");
+			$criteria->addCondition("booking_time >= '" . strtotime(date("Y-m-d 00:00:00")) . "'");
 
-
-			$criteria = new CDbCriteria;
-			$criteria->addCondition("strategy_id = '" . $value->strategy_id . "'");
-			$criteria->addCondition("history_time = '" . strtotime(date("Y-m-d 00:00:00", $syncTime)) . "'");
-			$history = CampaignBookingHistory::model()->find($criteria);	
-			
-			if($history === null)		
-				$history = new CampaignBookingHistory();
-			
-			$history->campaign_id = $value->campaign_id;
-			$history->strategy_id = $value->strategy_id;
-			$history->type = $value->type;
-			$history->booking_day = $value->booking_day;
-			$history->remaining_day = $value->remaining_day;
-			$history->booking_click = $value->booking_click;
-			$history->remaining_click = $value->remaining_click;
-			$history->day_click = $value->day_click;
-			$history->click_status = $value->click_status;
-			$history->booking_imp = $value->booking_imp;
-			$history->remaining_imp = $value->remaining_imp;
-			$history->day_imp = $value->day_imp;
-			$history->imp_status = $value->imp_status;
-			$history->booking_budget = $value->booking_budget;
-			$history->remaining_budget = $value->remaining_budget;
-			$history->day_budget = $value->day_budget;
-			$history->history_time = strtotime(date("Y-m-d 00:00:00", $syncTime));
-
-			if($run === null){
-				$history->run_click = 0;
-				$history->run_imp = 0;
-				$history->run_budget = 0;
-				print_r("NORUN:" . $value->strategy_id . "<br>");
-			}else{
-
-				$history->run_click = $run->click;
-				$history->run_imp = $run->impression;
-				$history->run_budget = ceil($run->cost / 100);
-				print_r("RUN:" . $value->strategy_id . "<br>");
+			$status = 1;
+			if($value->status != 1){
+				$status = 0;
 			}
+			Booking::model()->updateAll(array(
+				'status' => $status
+			),$criteria);
+		}
+	}
 
-			if(!$history->save()){
-				print_r($history); exit;
+
+	public function transStrategyBudget($data,$campaignBudget,$day){
+
+		$strategy = array();
+		$countTotalBudget = 0;
+		$countDayBudget = 0;
+		$countTotalClick = 0;
+		$countDayClick = 0;
+		$countTotalPv = 0;
+		$countDayPv = 0;
+
+		foreach ($data->strategy as $value) {
+			$startTime = strtotime($value->start_time);
+			$endTime = strtotime($value->end_time);
+
+			if($startTime <= $day && $endTime >= $day){
+
+				$budget = $data->strategy->strategyBudget;
+
+
+				$budgetStatus = 1;
+				$totalBudget = ceil($budget->total_budget / 100);
+				if($totalBudget == 0){
+					$totalBudget = $campaignBudget['totalBudget'];
+					$budgetStatus = 0;
+				}
+
+
+				$dayBudget = ceil($budget->max_daily_budget / 100);
+				if($dayBudget == 0){
+					$hitCost = ceil($value->strategyTotalHit->cost / 100);
+					$dayBudget = round( ($totalBudget - $hitCost) / $campaignBudget['bookingDay']);
+					$budgetStatus = 0;
+				}				
+
+				//點擊
+				$clickStatus = 1;
+				$totalClick = $budget->total_click;
+				if($totalClick == 0){
+					$totalClick = round($totalBudget / 5);
+					$clickStatus = 0;
+				}	
+
+				$dayClick = $budget->max_daily_click;
+				if($dayClick == 0){
+					$dayClick = round($dayBudget / 5);
+					$clickStatus = 0;
+				}
+
+				
+				if($data->strategy->strategyTotalHit->impression > 0){
+					$CTR = (($value->strategyTotalHit->click / $value->strategyTotalHit->impression) * 100);
+					if($CTR < 0.07)
+						$CTR = 0.07;
+				}else{
+					$CTR = 0.07;
+				}
+
+				//曝光
+				$pvStatus = 1;
+				$totalPv = $budget->total_pv;
+				if($totalPv == 0){
+					$totalPv = round(($totalClick / $CTR)  * 100);
+					$pvStatus = 0;
+				}	
+
+				$dayPv = $budget->max_daily_pv;
+				if($dayPv == 0){
+					$dayPv = round(($dayClick / $CTR)  * 100);
+					$pvStatus = 0;
+				}								
+
+				$strategy[] = array(
+					"id" => $value->id,
+					"totalBudget" => $totalBudget,
+					"dayBudget" => $dayBudget,
+					"budgetStatus" => $budgetStatus,
+					"totalClick" => $totalClick,
+					"dayClick" => $dayClick,
+					"clickStatus" => $clickStatus,
+					"totalPv" => $totalPv,
+					"dayPv" => $dayPv,
+					"pvStatus" => $pvStatus,
+					"type" => $value->medium,
+					"day" => $day	
+				);
+
+				$countTotalBudget = $countTotalBudget + $totalBudget;
+				$countDayBudget = $countDayBudget + $dayBudget;
+				$countTotalClick = $countTotalClick + $totalClick;
+				$countDayClick = $countDayClick + $dayClick;
+				$countTotalPv = $countTotalPv + $totalPv;
+				$countDayPv = $countDayPv + $dayPv;
+
 			}
+			 
+		}
+		
+
+		$countStrategy = count($strategy);
+		if($countStrategy < 1){
+			//沒有策略直接結束
+			return $strategy;
 		}
 
+
+		//如果數值超過訂單值則平攤
+		if($countTotalBudget > $campaignBudget['totalBudget']){
+			$value =  round($campaignBudget['totalBudget'] / $countStrategy);
+			$strategy = $this->resetValue($value,'totalBudget',$strategy);
+			$strategy = $this->resetValue(0,'budgetStatus',$strategy);
+		}		
+
+
+		if($countDayBudget > $campaignBudget['dayBudget']){
+			$value =  round($campaignBudget['dayBudget'] / $countStrategy);
+			$strategy = $this->resetValue($value,'dayBudget',$strategy);
+			$strategy = $this->resetValue(0,'budgetStatus',$strategy);
+		}	
+
+		if($countTotalClick > $campaignBudget['totalClick']){
+			$value =  round($campaignBudget['totalClick'] / $countStrategy);
+			$strategy = $this->resetValue($value,'totalClick',$strategy);
+			$strategy = $this->resetValue(0,'clickStatus',$strategy);
+		}	
+
+		if($countDayClick > $campaignBudget['dayClick']){
+			$value =  round($campaignBudget['dayClick'] / $countStrategy);
+			$strategy = $this->resetValue($value,'dayClick',$strategy);
+			$strategy = $this->resetValue(0,'clickStatus',$strategy);
+		}	
+
+		if($countTotalPv > $campaignBudget['totalPv']){
+			$value =  round($campaignBudget['totalPv'] / $countStrategy);
+			$strategy = $this->resetValue($value,'totalPv',$strategy);
+			$strategy = $this->resetValue(0,'pvStatus',$strategy);
+
+		}	
+
+		if($countDayPv > $campaignBudget['dayPv']){
+			$value =  round($campaignBudget['dayPv'] / $countStrategy);
+			$strategy = $this->resetValue($value,'dayPv',$strategy);
+			$strategy = $this->resetValue(0,'pvStatus',$strategy);
+		}	
+		
+		return $strategy;
+
+	}
+
+	public function resetValue($value,$key,$strategy){
+		for ($i=0; $i < count($strategy); $i++) { 
+			$strategy[$i][$key] = $value;
+		}		
+
+		return $strategy;
+	}
+
+
+	public function transCampaignBudget($budget,$totalHit,$campaignBookingDay,$campaignCTR){
+		//預算
+		$totalBudget = ceil($budget->total_budget / 100);
+
+		$dayBudget = ceil($budget->max_daily_budget / 100);
+		if($dayBudget == 0){
+			$totalHitBudget = ceil($totalHit->total_hit_budget / 100);
+			$dayBudget = round( ($totalBudget - $totalHitBudget) / $campaignBookingDay);
+		}
+
+		//點擊
+		$totalClick = $budget->total_click;
+		if($totalClick == 0){
+			$totalClick = round($totalBudget / 5);
+		}	
+
+		$dayClick = $budget->max_daily_click;
+		if($dayClick == 0){
+			$dayClick = round($dayBudget / 5);
+		}
+
+		//曝光
+		$totalPv = $budget->total_pv;
+		if($totalPv == 0){
+			$totalPv = round(($totalClick / $campaignCTR)  * 100);
+		}	
+
+		$dayPv = $budget->max_daily_pv;
+		if($dayPv == 0){
+			$dayPv = round(($dayClick / $campaignCTR)  * 100);
+		}	
+
+		return array(
+			"bookingDay" => $campaignBookingDay,
+			"totalBudget" => $totalBudget,
+			"dayBudget" => $dayBudget,
+			"totalClick" => $totalClick,
+			"dayClick" => $dayClick,
+			"totalPv" => $totalPv,
+			"dayPv" => $dayPv,
+		);
+	}
+
+	public function actionCronCountBookingLog()
+	{
+		set_time_limit(0);
+		ini_set("memory_limit","2048M");
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.status = 1");
+		$criteria->addCondition("t.booking_time < " . strtotime(date("Y-m-d 00:00:00")));
+		
+		$criteria->addCondition("t.campaign_id = 100278994");
+		$model = Booking::model()->findAll($criteria);
+		foreach ($model as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("t.id = '" . $value->id . "'");
+			$strategy = Booking::model()->find($criteria);
+			if($strategy !== null){
+				$criteria = new CDbCriteria;
+				$criteria->addCondition("t.strategy_id = '" . $value->strategy_id . "'");				
+				$criteria->addCondition("t.date = '" . date("Y-m-d 00:00:00", $value->booking_time) . "'");	
+				$dailyHit = TosCoreStrategyDailyHit::model()->find($criteria);
+
+				if($dailyHit === null){
+					$strategy->run_click = 0;
+					$strategy->run_imp = 0;
+					$strategy->run_budget = 0;
+				}else{
+					$strategy->run_click = $dailyHit->click;
+					$strategy->run_imp = $dailyHit->impression;
+					$strategy->run_budget = ceil($dailyHit->cost / 100);
+				}			
+				$strategy->update_time = time();
+				$strategy->status = 2;		
+				$strategy->save();		
+			}
+		}
 	}
 
 }

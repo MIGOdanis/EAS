@@ -13,24 +13,38 @@
 			border: solid 1px #ACACAC;
 			font-size: 12px;
 		}	
+		tfoot{
+			text-align: center;
+			font-weight: bold;
+		}
 		.click{
 			background-color: #FF988A;
 			color: #fff;
 			text-align: center;
+			font-size: 13px;
+			line-height: 52px;
 		}
 		.imp{
 			background-color: #75AF75;
 			color: #fff;
 			text-align: center;
+			font-size: 13px;
+			line-height: 52px;
 		}
 		.budget{
 			background-color: #4696AA;
 			color: #fff;
-			text-align: center;			
-		}		
-	/*	th{
-			background-color: #DCDCDC;
-		}*/
+			text-align: center;	
+			font-size: 13px;		
+			line-height: 52px;
+		}	
+		#content-singe{
+			width: 100%;
+			overflow-x:auto; 
+		}				
+		.topItem{
+			border-bottom: solid 1px;
+		}
 
 	</style>
 	<script type="text/javascript">
@@ -63,7 +77,16 @@
 		  	<span class="glyphicon glyphicon-filter" aria-hidden="true"></span> 訂單濾除
 		</button>
 	</div>
+	<div>查詢日期 : <?php echo $_GET['day'];?></div>
+	<div>
+		<?php
+		if(isset($_GET['type']) && $_GET['type'] > 0){
+			echo ($_GET['type'] == 1)? "篩選 : 只看PC" : "篩選 : 只看MOB";
+		}
+		?>
 
+	</div>
+	<div>演算法版本 : 0.1b</div>	
 	<?php
 	Yii::app()->clientScript->registerScript('search', "
 		$('.search-button, .sort-link').click(function(){
@@ -101,126 +124,114 @@
 		'columns'=>array(	
 			array(	
 				'name' => "campaign.id",
-				'header' => "訂單編號",
-				'value'=>'$data->campaign_id',
+				'header' => "<div class='topItem'>訂單編號</div>策略編號",
+				'type' => "raw",
+				'value'=>'"<div class=\'topItem\'>" . $data->campaign_id . "</div>" . $data->strategy_id',
 				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
 				'filter'=>false,
+				'footer'=>'總計'
 			),		
 			array(	
 				'name' => "campaign.id",
-				'header' => "訂單",
-				'value'=>'$data->campaign->campaign_name',
+				'header' => "<div class='topItem'>訂單</div>策略",
+				'type' => "raw",
+				'value'=>'"<div class=\'topItem\'>" . $data->campaign->campaign_name . "</div>" . $data->strategy->strategy_name',
 				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
 				'filter'=>false,
-			),
-			array(	
-				'name' => "strategy_id",
-				'header' => "策略編號",
-				'value'=>'$data->strategy_id',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),		
-			array(	
-				'name' => "strategy_id",
-				'header' => "策略",
-				'value'=>'$data->strategy->strategy_name',
-				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-				'filter'=>false,
-			),	
-			// array(	
-			// 	'name' => "booking_day",
-			// 	'header' => "走期(D)",
-			// 	'value'=>'$data->booking_day',
-			// 	// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-			// 	'filter'=>false,
-			// ),			
-			// array(	
-			// 	'name' => "remaining_day",
-			// 	'header' => "剩餘走期(D)",
-			// 	'value'=>'$data->remaining_day',
-			// 	// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
-			// 	'filter'=>false,
-			// ),							
+			),						
 			array(	
 				'name' => "day_click",
-				'header' => "當日點擊預估",
+				'header' => "當日點擊<br>預估",
 				'value'=>'number_format($data->day_click, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
+				'footer'=>number_format($day_click = $model->sumColumn($allData,"day_click"), 0, "." ,","),
 			),
 			array(	
 				'name' => "run_click",
-				'header' => "實際實行點擊",
+				'header' => "實際實行<br>點擊",
 				'value'=>'number_format($data->run_click, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
+				'footer'=>number_format($run_click = $model->sumColumn($allData,"run_click"), 0, "." ,","),
 			),	
 			array(	
-				'header' => "未執行點擊",
+				'header' => "未執行<br>點擊",
 				'value'=>'number_format(($data->day_click - $data->run_click), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
+				'footer'=>number_format( ($day_click - $run_click) , 0, "." ,","),
 			),	
 			array(	
-				'header' => "點擊執行率",
+				'header' => "點擊<br>執行率",
 				'value'=>'number_format((($data->day_click > 0) ? ($data->run_click / $data->day_click) * 100 : 0), 2, "." ,",") . "%"',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
+				'footer'=>number_format( (($day_click > 0) ? ($run_click / $day_click) * 100 : 0) , 2, "." ,",") . "%",
 			),								
 			array(	
 				'name' => "day_imp",
-				'header' => "日曝光預估",
+				'header' => "日曝光<br>預估",
 				'value'=>'number_format($data->day_imp, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
+				'footer'=>number_format($day_imp = $model->sumColumn($allData,"day_imp"), 0, "." ,","),
 			),
 			array(	
 				'name' => "run_imp",
-				'header' => "實際實行曝光",
+				'header' => "實際實行<br>曝光",
 				'value'=>'number_format($data->run_imp, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
+				'footer'=>number_format($run_imp = $model->sumColumn($allData,"run_imp"), 0, "." ,","),
 			),
 			array(	
-				'header' => "未執行曝光",
+				'header' => "未執行<br>曝光",
 				'value'=>'number_format(($data->day_imp - $data->run_imp), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
+				'footer'=>number_format( ($day_imp - $run_imp) , 0, "." ,","),
 			),	
 			array(	
-				'header' => "曝光執行率",
+				'header' => "曝光<br>執行率",
 				'value'=>'number_format((($data->day_imp > 0) ? ($data->run_imp / $data->day_imp) * 100 : 0), 2, "." ,",") . "%"',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
+				'footer'=>number_format( (($day_imp > 0) ? ($run_imp / $day_imp) * 100 : 0) , 2, "." ,",") . "%",
 			),							
 			array(	
 				'name' => "day_budget",
-				'header' => "日預算預估",
+				'header' => "日預算<br>預估",
 				'value'=>'number_format($data->day_budget, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
+				'footer'=>number_format($day_budget = $model->sumColumn($allData,"day_budget"), 0, "." ,","),
 			),	
 			array(	
 				'name' => "run_budget",
-				'header' => "實際實行預算",
+				'header' => "實際實行<br>預算",
 				'value'=>'number_format($data->run_budget, 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
+				'footer'=>number_format($run_budget = $model->sumColumn($allData,"run_budget"), 0, "." ,","),
 			),	
 			array(	
-				'header' => "未執行預算",
+				'header' => "未執行<br>預算",
 				'value'=>'number_format(($data->day_budget - $data->run_budget), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
+				'footer'=>number_format( ($day_budget - $run_budget) , 0, "." ,","),
 			),	
 			array(	
-				'header' => "預算執行率",
+				'header' => "預算<br>執行率",
 				'value'=>'number_format((($data->day_budget > 0) ? ($data->run_budget / $data->day_budget) * 100 : 0), 2, "." ,",") . "%"',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
+				'footer'=>number_format( (($day_budget > 0) ? ($run_budget / $day_budget) * 100 : 0) , 2, "." ,",") . "%",
+
 			),						
 		),
 	));
 
 	?>
-</div>
+</div>  

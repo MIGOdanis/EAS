@@ -40,21 +40,13 @@ if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
 			<th>訂單名稱</th>
 		</thead>
 		<tbody>
-		<?php foreach ($past as $value) { ?>
+		<?php foreach ($model as $value) { ?>
 			<tr>
 			<td><input type="checkbox" class="checkbox" value="<?php echo $value->campaign->tos_id;?>" name="noPayCampaignId[]" <?php echo (in_array($value->campaign->tos_id, $noPayCampaignId)) ? "checked" : ""; ?>></td>
 			<td><?php echo $value->campaign->tos_id; ?></td>
 			<td><?php echo $value->campaign->campaign_name; ?></td>
 			<tr>
 		<?php } ?>
-		<?php foreach ($future as $value) { ?>
-			<tr>
-			<td><input type="checkbox" class="checkbox" value="<?php echo $value->campaign->tos_id;?>" name="noPayCampaignId[]" <?php echo (in_array($value->campaign->tos_id, $noPayCampaignId)) ? "checked" : ""; ?>></td>
-			<td><?php echo $value->campaign->tos_id; ?></td>
-			<td><?php echo $value->campaign->campaign_name; ?></td>
-			<tr>
-		<?php } ?>
-
 		</tbody>
 		</table>
 	</div>

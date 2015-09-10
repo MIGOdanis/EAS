@@ -15,6 +15,7 @@
 		.day{
 			font-weight: bold;
 		}
+		
 	/*	th{
 			background-color: #DCDCDC;
 		}*/
