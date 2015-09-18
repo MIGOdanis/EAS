@@ -11,13 +11,14 @@ class CronBookingController extends Controller
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("t.start_time <= '" . date("Y-m-d H:i:s", strtotime(date("Y-m-d") . ' +16 day')) . "'");
 		$criteria->addCondition("t.end_time >= '" . date("Y-m-d H:i:s") . "'");
-		$criteria->addCondition("t.status = 1");
+		// $criteria->addCondition("t.status = 1");
 
-		if(isset($_GET['test']) && isset($_GET['id']))
+		if(isset($_GET['id']))
 			$criteria->addCondition("t.id = '" . $_GET['id'] . "'");
 		
 		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit")->findAll($criteria);
 		foreach ($campaign as $value) {
+
 			$campaignBookingDay = strtotime($value->end_time) -  strtotime($value->start_time);
 			$campaignBookingDay = ceil($campaignBookingDay / 86400);
 			if($campaignBookingDay == 0)
@@ -39,7 +40,7 @@ class CronBookingController extends Controller
 
 			for ($i=0; $i < $maxDay; $i++) { 
 				$day = strtotime(date("Y-m-d 00:00:00") . "+" . $i . "day");
-				$strategy = $this->transStrategyBudget($value,$campaignBudget,$day);
+				$strategy = $this->transStrategyBudget($value,$campaignBudget,$day,$value);
 
 				if(isset($_GET['test'])){
 					print_r($strategy);
@@ -74,20 +75,31 @@ class CronBookingController extends Controller
 						$model->budget_status = $strategyData['budgetStatus'];
 						$model->booking_time = $strategyData['day'];
 						$model->update_time = time();
-						$model->status = 1;
+
+						
+
+						if($value->status == 1){
+							$model->status = 1;
+						}else{
+							$model->status = 0;
+						}
+						
+
 						if(!$model->save()){
 							print_r($model->getErrors());
 							print_r($model);
-							// exit;
 						}
 
 					}
 				}				
 			}
 
-			$this->updateStrategyStatus($value->id);
+			if($value->status == 1){
+				$this->updateStrategyStatus($value->id);
+			}
 
 		}
+		$this->saveLog("lastCronBooking",time());
 	}
 
 
@@ -122,7 +134,7 @@ class CronBookingController extends Controller
 	}
 
 
-	public function transStrategyBudget($data,$campaignBudget,$day){
+	public function transStrategyBudget($data,$campaignBudget,$day,$campaign){
 
 		$strategy = array();
 		$countTotalBudget = 0;
@@ -149,7 +161,12 @@ class CronBookingController extends Controller
 				$budgetStatus = 1;
 				$totalBudget = ceil($budget->total_budget / 100);
 				if($totalBudget == 0){
-					$totalBudget = $campaignBudget['totalBudget'];
+						if($campaign->budget->total_click > 0){
+							$totalBudget =  round( ($campaign->budget->total_budget / 100) / $countStrategy);
+							$budgetStatus = 3;
+						}else{
+							$totalBudget = $campaignBudget['totalBudget'];
+						}				
 					$budgetStatus = 0;
 				}
 
@@ -158,34 +175,66 @@ class CronBookingController extends Controller
 				if($dayBudget == 0){
 					$hitCost = ceil($value->strategyTotalHit->cost / 100);
 					if(isset($_GET['update']))
-						$hitCost = 0;					
-					$dayBudget = round( ($totalBudget - $hitCost) / $campaignBudget['bookingDay']);
+						$hitCost = 0;			
+					
+						if($campaign->budget->total_click > 0){
+							$dayBudget =  round( ( ( ($campaign->budget->max_daily_budget / 100 ) - $hitCost) / $countStrategy) / $campaignBudget['bookingDay']);
+							$budgetStatus = 3;
+						}else{
+							if($campaign->budget->total_click > 0){
+								$totalBudget =  round( ( ($campaign->budget->total_budget / 100) / $countStrategy)  / $campaignBudget['bookingDay']);
+								$budgetStatus = 3;
+							}else{
+								$dayBudget = round( ($totalBudget - $hitCost) / $campaignBudget['bookingDay']);
+							}								
+							
+						}	
+
 					$budgetStatus = 0;
 				}				
 
-
-				if($value->kpi_type == 2){
+				if($value->kpi_type == 2 || $value->charge_type == 2){
 					//CPC計價方式
-					//點擊
+					
 					$cpc = $this->getStrategyPrice($value);
 
 					if(isset($_GET['test']))
-						echo $value->id . "採CPM" . $cpc . "計價<br>";
+						echo $value->id . "採CPC" . $cpc . "計價<br>";
 
+					// CLICK
 					$clickStatus = 1;
 					$totalClick = $budget->total_click;
 					if($totalClick == 0){
-						$totalClick = round($totalBudget / $cpc);
-						$clickStatus = 0;
+						if($campaign->budget->total_click > 0){
+							$totalClick =  round($campaign->budget->total_click / $countStrategy);
+							$clickStatus = 3;
+						}else{
+							$totalClick = round($totalBudget / $cpc);
+							$clickStatus = 0;
+						}
+
+						
 					}	
 
 					$dayClick = $budget->max_daily_click;
 					if($dayClick == 0){
-						$dayClick = round($dayBudget / $cpc);
-						$clickStatus = 0;
-					}
+						if($campaign->budget->max_daily_click > 0){
+							$dayClick =  round( ( $campaign->budget->max_daily_click / $countStrategy));
+							$clickStatus = 3;
+						}else{
+							if($campaign->budget->total_click > 0){
+								$dayClick =  round( ($campaign->budget->total_click / $countStrategy)  / $campaignBudget['bookingDay'] );
+								$clickStatus = 4;
+							}else{
+								$dayClick = round($dayBudget / $cpc);
+								$clickStatus = 0;
+							}								
+						}
 
 					
+					}
+
+					//計算CTR
 					if($data->strategy->strategyTotalHit->impression > 0){
 						$CTR = (($value->strategyTotalHit->click / $value->strategyTotalHit->impression) * 100);
 						if($CTR < 0.07)
@@ -198,14 +247,33 @@ class CronBookingController extends Controller
 					$pvStatus = 1;
 					$totalPv = $budget->total_imp;
 					if($totalPv == 0){
-						$totalPv = round(($totalClick / $CTR)  * 100);
-						$pvStatus = 0;
+						if($campaign->budget->total_pv > 0){
+							$totalPv =  round($campaign->budget->total_pv / $countStrategy);
+							$pvStatus = 3;
+						}else{
+							$totalPv = round(($totalClick / $CTR)  * 100);
+							$pvStatus = 0;
+						}						
+						
+						
 					}	
 
 					$dayPv = $budget->max_daily_imp;
 					if($dayPv == 0){
-						$dayPv = round(($dayClick / $CTR)  * 100);
-						$pvStatus = 0;
+						if($campaign->budget->max_daily_pv > 0){
+							$dayPv =  round( ($campaign->budget->max_daily_pv / $countStrategy));
+							$pvStatus = 3;
+						}else{
+							if($campaign->budget->total_pv > 0){
+								$dayPv =  round( ($campaign->budget->total_pv / $countStrategy)  / $campaignBudget['bookingDay'] );
+								$pvStatus = 4;
+							}else{
+								$dayPv = round(($dayClick / $CTR)  * 100);
+								$pvStatus = 0;
+							}	
+							
+						}						
+						
 					}						
 				}else{
 					//曝光計價先算曝光
@@ -219,14 +287,33 @@ class CronBookingController extends Controller
 					$pvStatus = 1;
 					$totalPv = $budget->total_imp;
 					if($totalPv == 0){
-						$totalPv = round($totalBudget / $cpm) * 1000;
-						$pvStatus = 0;
+						if($campaign->budget->total_pv > 0){
+							$totalPv =  round($campaign->budget->total_pv / $countStrategy);
+							$pvStatus = 3;
+						}else{
+							$totalPv = round($totalBudget / $cpm) * 1000;
+							$pvStatus = 0;
+						}							
+						
+						
 					}	
 
 					$dayPv = $budget->max_daily_imp;
 					if($dayPv == 0){
-						$dayPv = round($dayBudget / $cpm) * 1000;
-						$pvStatus = 0;
+						if($campaign->budget->max_daily_pv > 0){
+							$dayPv =  round( ($campaign->budget->max_daily_pv / $countStrategy));
+							$pvStatus = 3;
+						}else{
+							if($campaign->budget->total_pv > 0){
+								$dayPv =  round( ($campaign->budget->total_pv / $countStrategy)  / $campaignBudget['bookingDay'] );
+								$pvStatus = 4;
+							}else{
+								$dayPv = round($dayBudget / $cpm) * 1000;
+								$pvStatus = 0;
+							}								
+						}						
+						
+						
 					}	
 
 					if($value->medium == 1){
@@ -235,19 +322,48 @@ class CronBookingController extends Controller
 						$ctr = 0.0025;
 					}	
 
+
+					// CLICK
 					$clickStatus = 1;
 					$totalClick = $budget->total_click;
 					if($totalClick == 0){
-						$totalClick = round($totalPv * $ctr);
-						$clickStatus = 0;
+						if($campaign->budget->total_click > 0){
+							$totalClick =  round($campaign->budget->total_click / $countStrategy);
+							$clickStatus = 3;
+						}else{
+							$totalClick = round($totalPv * $ctr);
+							$clickStatus = 0;
+						}
+						
 					}
 
+					// 策略dc->訂單dc->訂單tc->估計
 					$dayClick = $budget->max_daily_click;
 					if($dayClick == 0){
-						$dayClick = round($dayPv * $ctr);
-						$clickStatus = 0;
+						if($campaign->budget->max_daily_click > 0){
+							$dayClick =  round( ($campaign->budget->max_daily_click / $countStrategy));
+							$clickStatus = 3;
+						}else{
+							if($campaign->budget->total_click > 0){
+								$dayClick =  round( ($campaign->budget->total_click / $countStrategy)  / $campaignBudget['bookingDay'] );
+								$clickStatus = 4;
+							}else{
+								$dayClick = round($dayPv * $ctr);
+								$clickStatus = 0;
+							}							
+						}
+						
 					}
 
+
+					if(isset($_GET['test'])){
+						echo $value->id . "參考ctr" . $ctr . "<br>";
+						echo  round( ($campaign->budget->max_daily_click ));
+					}
+
+					//重設訂單曝光值為CPM
+					$campaignBudget['totalPv'] = round($campaignBudget['totalBudget'] / $cpm) * 1000;
+					$campaignBudget['dayPv'] = round($campaignBudget['dayBudget'] / $cpm) * 1000;
 				}
 
 				$strategy[] = array(
@@ -275,6 +391,7 @@ class CronBookingController extends Controller
 			}
 			 
 		}
+
 
 		//如果數值超過訂單值則平攤
 		if($countTotalBudget > $campaignBudget['totalBudget']){
@@ -360,7 +477,11 @@ class CronBookingController extends Controller
 
 		$dayClick = $budget->max_daily_click;
 		if($dayClick == 0){
-			$dayClick = round($dayBudget / 5);
+			if($budget->total_click > 0){
+				$dayClick =  round( $budget->total_click  / $campaignBookingDay );
+			}else{
+				$dayClick = round($dayBudget / 5);
+			}			
 		}
 
 		//曝光
@@ -371,7 +492,11 @@ class CronBookingController extends Controller
 
 		$dayPv = $budget->max_daily_pv;
 		if($dayPv == 0){
-			$dayPv = round(($dayClick / $campaignCTR)  * 100);
+			if($budget->total_pv > 0){
+				$dayPv =  round( $budget->total_pv / $campaignBookingDay );
+			}else{
+				$dayPv = round(($dayClick / $campaignCTR)  * 100);
+			}				
 		}	
 
 		return array(
@@ -390,11 +515,10 @@ class CronBookingController extends Controller
 		set_time_limit(0);
 		ini_set("memory_limit","2048M");
 
-		$criteria = new CDbCriteria;
+		$criteria = new CDbCriteria;	
 		$criteria->addCondition("t.status = 1");
 		$criteria->addCondition("t.booking_time < " . strtotime(date("Y-m-d 00:00:00")));
-		
-		// $criteria->addCondition("t.campaign_id = 100278994");
+
 		$model = Booking::model()->findAll($criteria);
 		foreach ($model as $value) {
 			$criteria = new CDbCriteria;
@@ -402,19 +526,42 @@ class CronBookingController extends Controller
 			$strategy = Booking::model()->find($criteria);
 			if($strategy !== null){
 				$criteria = new CDbCriteria;
+				$criteria = new CDbCriteria;
+				$criteria->select = '
+					sum(t.income) / 100000 as income,
+					sum(t.click) as click,
+					sum(t.impression) as impression,
+					sum(t.pv) as pv
+				';				
 				$criteria->addCondition("t.strategy_id = '" . $value->strategy_id . "'");				
-				$criteria->addCondition("t.date = '" . date("Y-m-d 00:00:00", $value->booking_time) . "'");	
-				$dailyHit = TosCoreStrategyDailyHit::model()->find($criteria);
+				$criteria->addCondition("t.settled_time = '" . date("Y-m-d 00:00:00", $value->booking_time) . "'");	
+				$pc = TosTreporBuyDrDisplayDailyPcReport::model()->find($criteria);
+				$mob = TosTreporBuyDrDisplayDailyMobReport::model()->find($criteria);
 
-				if($dailyHit === null){
-					$strategy->run_click = 0;
-					$strategy->run_imp = 0;
-					$strategy->run_budget = 0;
+				if($pc === null){
+					$pcRunClick = 0;
+					$pcRunImp = 0;
+					$pcRunBudget = 0;
 				}else{
-					$strategy->run_click = $dailyHit->click;
-					$strategy->run_imp = $dailyHit->impression;
-					$strategy->run_budget = ceil($dailyHit->cost / 100);
-				}			
+					$pcRunClick = $pc->click;
+					$pcRunImp = $pc->impression;
+					$pcRunBudget = $pc->income;
+				}		
+
+				if($mob === null){
+					$mobRunClick = 0;
+					$mobRunImp = 0;
+					$mobRunBudget = 0;
+				}else{
+					$mobRunClick = $mob->click;
+					$mobRunImp = $mob->impression;
+					$mobRunBudget = $mob->income;
+				}
+
+
+				$strategy->run_click = $pcRunClick+$mobRunClick;
+				$strategy->run_imp = $pcRunImp+$mobRunImp;
+				$strategy->run_budget = $pcRunBudget+$mobRunBudget;					
 				$strategy->update_time = time();
 				$strategy->status = 2;		
 				$strategy->save();		

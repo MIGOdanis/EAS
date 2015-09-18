@@ -2,18 +2,25 @@
 
 class BookingReportController extends Controller
 {
-	// public function actionCampaignList()
-	// {
 
-	// 	$model = new CampaignBooking('search');
-	// 	$model->unsetAttributes();  // clear any default values
-	// 	if(isset($_GET['CampaignBooking']))
-	// 		$model->attributes=$_GET['CampaignBooking'];
+	public function actionCampaign($id)
+	{
+		$this->layout = "column1";
+		$model = new Booking('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Booking']))
+			$model->attributes=$_GET['Booking'];
 
-	// 	$this->render('campaignList',array(
-	// 		'model'=>$model
-	// 	));
-	// }
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.tos_id = '" . $id . "'");
+		$campaign = Campaign::model()->find($criteria);
+
+
+		$this->render('campaign',array(
+			'model'=>$model,
+			'campaign'=>$campaign
+		));
+	}
 
 	public function actionCampaignListHistory()
 	{
@@ -42,6 +49,8 @@ class BookingReportController extends Controller
 
 	public function actionWeekBooking()
 	{
+		$lastBooking = Log::model()->getValByName("lastCronBooking");
+
 		if(isset($_GET['resetFilter'])){
 			unset($_COOKIE['noPayCampaignId']);
 		}
@@ -99,6 +108,7 @@ class BookingReportController extends Controller
 		$this->render('weekBooking',array(
 			'future'=>$futureArray,
 			'past' => $pastArray,
+			'lastBooking' => $lastBooking
 		));
 	}	
 
@@ -119,7 +129,9 @@ class BookingReportController extends Controller
 			sum(t.booking_budget) as booking_budget,
 			sum(t.day_budget) as day_budget,
 			(sum(t.run_budget) ) as run_budget,
-			booking_time as booking_time
+			booking_time as booking_time,
+			campaign_id as campaign_id
+
 		';	
 		$criteria->addCondition("t.booking_time = '" . $day . "'");
 

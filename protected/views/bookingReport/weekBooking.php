@@ -35,6 +35,8 @@
 		?>
 
 	</p>
+	<p>最後計算時間 : <?php echo date("Y-m-d H:i",$lastBooking);?></p>
+	
 
 	<div class="btn-group" role="group" aria-label="...">
 		<a href="weekBooking" class="btn btn-default">全部</a>

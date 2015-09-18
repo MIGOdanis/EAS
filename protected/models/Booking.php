@@ -191,6 +191,62 @@ class Booking extends CActiveRecord
 		));
 	}
 
+	public function campaign()
+	{
+
+		$criteria=new CDbCriteria;
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
+		$criteria->select = '
+			sum(t.booking_click) as booking_click,
+			sum(t.day_click) as day_click,
+			sum(t.run_click) as run_click,
+			sum(t.booking_imp) as booking_imp,
+			sum(t.day_imp) as day_imp,
+			sum(t.run_imp) as run_imp,
+			sum(t.booking_budget) as booking_budget,
+			sum(t.day_budget) as day_budget,
+			(sum(t.run_budget) ) as run_budget,
+			booking_time as booking_time
+		';	
+
+		$criteria->addCondition("t.campaign_id = '" . $_GET['id'] . "'");
+
+		$criteria->addCondition("t.status > 0");
+
+		$criteria->with = array("strategy","campaign");
+
+		$criteria->group = "t.booking_time";
+
+		$criteria->order = "booking_time ASC";
+
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,	
+			'criteria'=>$criteria,
+		));
+	}
+
+	public function getCampaignChartDate($allData)
+	{
+
+		$data = array(array("'日期'","'預估點擊'","'預估曝光'","'預估費用'","'實際點擊'","'實際曝光'","'實際費用'"));
+		foreach ($allData->data as $value) {
+			$data[] = array(
+				"'" . date("Y-m-d", $value->booking_time) . "'",
+				$value->day_click,
+				$value->day_imp,
+				$value->day_budget,
+				$value->run_click,
+				$value->run_imp,
+				$value->run_budget,
+			);
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
