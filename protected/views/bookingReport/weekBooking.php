@@ -3,11 +3,29 @@
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js" charset="UTF-8"></script>
 <link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/advertiserReport.css" rel="stylesheet">
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/advertiserReport.js" charset="UTF-8"></script>
+<style type="text/css">
+	.date-select{
+		width: 280px;
+		font-size: 10px;
+		margin-bottom: 5px;
+	}
+	.date-select input{
+		height: 28px;
+	}	
+	.date-select .input-group-addon{
+		font-size: 10px;
+		height: 28px;
+		padding: 5px !important;
+	}	
+
+
+</style>
 <script type="text/javascript">
 	$(function(){
-		$("#filter-btn").click(function(){
+		$(".filter-btn").click(function(){
+			var url = $(this).data("url");
 			$.ajax({
-					url:"filterCampaign",
+					url:url,
 					success:function(html){
 						$('#modal-content').html(html);
 						$('#modal').modal('show');
@@ -36,25 +54,80 @@
 
 	</p>
 	<p>最後計算時間 : <?php echo date("Y-m-d H:i",$lastBooking);?></p>
-	
+
 
 	<div class="btn-group" role="group" aria-label="...">
-		<a href="weekBooking" class="btn btn-default">全部</a>
-		<a href="weekBooking?type=1" class="btn btn-default">只看PC</a>
-		<a href="weekBooking?type=2" class="btn btn-default">只看MOB</a>
-		<button type="button" class="btn btn-default" id="filter-btn">
+		<a href="weekBooking?day=<?php echo $_GET['day']; ?>" class="btn btn-default">全部</a>
+		<a href="weekBooking?type=1&day=<?php echo $_GET['day']; ?>" class="btn btn-default">只看PC</a>
+		<a href="weekBooking?type=2&day=<?php echo $_GET['day']; ?>" class="btn btn-default">只看MOB</a>
+		<button type="button" class="btn btn-default filter-btn" data-url="filterCampaign">
 		  	<span class="glyphicon glyphicon-filter" aria-hidden="true"></span> 訂單濾除
+		</button>
+		<button type="button" class="btn btn-default filter-btn" data-url="filterDate">
+			<span class="glyphicon glyphicon-th"  aria-hidden="true"></span> 查詢日期
 		</button>
 	</div>
 
-
+	<table class="table table-bordered">
+	<thead>
+		<th width="100">月份</th>
+		<th>全月花費預計</th>
+		<th>全月已執行花費</th>
+		<th>全月花費達成率</th>
+		<th>全月曝光預計</th>
+		<th>全月已執行曝光</th>
+		<th>全月曝光達成率</th>
+		<th>全月點擊預計</th>
+		<th>全月已執行點擊</th>
+		<th>點擊達成率</th>
+	</thead>
+	<tbody>
+		<tr>
+			<td><?php echo date("m",strtotime(date("Y-m-d", $day) . "-1 month")); ?>月</td>
+			<td><?php echo number_format($pastMonth->day_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format($pastMonth->run_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($pastMonth->day_budget > 0)? (($pastMonth->run_budget / $pastMonth->day_budget) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($pastMonth->day_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format($pastMonth->run_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($pastMonth->day_imp > 0)? (($pastMonth->run_imp / $pastMonth->day_imp) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($pastMonth->day_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format($pastMonth->run_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($pastMonth->day_click > 0)? (($pastMonth->run_click / $pastMonth->day_click) * 100) : 0), 2, "." ,",") ?>%</td>
+		</tr>
+		<tr>
+			<td><?php echo date("m", $day); ?>月</td>
+			<td><?php echo number_format($thisMonth->day_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format($thisMonth->run_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($thisMonth->day_budget > 0)? (($thisMonth->run_budget / $thisMonth->day_budget) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($thisMonth->day_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format($thisMonth->run_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($thisMonth->day_imp > 0)? (($thisMonth->run_imp / $thisMonth->day_imp) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($thisMonth->day_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format($thisMonth->run_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($thisMonth->day_click > 0)? (($thisMonth->run_click / $thisMonth->day_click) * 100) : 0), 2, "." ,",") ?>%</td>
+		</tr>
+		<tr>
+			<td><?php echo date("m",strtotime(date("Y-m-d", $day) . "+1 month")); ?>月</td>
+			<td><?php echo number_format($nextMonth->day_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format($nextMonth->run_budget, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($nextMonth->day_budget > 0)? (($nextMonth->run_budget / $nextMonth->day_budget) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($nextMonth->day_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format($nextMonth->run_imp, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($nextMonth->day_imp > 0)? (($nextMonth->run_imp / $nextMonth->day_imp) * 100) : 0), 2, "." ,",") ?>%</td>
+			<td><?php echo number_format($nextMonth->day_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format($nextMonth->run_click, 0, "." ,","); ?></td>
+			<td><?php echo number_format((($nextMonth->day_click > 0)? (($nextMonth->run_click / $nextMonth->day_click) * 100) : 0), 2, "." ,",") ?>%</td>
+		</tr>		
+		
+	</tbody>
+	</table>
 
 	<table class="table table-bordered">
 	<thead>
-		<th>日期</th>
-		<th>日預算估計</th>
-		<th>已執行預算</th>
-		<th>預算達成率</th>
+		<th width="100">日期</th>
+		<th>日花費估計</th>
+		<th>已執行花費</th>
+		<th>花費達成率</th>
 		<th>日曝光預計</th>
 		<th>已執行曝光</th>
 		<th>曝光達成率</th>
@@ -76,7 +149,7 @@
 		<td><?php echo number_format($value->day_click, 0, "." ,","); ?></td>
 		<td><?php echo number_format($value->run_click, 0, "." ,","); ?></td>
 		<td><?php echo number_format((($value->day_click > 0)? (($value->run_click / $value->day_click) * 100) : 0), 2, "." ,",") ?>%</td>
-		<tr>
+		</tr>
 	<?php } ?>
 
 	<?php foreach ($future as $value) { ?>
@@ -91,7 +164,7 @@
 		<td><?php echo number_format($value->day_click, 0, "." ,","); ?></td>
 		<td>-</td>
 		<td>-</td>
-		<tr>
+		</tr>
 	<?php } ?>
 
 	</tbody>

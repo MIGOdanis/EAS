@@ -101,9 +101,10 @@
 	</style>
 	<script type="text/javascript">
 		$(function(){
-			$("#filter-btn").click(function(){
+			$(".filter-btn").click(function(){
+				var url = $(this).data("url");
 				$.ajax({
-						url:"filterCampaign",
+						url:url,
 						success:function(html){
 							$('#modal-content').html(html);
 							$('#modal').modal('show');
@@ -125,8 +126,11 @@
 		<a href="campaignListHistory?day=<?php echo $_GET['day'];?>" class="btn btn-default">全部</a>
 		<a href="campaignListHistory?type=1&day=<?php echo $_GET['day'];?>" class="btn btn-default">只看PC</a>
 		<a href="campaignListHistory?type=2&day=<?php echo $_GET['day'];?>" class="btn btn-default">只看MOB</a>
-		<button type="button" class="btn btn-default" id="filter-btn">
+		<button type="button" class="btn btn-default filter-btn" data-url="filterCampaign">
 		  	<span class="glyphicon glyphicon-filter" aria-hidden="true"></span> 訂單濾除
+		</button>
+		<button type="button" class="btn btn-default filter-btn" data-url="filterDate">
+			<span class="glyphicon glyphicon-th"  aria-hidden="true"></span> 查詢日期
 		</button>
 	</div>
 	<div>查詢日期 : <?php echo $_GET['day'];?></div>
@@ -212,10 +216,10 @@
 			),	
 			array(	
 				'header' => "未執行<br>點擊",
-				'value'=>'number_format(($data->day_click - $data->run_click), 0, "." ,",")',
+				'value'=>'number_format(($data->run_click - $data->day_click), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_click - $run_click) , 0, "." ,","),
+				'footer'=>number_format( ($run_click - $day_click) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "點擊<br>執行率",
@@ -243,10 +247,10 @@
 			),
 			array(	
 				'header' => "未執行<br>曝光",
-				'value'=>'number_format(($data->day_imp - $data->run_imp), 0, "." ,",")',
+				'value'=>'number_format(($data->run_imp - $data->day_imp), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_imp - $run_imp) , 0, "." ,","),
+				'footer'=>number_format( ($run_imp - $day_imp) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "曝光<br>執行率",
@@ -274,10 +278,10 @@
 			),	
 			array(	
 				'header' => "未執行<br>預算",
-				'value'=>'number_format(($data->day_budget - $data->run_budget), 0, "." ,",")',
+				'value'=>'number_format(($data->run_budget - $data->day_budget), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_budget - $run_budget) , 0, "." ,","),
+				'footer'=>number_format( ($run_budget  - $day_budget) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "預算<br>執行率",

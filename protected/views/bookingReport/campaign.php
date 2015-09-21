@@ -136,11 +136,11 @@
 				'filter'=>false,
 				'footer'=>'總計'
 			),				
-					
 			array(	
 				'name' => "day_click",
 				'header' => "當日點擊<br>預估",
-				'value'=>'number_format($data->day_click, 0, "." ,",")',
+				'type' => "raw",
+				'value'=>'"<div class=\'report-txt\'>" . number_format($data->day_click, 0, "." ,",") . ( ($data->click_status == 1)? "" : "<div class=\'st" . $data->click_status . "\'></div>") . "</div>"',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
 				'footer'=>number_format($day_click = $model->sumColumn($allData,"day_click"), 0, "." ,","),
@@ -155,10 +155,10 @@
 			),	
 			array(	
 				'header' => "未執行<br>點擊",
-				'value'=>'number_format(($data->day_click - $data->run_click), 0, "." ,",")',
+				'value'=>'number_format(($data->run_click - $data->day_click), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'click'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_click - $run_click) , 0, "." ,","),
+				'footer'=>number_format( ($run_click - $day_click) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "點擊<br>執行率",
@@ -170,7 +170,8 @@
 			array(	
 				'name' => "day_imp",
 				'header' => "日曝光<br>預估",
-				'value'=>'number_format($data->day_imp, 0, "." ,",")',
+				'type' => "raw",
+				'value'=>'"<div class=\'report-txt\'>" . number_format($data->day_imp, 0, "." ,",") . ( ($data->imp_status == 1)? "" : "<div class=\'st" . $data->imp_status . "\'></div>") . "</div>"',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
 				'footer'=>number_format($day_imp = $model->sumColumn($allData,"day_imp"), 0, "." ,","),
@@ -185,10 +186,10 @@
 			),
 			array(	
 				'header' => "未執行<br>曝光",
-				'value'=>'number_format(($data->day_imp - $data->run_imp), 0, "." ,",")',
+				'value'=>'number_format(($data->run_imp - $data->day_imp), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'imp'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_imp - $run_imp) , 0, "." ,","),
+				'footer'=>number_format( ($run_imp - $day_imp) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "曝光<br>執行率",
@@ -200,7 +201,8 @@
 			array(	
 				'name' => "day_budget",
 				'header' => "日預算<br>預估",
-				'value'=>'number_format($data->day_budget, 0, "." ,",")',
+				'type' => "raw",
+				'value'=>'"<div class=\'report-txt\'>" . number_format($data->day_budget, 0, "." ,",") . ( ($data->budget_status == 1)? "" : "<div class=\'st" . $data->budget_status . "\'></div>") . "</div>"',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
 				'footer'=>number_format($day_budget = $model->sumColumn($allData,"day_budget"), 0, "." ,","),
@@ -215,10 +217,10 @@
 			),	
 			array(	
 				'header' => "未執行<br>預算",
-				'value'=>'number_format(($data->day_budget - $data->run_budget), 0, "." ,",")',
+				'value'=>'number_format(($data->run_budget - $data->day_budget), 0, "." ,",")',
 				'htmlOptions'=>array('class'=>'budget'),
 				'filter'=>false,
-				'footer'=>number_format( ($day_budget - $run_budget) , 0, "." ,","),
+				'footer'=>number_format( ($run_budget  - $day_budget) , 0, "." ,","),
 			),	
 			array(	
 				'header' => "預算<br>執行率",
@@ -227,7 +229,7 @@
 				'filter'=>false,
 				'footer'=>number_format( (($day_budget > 0) ? ($run_budget / $day_budget) * 100 : 0) , 2, "." ,",") . "%",
 
-			),						
+			)						
 		),
 	));
 

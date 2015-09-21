@@ -43,7 +43,7 @@ class Booking extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('campaign_id, strategy_id, type, booking_click, day_click, run_click, booking_imp, day_imp, run_imp, booking_budget, day_budget, run_budget, booking_time, update_time', 'required'),
-			array('type, booking_click, day_click, run_click, click_status, day_imp, run_imp, imp_status, booking_budget, day_budget, run_budget, budget_status, booking_time, update_time, status', 'numerical', 'integerOnly'=>true),
+			array('type, booking_click, day_click, run_click, click_status, day_imp, run_imp, imp_status, booking_budget, day_budget, budget_status, booking_time, update_time, status', 'numerical', 'integerOnly'=>true),
 			array('campaign_id, strategy_id, booking_imp', 'length', 'max'=>20),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
