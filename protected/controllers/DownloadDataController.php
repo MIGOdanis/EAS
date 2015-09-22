@@ -100,13 +100,15 @@ class DownloadDataController extends Controller
 
 		$data = array();		
 		foreach ($model as $value) {
+			$elandCat = TosCoreIndustryCategory::model()->elandFunction($value->campaign->industry->id);
 			$data[] = array(
 				"A" => $value->campaign->id,
 				"B" => $value->campaign->campaign_name,
 				"C" => $value->campaign->industry->name,
-				"D" => $value->group->id,
-				"E" => $value->id,
-				"F" => $value->group->name,
+				"D" => $elandCat,
+				"E" => $value->group->id,
+				"F" => $value->id,
+				"G" => $value->group->name,
 			);
 		}
 
@@ -119,9 +121,10 @@ class DownloadDataController extends Controller
 				"A2" => "訂單ID",
 				"B2" => "訂單名稱",
 				"C2" => "產業名稱",
-				"D2" => "素材群組ID (後台)",
-				"E2" => "素材ID(前台)",
-				"F2" => "素材名稱",
+				"D2" => "產業名稱(意藍)",
+				"E2" => "素材群組ID (後台)",
+				"F2" => "素材ID(前台)",
+				"G2" => "素材名稱",
 			),
 			"data" => $data
 		);	
