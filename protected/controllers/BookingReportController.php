@@ -81,7 +81,8 @@ class BookingReportController extends Controller
 
 		$today = time();
 		$futureDay = 16;
-		$pastDay = 6;		
+		$pastDay = 6;	
+		$pastDayStart = 1;	
 		if(isset($_GET['day']) && !empty($_GET['day'])){
 			$day = strtotime(date($_GET['day'] . " 00:00:00"));
 			if($day >= $today){
@@ -90,6 +91,7 @@ class BookingReportController extends Controller
 			}else{
 				$futureDay = 0;
 				$pastDay = 16;
+				$pastDayStart = 0;	
 			}
 		}else{
 			$day = $today;
@@ -119,7 +121,7 @@ class BookingReportController extends Controller
 		}
 
 		$pastArray = array();
-		for ($i=1; $i < $pastDay; $i++) {
+		for ($i=$pastDayStart; $i < $pastDay; $i++) {
 			$pastArray[$i] = $this->countByPastDay($day,$i,$noPayCampaignId);
 		}
 		
