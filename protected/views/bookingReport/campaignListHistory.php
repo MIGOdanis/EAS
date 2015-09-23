@@ -191,9 +191,9 @@
 			),		
 			array(	
 				'name' => "campaign.id",
-				'header' => "<div class='topItem'>訂單</div>策略",
+				'header' => "<div class='topItem'>訂單</div>(優先級)策略名稱",
 				'type' => "raw",
-				'value'=>'"<div class=\'topItem\'>" . $data->campaign->campaign_name . "</div>" . $data->strategy->strategy_name',
+				'value'=>'"<div class=\'topItem\'>" . $data->campaign->campaign_name . "</div>" . " ( " . $data->strategy->priority  . " ) " . $data->strategy->strategy_name',
 				// 'htmlOptions'=>array('width'=>'100','class'=>'day'),
 				'filter'=>false,
 			),						

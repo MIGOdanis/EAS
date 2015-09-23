@@ -16,11 +16,23 @@ class CronBookingController extends Controller
 		if(isset($_GET['id']))
 			$criteria->addCondition("t.id = '" . $_GET['id'] . "'");
 		
-		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit")->findAll($criteria);
+		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit","strategy.strategyPartialDate")->findAll($criteria);
 		foreach ($campaign as $value) {
 
-			$campaignBookingDay = strtotime($value->end_time) -  strtotime($value->start_time);
+			$campaignBookingDay = 0;
+
+			//計算真實走期日
+			foreach ($value->strategy as $strategyData) {
+				if($strategyData->strategyPartialDate !== null){
+					foreach ($strategyData->strategyPartialDate as $date) {
+						$partialDate = strtotime($date->end_time) -  strtotime($date->start_time);
+						$campaignBookingDay = $campaignBookingDay + $partialDate;
+					}				
+				}
+			}
+
 			$campaignBookingDay = ceil($campaignBookingDay / 86400);
+
 			if($campaignBookingDay == 0)
 				$campaignBookingDay = 1;
 
@@ -35,6 +47,7 @@ class CronBookingController extends Controller
 			$campaignBudget = $this->transCampaignBudget($value->budget,$value->totalHit,$campaignBookingDay,$campaignCTR);
 
 			$maxDay = $campaignBookingDay;
+
 			if($maxDay > 30)
 				$maxDay = 30;
 
@@ -44,7 +57,7 @@ class CronBookingController extends Controller
 
 				if(isset($_GET['test'])){
 					print_r($strategy);
-					exit;
+					$strategy = "";
 				}
 
 				if(!empty($strategy)){
@@ -96,6 +109,7 @@ class CronBookingController extends Controller
 
 			if($value->status == 1){
 				$this->updateStrategyStatus($value->id);
+				$this->updateStrategyStatusByDay($value->id);
 			}
 
 		}
@@ -106,7 +120,7 @@ class CronBookingController extends Controller
 	public function updateStrategyStatus($campaignId){
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
-		$model = TosCoreStrategy::model()->findAll($criteria);
+		$model = TosCoreStrategy::model()->with("strategyPartialDate")->findAll($criteria);
 		foreach ($model as $value) {
 			$criteria = new CDbCriteria;
 			$criteria->addCondition("strategy_id = '" . $value->id . "'");
@@ -116,9 +130,44 @@ class CronBookingController extends Controller
 			if($value->status != 1){
 				$status = 0;
 			}
+
 			Booking::model()->updateAll(array(
 				'status' => $status
 			),$criteria);
+		}
+	}
+
+	public function updateStrategyStatusByDay($campaignId){
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("t.status = 1");
+		$booking = Booking::model()->findAll($criteria);
+
+		foreach ($booking as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("strategy_id = '" . $value->strategy_id . "'");
+			$model = TosCoreStrategyPartialDate::model()->findAll($criteria);
+
+			if($model !== null){
+				$day = $value->booking_time;
+				$checkDay = false;
+				if($model !== null){
+					foreach ($model as $date) {
+						$startTime = strtotime($date->start_time);
+						$endTime = strtotime($date->end_time);			
+						if($startTime <= $day && $endTime >= $day){
+							$checkDay = true;
+						}
+					}		
+				}				
+			}
+
+			if(!$checkDay){
+				$updateBooking = Booking::model()->findByPk($value->id);
+				$updateBooking->status = 0;
+				$updateBooking->save();
+			}	
+
 		}
 	}
 
@@ -151,10 +200,19 @@ class CronBookingController extends Controller
 		}
 
 		foreach ($data->strategy as $value) {
-			$startTime = strtotime($value->start_time);
-			$endTime = strtotime($value->end_time);
+			$checkDay = false;
+			if($value->strategyPartialDate !== null){
+				foreach ($value->strategyPartialDate as $date) {
+					$startTime = strtotime($date->start_time);
+					$endTime = strtotime($date->end_time);			
+					if($startTime <= $day && $endTime >= $day){
+						$checkDay = true;
+					}
+				}				
+			}
 
-			if($startTime <= $day && $endTime >= $day){
+
+			if($checkDay){
 
 				$budget = $value->strategyBudget;
 
@@ -392,7 +450,7 @@ class CronBookingController extends Controller
 			 
 		}
 
-
+		$countStrategy = 1;
 		//如果數值超過訂單值則平攤
 		if($countTotalBudget > $campaignBudget['totalBudget']){
 			$value =  round($campaignBudget['totalBudget'] / $countStrategy);
