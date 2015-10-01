@@ -36,6 +36,12 @@ class CronBookingController extends Controller
 			if($campaignBookingDay == 0)
 				$campaignBookingDay = 1;
 
+
+				if(isset($_GET['test'])){
+					print_r("總走期" . $campaignBookingDay . "<br>");
+				}
+
+
 			if($value->totalHit->total_hit_pv > 0){
 				$campaignCTR = (($value->totalHit->total_hit_click / $value->totalHit->total_hit_pv) * 100);
 				if($campaignCTR < 0.07)
@@ -224,8 +230,9 @@ class CronBookingController extends Controller
 							$budgetStatus = 3;
 						}else{
 							$totalBudget = $campaignBudget['totalBudget'];
+							$budgetStatus = 0;
 						}				
-					$budgetStatus = 0;
+					
 				}
 
 
@@ -235,20 +242,22 @@ class CronBookingController extends Controller
 					if(isset($_GET['update']))
 						$hitCost = 0;			
 					
+					if($campaign->budget->total_click > 0){
+						$dayBudget =  round(($campaign->budget->max_daily_budget / 100));
+						// print_r(( ($campaign->budget->max_daily_budget / 100 ))); exit;
+						$budgetStatus = 3;
+					}else{
 						if($campaign->budget->total_click > 0){
-							$dayBudget =  round( ( ( ($campaign->budget->max_daily_budget / 100 ) - $hitCost) / $countStrategy) / $campaignBudget['bookingDay']);
+							$totalBudget =  round( ( ($campaign->budget->total_budget / 100) / $countStrategy)  / $campaignBudget['bookingDay']);
 							$budgetStatus = 3;
 						}else{
-							if($campaign->budget->total_click > 0){
-								$totalBudget =  round( ( ($campaign->budget->total_budget / 100) / $countStrategy)  / $campaignBudget['bookingDay']);
-								$budgetStatus = 3;
-							}else{
-								$dayBudget = round( ($totalBudget - $hitCost) / $campaignBudget['bookingDay']);
-							}								
-							
-						}	
+							$dayBudget = round( ($totalBudget - $hitCost) / $campaignBudget['bookingDay']);
+							$budgetStatus = 0;
+						}								
+						
+					}	
 
-					$budgetStatus = 0;
+					
 				}				
 
 				if($value->kpi_type == 2 || $value->charge_type == 2){
@@ -265,7 +274,7 @@ class CronBookingController extends Controller
 					if($totalClick == 0){
 						if($campaign->budget->total_click > 0){
 							$totalClick =  round($campaign->budget->total_click / $countStrategy);
-							$clickStatus = 3;
+							$clickStatus = 5;
 						}else{
 							$totalClick = round($totalBudget / $cpc);
 							$clickStatus = 0;
@@ -450,7 +459,7 @@ class CronBookingController extends Controller
 			 
 		}
 
-		$countStrategy = 1;
+		//$countStrategy = 1;
 		//如果數值超過訂單值則平攤
 		if($countTotalBudget > $campaignBudget['totalBudget']){
 			$value =  round($campaignBudget['totalBudget'] / $countStrategy);
@@ -462,7 +471,12 @@ class CronBookingController extends Controller
 
 
 		if($countDayBudget > $campaignBudget['dayBudget']){
-			$value =  round($campaignBudget['dayBudget'] / $countStrategy);
+			if($campaignBudget['dayBudgetStatus'] == 1){
+				$value =  round($campaignBudget['dayBudget'] / $countStrategy);
+			}else{
+				$value =  round($campaignBudget['dayBudget'] / 1);
+			}
+			
 			$strategy = $this->resetValue($value,'dayBudget',$strategy);
 			$strategy = $this->resetValue(2,'budgetStatus',$strategy);
 			if(isset($_GET['test']))
@@ -478,7 +492,12 @@ class CronBookingController extends Controller
 		}	
 
 		if($countDayClick > $campaignBudget['dayClick']){
-			$value =  round($campaignBudget['dayClick'] / $countStrategy);
+			if($campaignBudget['dayClickStatus'] == 1){
+				$value =  round($campaignBudget['dayClick'] / $countStrategy);
+			}else{
+				$value =  round($campaignBudget['dayClick'] / 1);
+			}			
+			
 			$strategy = $this->resetValue($value,'dayClick',$strategy);
 			$strategy = $this->resetValue(2,'clickStatus',$strategy);
 			if(isset($_GET['test']))
@@ -495,7 +514,12 @@ class CronBookingController extends Controller
 		}	
 
 		if($countDayPv > $campaignBudget['dayPv']){
-			$value =  round($campaignBudget['dayPv'] / $countStrategy);
+			if($campaignBudget['dayPvStatus'] == 1){
+				$value =  round($campaignBudget['dayPv'] / $countStrategy);
+			}else{
+				$value =  round($campaignBudget['dayPv'] / 1);
+			}				
+			
 			$strategy = $this->resetValue($value,'dayPv',$strategy);
 			$strategy = $this->resetValue(2,'pvStatus',$strategy);
 			if(isset($_GET['test']))
@@ -519,12 +543,14 @@ class CronBookingController extends Controller
 		//預算
 		$totalBudget = ceil($budget->total_budget / 100);
 
+		$dayBudgetStatus = 1;
 		$dayBudget = ceil($budget->max_daily_budget / 100);
 		if($dayBudget == 0){
 			$totalHitBudget = ceil($totalHit->total_hit_budget / 100);
 			if(isset($_GET['update']))
 				$totalHitBudget = 0;
 			$dayBudget = round( ($totalBudget - $totalHitBudget) / $campaignBookingDay);
+			$dayBudgetStatus = 0;
 		}
 
 		//點擊
@@ -533,13 +559,16 @@ class CronBookingController extends Controller
 			$totalClick = round($totalBudget / 5);
 		}	
 
+		$dayClickStatus = 1;
 		$dayClick = $budget->max_daily_click;
 		if($dayClick == 0){
 			if($budget->total_click > 0){
 				$dayClick =  round( $budget->total_click  / $campaignBookingDay );
+				$dayClickStatus = 0;	
 			}else{
 				$dayClick = round($dayBudget / 5);
-			}			
+			}	
+
 		}
 
 		//曝光
@@ -548,10 +577,12 @@ class CronBookingController extends Controller
 			$totalPv = round(($totalClick / $campaignCTR)  * 100);
 		}	
 
+		$dayPvStatus = 1;
 		$dayPv = $budget->max_daily_pv;
 		if($dayPv == 0){
 			if($budget->total_pv > 0){
 				$dayPv =  round( $budget->total_pv / $campaignBookingDay );
+				$dayPvStatus = 0;
 			}else{
 				$dayPv = round(($dayClick / $campaignCTR)  * 100);
 			}				
@@ -561,10 +592,13 @@ class CronBookingController extends Controller
 			"bookingDay" => $campaignBookingDay,
 			"totalBudget" => $totalBudget,
 			"dayBudget" => $dayBudget,
+			"dayBudgetStatus" => $dayBudgetStatus,
 			"totalClick" => $totalClick,
 			"dayClick" => $dayClick,
+			"dayClickStatus" => $dayClickStatus,
 			"totalPv" => $totalPv,
 			"dayPv" => $dayPv,
+			"dayPvStatus" => $dayPvStatus
 		);
 	}
 

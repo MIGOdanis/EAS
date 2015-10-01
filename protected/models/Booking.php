@@ -149,19 +149,26 @@ class Booking extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 		$criteria=new CDbCriteria;
 
-		if(isset($_GET['resetFilter'])){
+		$noPayCampaignId = array();
+		if(isset($_GET['resetFilter']) && !isset($_POST['setCampaign'])){
 			unset($_COOKIE['noPayCampaignId']);
 		}
 
-		$noPayCampaignId = array();
+		if(isset($_POST['setCampaign'])){
+			if(!empty($_POST['noPayCampaignId'])){
+				$noPayCampaignId = $_POST['noPayCampaignId'];
+			}else{
 
-		if(isset($_POST['noPayCampaignId']) && !empty($_POST['noPayCampaignId'])){
-			$noPayCampaignId = $_POST['noPayCampaignId'];
-		}else if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
-			$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+				$noPayCampaignId[] = 1;
+			}
+			
+		}else if(isset($_COOKIE)){
+			if(!empty($_COOKIE['noPayCampaignId'])){
+				$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+			}		
 		}
 
-		if(empty($noPayCampaignId)){
+		if( empty($noPayCampaignId) ){
 			$noPayCriteria = new CDbCriteria;
 			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
 			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);

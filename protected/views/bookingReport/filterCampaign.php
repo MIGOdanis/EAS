@@ -32,6 +32,7 @@ if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
 	}
 </style>
 <form action="" method="post">
+	<input name="setCampaign" type="text" class="checkbox" value="1" style="display:none;">
 	<div class="modal-body">	
 		<table class="table table-bordered">
 		<thead>

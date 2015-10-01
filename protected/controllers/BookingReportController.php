@@ -52,29 +52,42 @@ class BookingReportController extends Controller
 		$this->renderPartial('filterDate');
 	}
 
-	public function actionWeekBooking()
+	public function getDefinedNPC($noPayCampaignId)
 	{
-		$lastBooking = Log::model()->getValByName("lastCronBooking");
-
-		if(isset($_GET['resetFilter'])){
-			unset($_COOKIE['noPayCampaignId']);
-		}
-
-		$noPayCampaignId = array();
-
-		if(isset($_POST['noPayCampaignId']) && !empty($_POST['noPayCampaignId'])){
-			$noPayCampaignId = $_POST['noPayCampaignId'];
-		}else if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
-			$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
-		}
-
-		if(empty($noPayCampaignId)){
 			$noPayCriteria = new CDbCriteria;
 			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
 			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);
 			foreach ($noPayCampaign as $value) {
 				$noPayCampaignId[] = $value->id;
+			}	
+			return $noPayCampaignId;
+	}
+
+
+	public function actionWeekBooking()
+	{
+		$lastBooking = Log::model()->getValByName("lastCronBooking");
+		$noPayCampaignId = array();
+		if(isset($_GET['resetFilter']) && !isset($_POST['setCampaign'])){
+			unset($_COOKIE['noPayCampaignId']);
+		}
+
+		if(isset($_POST['setCampaign'])){
+			if(!empty($_POST['noPayCampaignId'])){
+				$noPayCampaignId = $_POST['noPayCampaignId'];
+			}else{
+
+				$noPayCampaignId[] = 1;
+			}
+			
+		}else if(isset($_COOKIE)){
+			if(!empty($_COOKIE['noPayCampaignId'])){
+				$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
 			}		
+		}
+
+		if( empty($noPayCampaignId) ){
+			$noPayCampaignId = $this->getDefinedNPC($noPayCampaignId);
 		}
 
 		setcookie("noPayCampaignId", implode(":", $noPayCampaignId), time() + 3600);
