@@ -48,6 +48,9 @@ class TosCoreStrategy extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'campaign' => array(self::HAS_ONE, 'TosCoreCampaign', array('id' => 'campaign_id')),
+			'strategyBudget' =>  array(self::HAS_ONE, 'TosCoreStrategyBudget', array('strategy_id' => 'id'), 'condition'=>'strategyBudget.status = 1'),
+			'strategyTotalHit' =>  array(self::HAS_ONE, 'TosCoreStrategyTotalHit', array('strategy_id' => 'id')),
+			'strategyPartialDate' =>  array(self::HAS_MANY, 'TosCoreStrategyPartialDate', array('strategy_id' => 'id')),
 		);
 	}
 
