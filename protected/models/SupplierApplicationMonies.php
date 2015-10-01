@@ -55,6 +55,7 @@ class SupplierApplicationMonies extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'site' => array(self::HAS_ONE, 'Site', array('tos_id' => 'site_id')),
+			'adSpace' => array(self::HAS_ONE, 'AdSpace', array('tos_id' => 'adSpace_id')),
 		);
 	}
 

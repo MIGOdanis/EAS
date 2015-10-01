@@ -140,23 +140,6 @@ class SupplierApplicationMoniesController extends Controller
 			$criteria->order = "supplier.tos_id DESC";
 			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->with("supplier","site","adSpace")->findAll($criteria);
 
-			$criteria = new CDbCriteria;
-			$criteria->addCondition("year = " . $_GET['year']);
-			$criteria->addCondition("month = " . $_GET['month']);	
-			$criteria->addCondition("t.status = 3");
-			$log = SupplierApplicationLog::model()->findAll($criteria);
-			$supplierByLog = array();
-			foreach ($log as $value) {
-				$supplierByLog[] = $value->supplier_id;
-			}
-
-			$criteria = new CDbCriteria;
-			$criteria->addCondition("year = " . $_GET['year']);
-			$criteria->addCondition("month = " . $_GET['month']);
-			$criteria->addInCondition("supplier.tos_id", $supplierByLog);
-			$criteria->order = "supplier.tos_id DESC";
-			$supplierMoniesMonthlyByLog = SupplierMoniesMonthly::model()->with("supplier","site","adSpace")->findAll($criteria);
-
 			//print_r($supplierMoniesMonthly); exit;
 
 			$objPHPExcel = new PHPExcel();
@@ -170,10 +153,10 @@ class SupplierApplicationMoniesController extends Controller
 
 	        //sheet2
 
-	        $objPHPExcel->createSheet();
-	        $objPHPExcel = $this->makeSheetData($objPHPExcel, 1, $supplierMoniesMonthlyByLog);
-	        $objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '供應商對帳表 - 請款完成(' . $_GET['year'] . " / " . $_GET['month'] . ')');
-	        $objPHPExcel->setActiveSheetIndex(1)->setTitle("供應商對帳表 - 請款完成");
+	        // $objPHPExcel->createSheet();
+	        // $objPHPExcel = $this->makeSheetData($objPHPExcel, 1, $supplierMoniesMonthlyByLog);
+	        // $objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '供應商對帳表 - 請款完成(' . $_GET['year'] . " / " . $_GET['month'] . ')');
+	        // $objPHPExcel->setActiveSheetIndex(1)->setTitle("供應商對帳表 - 請款完成");
 	        $objPHPExcel->setActiveSheetIndex(0);
 
 			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
