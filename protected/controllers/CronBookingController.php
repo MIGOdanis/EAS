@@ -119,7 +119,31 @@ class CronBookingController extends Controller
 			}
 
 		}
+		$this->checkCampaignStatus();
 		$this->saveLog("lastCronBooking",time());
+	}
+
+	public function checkCampaignStatus(){
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("booking_time >= '" . strtotime(date("Y-m-d 00:00:00")) . "'");
+		$criteria->addCondition("status = 1");
+		// $criteria->group = "campaign_id";
+		$model = Booking::model()->findAll($criteria);
+
+		foreach ($model as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("id = '" . $value->campaign_id . "'");
+			$campaign = TosCoreCampaign::model()->find($criteria);
+
+			$status = 1;
+			if($campaign->status != 1 || strtotime($campaign->end_time) < strtotime(date("Y-m-d 23:59:59", $value->booking_time)) ){
+				$status = 0;
+			}
+
+			$booking = Booking::model()->findByPk($value->id);
+			$booking->status = $status;
+			$booking->save();
+		}
 	}
 
 
