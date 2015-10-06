@@ -11,9 +11,18 @@ class CronSupplierController extends Controller
 
 		$pcSite = $this->getPcSite();
 		$adSpaceArray = array();
+
+		$noPayCriteria = new CDbCriteria;
+		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
+		$noPayCampaignId = array();
+		foreach ($noPayCampaign as $value) {
+			$noPayCampaignId[] = $value->tos_id;
+		}
+
 		foreach ($pcSite as $site) {
 			foreach ($site->adSpace as $space) {
-				$pcReport = $this->getPcSpaceMonies($space->tos_id);
+				$pcReport = $this->getPcSpaceMonies($space->tos_id,$noPayCampaignId);
 
 				//print_r($pcReport); exit;
 
@@ -69,7 +78,7 @@ class CronSupplierController extends Controller
 		return Site::model()->with("adSpace")->findAll($criteria);
 	}
 
-	public function getPcSpaceMonies($adSpaceId){
+	public function getPcSpaceMonies($adSpaceId,$noPayCampaignId){
 
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("adSpace_id = " . $adSpaceId);
@@ -90,7 +99,9 @@ class CronSupplierController extends Controller
 		// $criteria->addCondition("settled_time > 1434729600");
 		$criteria->addCondition("ad_space_id = " . $adSpaceId);
 		// $criteria->addInCondition("ad_space_id", $adSpaceId);
-		$criteria->select = "sum(media_cost)/100000 AS media_cost_count, sum(pv) AS pv, sum(click) AS click, ad_space_id";
+		$criteria->select = "sum(media_cost)/100000 AS media_cost_count, sum(impression) AS impression, sum(click) AS click, ad_space_id";
+		$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+
 		$criteria->group = 'ad_space_id';
 		return BuyReportDailyPc::model()->find($criteria);
 	}
@@ -179,10 +190,10 @@ class CronSupplierController extends Controller
 			if($supplierMoniesMonthly === null){
 				$supplierMoniesMonthly = new SupplierMoniesMonthly();
 				$supplierMoniesMonthly->total_monies = 0;
-				$supplierMoniesMonthly->imp = $model->pv;
+				$supplierMoniesMonthly->imp = $model->impression;
 				$supplierMoniesMonthly->click = $model->click;				
 			}else{
-				$supplierMoniesMonthly->imp += $model->pv;
+				$supplierMoniesMonthly->imp += $model->impression;
 				$supplierMoniesMonthly->click += $model->click;					
 			}
 
