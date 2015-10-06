@@ -4,6 +4,7 @@ var supplierId;
 var siteId;
 var adSpaceId;
 var showNoPay = "all";
+var indexType = "supplier";
 var filterStatus = "close";
 var tabs = 1;
 var activeTab = "def";
@@ -59,7 +60,8 @@ function getReport(){
 				supplierId : supplierId,
 				siteId : siteId,
 				adSpaceId : adSpaceId,
-				showNoPay : showNoPay
+				showNoPay : showNoPay,
+				indexType : indexType
 			},
 			success:function(html){
 				$("#export").prop("href", this.url + "&export=1");
@@ -197,6 +199,9 @@ $(function(){
 		showNoPay = $(this).data("status");
 	});
 
+	$(".index-btn-group .btn").click(function(){
+		indexType = $(this).data("status");
+	});
 
 	$("#createNewTab").click(function(){
 		createNewTab();

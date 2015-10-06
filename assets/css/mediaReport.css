@@ -67,6 +67,12 @@
 	.nopay-btn-group .btn{
 		width: 33.4%;
 	}
+	.index-btn-group{
+		width: 100%;
+	}
+	.index-btn-group .btn{
+		width: 33.4%;
+	}	
 	.filter-datepicker{
 		/*width: 280px;*/
 		padding-top: 10px;

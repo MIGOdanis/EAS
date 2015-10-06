@@ -36,11 +36,13 @@ class CronApplicationMoniesController extends Controller
 	}	
 
 	public function clearSupplierMonies(){
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("status = 3");
+		$criteria->addCondition("year = '" . date("Y",$monthOfAccount->value) . "'");
+		$criteria->addCondition("month = '" . date("m",$monthOfAccount->value) . "'");
 		$application = SupplierApplicationLog::model()->findAll($criteria);
 		foreach ($application as $value) {
-			$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 			SupplierApplicationMonies::model()->updateAll(
 				array(
 					'total_monies' => 0,
