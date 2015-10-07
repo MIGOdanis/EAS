@@ -33,8 +33,24 @@ class MediaReportController extends Controller
 			$media_cost = 0;
 
 			foreach ($model as $value) {
+
+				//主要維度
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+					$AValue = ((!empty($value->adSpace->site->supplier->name)) ? $value->adSpace->site->supplier->name : "其他");
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+					$AValue = date("Y-m-d",$value->settled_time);
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+					$AValue = (!empty($value->campaign->campaign_name)) ? $value->campaign->campaign_name : "其他";
+				}
+
+
+
 				$data[] = array(
-					"A" => $value->adSpace->site->supplier->name,
+					"A" => $AValue,
 					"B" => number_format($value->impression, 0, "." ,""),
 					"C" => number_format($value->click, 0, "." ,""),
 					"D" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
@@ -58,13 +74,26 @@ class MediaReportController extends Controller
 				"G" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
 			);			
 
+			//主要維度
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+				$A2Name = "供應商";
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+				$A2Name = "日期";
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+				$A2Name = "訂單";
+			}
+
 			$report = array(
 				"name" => "供應商日報表",
 				"titleName" => "供應商日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"fileName" => "供應商日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"width" => "G1",
 				"title" => array(
-					"A2" => "供應商",
+					"A2" => $A2Name,
 					"B2" => "曝光",
 					"C2" => "點擊",
 					"D2" => "點擊率",

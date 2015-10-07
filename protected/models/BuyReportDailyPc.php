@@ -183,9 +183,11 @@ class BuyReportDailyPc extends CActiveRecord
 		}
 
 		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] == "only"){
-			$criteria->addInCondition("campaign_id",$noPayCampaignId);
-		}else{
+
 			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+		}else{
+			$criteria->addInCondition("campaign_id",$noPayCampaignId);
+			
 		}
 		
 		return $criteria;
@@ -315,6 +317,9 @@ class BuyReportDailyPc extends CActiveRecord
 
 		if(isset($_GET['indexType']) && $_GET['indexType'] == 1){
 			$criteria->order = 'impression DESC, click DESC';
+		}
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
 			return $this->findAll($criteria);
 		}
 		
