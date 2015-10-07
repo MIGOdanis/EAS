@@ -11,13 +11,15 @@ class CronApplicationMoniesController extends Controller
 		//echo strtotime(date("Y-" . date("m",strtotime("-1 Months",strtotime("2015-07-01"))) . "-01")); exit;
 
 		$this->closeAccountsStatus();
-		//清除已申請完成的請款
-		$this->clearSupplierMonies();
+
 
 		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 		//print_r($month_of_account); exit;
 		$monthOfAccount->value = strtotime(date("Y-m-01",strtotime("-1 Months",time())));
 		$monthOfAccount->save();	
+
+		//清除已申請完成的請款
+		$this->clearSupplierMonies();
 
 		//清除系統退回未申請的請款
 		$this->clearApplication();

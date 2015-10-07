@@ -26,7 +26,7 @@ function certificate_status($data,$accountsStatus){
 		if($accountsStatus == 1){
 			return $data->certificateChecker->name . "<br>" . CHtml::dropDownList("certificate_status",$data->certificate_status,array(
 				"0"=> ($data->certificate_by == Yii::app()->user->id && $data->certificate_status > 0) ? "取消確認" : "未確認",
-				"1"=> "三聯式電子計算機",
+				"1"=> "三聯式",
 				"2"=> "三聯式收銀機",
 				"3"=> "電子發票",
 				"4"=> "載有稅額憑證(有字軌)",
@@ -34,6 +34,7 @@ function certificate_status($data,$accountsStatus){
 				"6"=> "勞報單",
 				"7"=> "Invoice",
 				"8"=> "其他",
+				"9"=> "電子計算機",
 			), $option);
 		}else{
 			return "關帳中";			

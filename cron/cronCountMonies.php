@@ -1,6 +1,6 @@
 <?php
 set_time_limit(0);
-$baseUrl = "http://127.0.0.1/eas/";
+$baseUrl = "http://127.0.0.1/EAS/";
 
 $ctx = stream_context_create(array('http'=>
     array(

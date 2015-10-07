@@ -48,6 +48,9 @@ class TosCoreCampaign extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'industry' => array(self::HAS_ONE, 'TosCoreIndustryCategory', array('id' => 'industry_id')),
+			'budget' =>  array(self::HAS_ONE, 'TosCoreCampaignBudget', array('campaign_id' => 'id'), 'condition'=>'budget.status = 1'),
+			'totalHit' =>  array(self::HAS_ONE, 'TosCoreCampaignTotalHit', array('campaign_id' => 'id')),
+			'strategy' => array(self::HAS_MANY, 'TosCoreStrategy', 'campaign_id','condition'=>'strategy.status = 1')
 		);
 	}
 

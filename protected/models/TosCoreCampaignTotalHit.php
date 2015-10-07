@@ -1,5 +1,5 @@
 <?php
-class TosCoreCreativeMaterial extends CActiveRecord
+class TosCoreCampaignTotalHit extends CActiveRecord
 {
 	public static $conection; 
 
@@ -26,7 +26,7 @@ class TosCoreCreativeMaterial extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{creative_material}}';
+		return '{{campaign_total_hit}}';
 	}
 
 	/**
@@ -47,8 +47,6 @@ class TosCoreCreativeMaterial extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'campaign' => array(self::HAS_ONE, 'TosCoreCampaign', array('id' => 'campaign_id')),
-			'group' => array(self::HAS_ONE, 'TosCoreCreativeGroups', array('id' => 'creative_group_id')),
 		);
 	}
 

@@ -182,8 +182,8 @@ class BuyReportDailyPc extends CActiveRecord
 			$noPayCampaignId[] = $value->tos_id;
 		}
 
-		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "only"){
-			
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] == "only"){
+
 			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
 		}else{
 			$criteria->addInCondition("campaign_id",$noPayCampaignId);
