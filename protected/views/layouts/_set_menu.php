@@ -162,7 +162,9 @@ $this->nav = array(
 					"selectBelong" => "設定訂單業務",
 					"selectActive" => "設定結案",
 					"creatInvoice" => "建立發票",
-					"delInvoice" => "註銷發票"
+					"delInvoice" => "註銷發票",
+					"creatReceivables" => "認列款項",
+					"delReceivables" => "註銷款項"					
 				),					
 			),
 			"downloadData" => array(

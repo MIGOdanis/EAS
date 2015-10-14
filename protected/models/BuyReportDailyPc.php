@@ -6,8 +6,14 @@ class BuyReportDailyPc extends CActiveRecord
 	public $impression_sum;
 	public $income_sum;
 	public $temp_income_sum;
+	public $temp_click_sum;
+	public $temp_imp_sum;
 	public $temp_advertiser_invoice_sum;
 	public $temp_table;
+	public $temp_receivables;
+	public $temp_receivables_sql;
+	public $temp_receivables_btn;
+
 	/**
 	 * @return string the associated database table name
 	 */
@@ -136,6 +142,54 @@ class BuyReportDailyPc extends CActiveRecord
 		return $keySum;
 	}
 
+	public function addReceivablesTime()
+	{
+		$sql = array();
+		if(!isset($_GET) || $_GET['type'] == "yesterday"){
+			$day = strtotime(date("Y-m-d 00:00:00",strtotime('-1 day')));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
+		}
+
+		if($_GET['type'] == "7day"){
+			$allDay = 7;
+		}
+
+		if($_GET['type'] == "30day"){
+			$allDay = 30;
+		}
+
+		if($_GET['type'] == "pastMonth"){
+			$day = strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months")));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
+		}
+
+		if($_GET['type'] == "thisMonth"){
+			$day = strtotime(date("Y-m-01 00:00:00"));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
+		}	
+
+		if($_GET['type'] == "custom"){
+			$allDay = ceil((strtotime($_GET['endDay'] . "23:59:59") - strtotime($_GET['startDay'] . "00:00:00"))  / 86400);
+			// print_r($allDay); exit;
+		}
+
+		if($allDay > 0){
+			
+			for($r=0;$r<=$allDay;$r++){
+				$day = strtotime(date("Y-m-d 00:00:00",strtotime('-' . $r . ' day')));
+				$daySql = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+				if(!in_array($daySql, $sql)){
+					$sql[] = $daySql;
+				}
+			}		
+		}
+		
+		return implode (" OR ", $sql);
+	}
+
 	public function addReportTime($criteria, $columns = "settled_time")
 	{
 		if(!isset($_GET) || $_GET['type'] == "yesterday"){
@@ -183,11 +237,9 @@ class BuyReportDailyPc extends CActiveRecord
 		}
 
 		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] == "only"){
-
-			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+			 $criteria->addInCondition("campaign_id",$noPayCampaignId);
 		}else{
-			$criteria->addInCondition("campaign_id",$noPayCampaignId);
-			
+			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
 		}
 		
 		return $criteria;
@@ -254,7 +306,7 @@ class BuyReportDailyPc extends CActiveRecord
 			return $this->findAll($criteria);
 		}
 		
-		// print_r($adSpacArray); exit;
+		// print_r($criteria); exit;
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
@@ -574,7 +626,20 @@ class BuyReportDailyPc extends CActiveRecord
 		$model = $this->find($criteria);
 		$this->temp_income_sum = $model->income_sum;
 		return $this->temp_income_sum;
-		
+	}
+
+	//經銷對帳查詢-成本
+	public function getCampaignAllIC($campaign_id)
+	{
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+		sum(t.click) as click,
+		sum(t.impression) as impression';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$model = $this->find($criteria);
+		// print_r($model); exit;
+		$this->temp_click_sum = $model->click;
+		return $model->impression;
 	}
 
 	//經銷對帳查詢-發票
@@ -589,6 +654,34 @@ class BuyReportDailyPc extends CActiveRecord
 		return $this->temp_advertiser_invoice_sum;
 		
 	}
+
+	//經銷對帳查詢-發票
+	public function getCampaignAdvertiserReceivables($campaign_id)
+	{
+		$receivables_sql = $this->addReceivablesTime();
+
+		$criteria=new CDbCriteria;
+		$criteria->select = 'sum(t.price) as price';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$criteria->addCondition($receivables_sql);	
+		$criteria->addCondition("t.active = 1");
+		
+		$model = AdvertiserReceivables::model()->find($criteria);
+
+
+
+		$this->temp_receivables = $model->price;
+
+		if($model->price > 0){
+			$this->temp_receivables_btn = "success";
+		}else{
+			$this->temp_receivables_btn = "default";
+		}
+		// print_r($this->temp_receivables); exit;
+		return $this->temp_receivables;
+		
+	}
+	
 
 	//收視報表
 	public function ytbReport($campaignId)

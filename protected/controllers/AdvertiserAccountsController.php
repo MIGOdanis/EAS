@@ -2,20 +2,20 @@
 
 class AdvertiserAccountsController extends Controller
 {
-	//權限驗證模組
-	public function filters()
-	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-			'postOnly + delete', // we only allow deletion via POST request
-		);
-	}
+	// //權限驗證模組
+	// public function filters()
+	// {
+	// 	return array(
+	// 		'accessControl', // perform access control for CRUD operations
+	// 		'postOnly + delete', // we only allow deletion via POST request
+	// 	);
+	// }
 
-	public function accessRules()
-	{
-		return $this->checkUserAuth();
-	}
-	//權限驗證模組
+	// public function accessRules()
+	// {
+	// 	return $this->checkUserAuth();
+	// }
+	// //權限驗證模組
 	
 	public function actionAdmin()
 	{
@@ -131,6 +131,81 @@ class AdvertiserAccountsController extends Controller
 
 	}
 
+	public function actionGetDefindReceivables()
+	{				
+		$criteria=new CDbCriteria;
+		$criteria->select = 'sum(t.income) / 100000 as income';		
+		$criteria->addCondition("settled_time >= " . strtotime($_GET['Y'] . "-" . $_GET['M'] . "-01" . " 00:00:00"));
+		$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00", strtotime($_GET['Y'] . "-" . $_GET['M'] . "-01"))));
+		$criteria->addCondition("t.campaign_id = '" . $_GET['CampaignId'] . "'");
+		$model = BuyReportDailyPc::model()->find($criteria);
+		// print_r($model); exit;
+		header('Content-type: application/json');
+		echo json_encode(array("income" => $model->income));
+		Yii::app()->end();
+	}
+
+	public function actionCreatReceivables($id)
+	{				
+		$model = new AdvertiserReceivables();
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.tos_id = '" . $id . "'");
+		$campaign = Campaign::model()->with("budget")->find($criteria);
+
+		$allIncome = BuyReportDailyPc::model()->getCampaignAllIncome($id);
+		$advertiserReceivables = AdvertiserReceivables::model()->getCampaignAdvertiserReceivables($id);
+
+
+		if(isset($_POST['AdvertiserReceivables'])){
+			header('Content-type: application/json');
+			$model->campaign_id = $id;
+			$model->year = $_POST['year'];
+			$model->month = $_POST['month'];
+			$model->price = $_POST['price'];
+			$model->remark = $_POST['remark'];
+			$model->create_time = time();
+			$model->create_by =  Yii::app()->user->id;
+			$model->active = 1;
+			if($model->save()){
+				echo json_encode(array("code" => "1"));
+			}else{
+				echo json_encode(array("code" => "2"));			
+			}
+			Yii::app()->end();
+		}
+
+		$this->renderPartial('creatReceivables',array(
+			"model" => $model,
+			"campaign" => $campaign,
+			"allIncome" => $allIncome,
+			"advertiserReceivables" => $advertiserReceivables,
+		));
+	}
+
+
+	public function actionDelReceivables($id)
+	{	
+		if(isset($id)){
+			header('Content-type: application/json');
+			$model = AdvertiserReceivables::model()->findByPk($id);
+			if($model !== null){
+				$model->active = 0;
+				if($model->save()){
+					echo json_encode(array("code" => "1"));
+				}else{
+					echo json_encode(array("code" => "2"));
+				}
+			}else{
+				echo json_encode(array("code" => "3"));
+			}
+		}else{
+			echo json_encode(array("code" => "4"));
+		}
+
+		Yii::app()->end();
+	}
+
 	public function actionCreatInvoice($id)
 	{				
 		$model = new AdvertiserInvoice();
@@ -168,6 +243,7 @@ class AdvertiserAccountsController extends Controller
 			"advertiserInvoice" => $advertiserInvoice,
 		));
 	}
+
 
 	public function actionDelInvoice($id)
 	{	
@@ -222,7 +298,7 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
 									 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 
-		$objPHPExcel->getActiveSheet()->mergeCells('A1:AA1');
+		$objPHPExcel->getActiveSheet()->mergeCells('A1:AE1');
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', "經銷對帳查詢");
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1')->applyFromArray($reportName);
 
@@ -246,19 +322,23 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("L4","查詢走期曝光");
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("M4","查詢走期點擊");
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("N4","查詢走期執行金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("O4","已執行金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("P4","尚未執行金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Q4","可請款金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("R4","已開發票金額總計");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("S4","未請款金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T4","發票日期");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U4","發票金額");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V4","發票號碼");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W4","發票備註");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X4","建單帳號");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y4","訂單業務");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z4","結案狀態");
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA4","結案金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("O4","查詢走期認列金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("P4","已執行曝光");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Q4","已執行點擊");		
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("R4","已執行金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("S4","尚未執行金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T4","可請款金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U4","已開發票金額總計");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V4","未請款金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W4","發票日期");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X4","發票金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y4","發票號碼");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z4","發票備註");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA4","建單帳號");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AB4","訂單業務");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AC4","結案狀態");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AD4","結案金額");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AE4","總認列金額");
 
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("A4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("B4")->applyFromArray($title);
@@ -287,7 +367,10 @@ class AdvertiserAccountsController extends Controller
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("Y4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("Z4")->applyFromArray($title);
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AA4")->applyFromArray($title);
-		
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AB4")->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AC4")->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AD4")->applyFromArray($title);
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle("AE4")->applyFromArray($title);
 		$r = 5;
 
 		if($model === null){
@@ -297,6 +380,8 @@ class AdvertiserAccountsController extends Controller
 				$criteria=new CDbCriteria;		
 				$criteria->addCondition("t.campaign_id = '" . $data->campaign_id . "'");
 				$invoice = AdvertiserInvoice::model()->findAll($criteria);
+
+				$advertiserReceivablesByDay = BuyReportDailyPc::model()->getCampaignAdvertiserReceivables($data->campaign_id);
 
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A" . $r, $data->campaign->advertiser->advertiser_name);
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("B" . $r, "統一編號");
@@ -312,21 +397,29 @@ class AdvertiserAccountsController extends Controller
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("L" . $r, (($data->impression_sum > 0) ? $data->impression_sum : "-"));
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("M" . $r, (($data->click_sum > 0) ? $data->click_sum : "-"));
 				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("N" . $r, number_format($data->income_sum, 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("O" . $r, number_format($data->getCampaignAllIncome($data->campaign_id), 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("P" . $r, number_format(($data->budget->total_budget / 100) - $data->temp_income_sum, 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Q" . $r, number_format(($data->temp_income_sum > ($data->budget->total_budget / 100))? ($data->budget->total_budget / 100) : $data->temp_income_sum, 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("R" . $r, number_format($data->getCampaignAdvertiserInvoice($data->campaign_id), 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("S" . $r, number_format(($data->temp_income_sum > ($data->budget->total_budget / 100))? ($data->budget->total_budget / 100) - $data->temp_advertiser_invoice_sum : $data->temp_income_sum - $data->temp_advertiser_invoice_sum, 0, "" ,""));
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X" . $r, $data->campaign->upm->real_name);
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, ($data->campaign->belong_by > 0)? $data->campaign->belong->name : "未填寫");
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z" . $r, ($data->campaign->active == 0)? "已結案" : "未結案");			
-				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA" . $r, ($data->campaign->active == 0)? number_format($data->campaign->close_price, 0, "" ,"") : "未結案");	
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("O" . $r, number_format($advertiserReceivablesByDay, 0, "" ,""));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("P" . $r, $data->getCampaignAllIC($data->campaign_id));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Q" . $r, $data->temp_click_sum);
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("R" . $r, number_format($data->getCampaignAllIncome($data->campaign_id), 0, "" ,""));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("S" . $r, number_format(($data->budget->total_budget / 100) - $data->temp_income_sum, 0, "" ,""));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, number_format(($data->temp_income_sum > ($data->budget->total_budget / 100))? ($data->budget->total_budget / 100) : $data->temp_income_sum, 0, "" ,""));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U" . $r, number_format($data->getCampaignAdvertiserInvoice($data->campaign_id), 0, "" ,""));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V" . $r, number_format(($data->temp_income_sum > ($data->budget->total_budget / 100))? ($data->budget->total_budget / 100) - $data->temp_advertiser_invoice_sum : $data->temp_income_sum - $data->temp_advertiser_invoice_sum, 0, "" ,""));
+			
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AA" . $r, $data->campaign->upm->real_name);
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AB" . $r, ($data->campaign->belong_by > 0)? $data->campaign->belong->name : "未填寫");
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AC" . $r, ($data->campaign->active == 0)? "已結案" : "未結案");			
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AD" . $r, ($data->campaign->active == 0)? number_format($data->campaign->close_price, 0, "" ,"") : "未結案");	
+				
+				$advertiserReceivables = AdvertiserReceivables::model()->getCampaignAdvertiserReceivables($data->campaign_id);
+
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("AE" . $r, number_format($advertiserReceivables, 0, "" ,""));	
 
 				if(count($invoice) == 0){
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, "無發票");
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U" . $r, "無發票");
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V" . $r, "無發票");
 					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W" . $r, "無發票");
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X" . $r, "無發票");
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, "無發票");
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z" . $r, "無發票");
 				}else{
 					$count = count($invoice);
 					$objPHPExcel->getActiveSheet()->mergeCells("A" . $r . ":A" . ($r + $count));
@@ -343,15 +436,20 @@ class AdvertiserAccountsController extends Controller
 					$objPHPExcel->getActiveSheet()->mergeCells("L" . $r . ":L" . ($r + $count));
 					$objPHPExcel->getActiveSheet()->mergeCells("M" . $r . ":M" . ($r + $count));
 					$objPHPExcel->getActiveSheet()->mergeCells("N" . $r . ":N" . ($r + $count));
-					$objPHPExcel->getActiveSheet()->mergeCells("O" . $r . ":O" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("O" . $r . ":O" . ($r + $count));					
 					$objPHPExcel->getActiveSheet()->mergeCells("P" . $r . ":P" . ($r + $count));
 					$objPHPExcel->getActiveSheet()->mergeCells("Q" . $r . ":Q" . ($r + $count));
 					$objPHPExcel->getActiveSheet()->mergeCells("R" . $r . ":R" . ($r + $count));
 					$objPHPExcel->getActiveSheet()->mergeCells("S" . $r . ":S" . ($r + $count));
-					$objPHPExcel->getActiveSheet()->mergeCells("X" . $r . ":X" . ($r + $count));
-					$objPHPExcel->getActiveSheet()->mergeCells("Y" . $r . ":Y" . ($r + $count));
-					$objPHPExcel->getActiveSheet()->mergeCells("Z" . $r . ":Z" . ($r + $count));				
-					
+					$objPHPExcel->getActiveSheet()->mergeCells("T" . $r . ":T" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("U" . $r . ":U" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("V" . $r . ":V" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("AA" . $r . ":AA" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("AB" . $r . ":AB" . ($r + $count));
+					$objPHPExcel->getActiveSheet()->mergeCells("AC" . $r . ":AC" . ($r + $count));		
+					$objPHPExcel->getActiveSheet()->mergeCells("AD" . $r . ":AD" . ($r + $count));		
+					$objPHPExcel->getActiveSheet()->mergeCells("AE" . $r . ":AE" . ($r + $count));
+
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("A" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("B" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("C" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
@@ -371,25 +469,29 @@ class AdvertiserAccountsController extends Controller
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("Q" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("R" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 					$objPHPExcel->setActiveSheetIndex(0)->getStyle("S" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-					$objPHPExcel->setActiveSheetIndex(0)->getStyle("X" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-					$objPHPExcel->setActiveSheetIndex(0)->getStyle("Y" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-					$objPHPExcel->setActiveSheetIndex(0)->getStyle("Z" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("T" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("U" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("V" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("AA" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("AB" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("AC" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("AD" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->setActiveSheetIndex(0)->getStyle("AE" . $r)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 					$price = 0;
 					foreach ($invoice as $value) {	
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, date("Y-m-d",$value->time));
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("U" . $r, $value->price);
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V" . $r, $value->number . "(" . (($value->active == 0)? "註銷" : "有效") . ")");
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W" . $r, $value->remark);					
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W" . $r, date("Y-m-d",$value->time));
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("X" . $r, $value->price);
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, $value->number . "(" . (($value->active == 0)? "註銷" : "有效") . ")");
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Z" . $r, $value->remark);					
 						if($value->active == 1){
 							$price += $value->price;
 						}
 						$r++;
 					}
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("T" . $r, "總計");
-					$objPHPExcel->getActiveSheet()->mergeCells("T" . $r . ":U" . $r);
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("V" . $r, $price);
-					$objPHPExcel->getActiveSheet()->mergeCells("V" . $r . ":W" . $r);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W" . $r, "總計");
+					$objPHPExcel->getActiveSheet()->mergeCells("W" . $r . ":X" . $r);
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue("Y" . $r, $price);
+					$objPHPExcel->getActiveSheet()->mergeCells("Y" . $r . ":Z" . $r);
 				}
 				$r++;
 			}      
