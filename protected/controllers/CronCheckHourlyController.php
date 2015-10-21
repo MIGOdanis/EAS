@@ -192,7 +192,7 @@ class CronCheckHourlyController extends Controller
 
 			if($try > 3){
 				foreach (Yii::app()->params['adminMail'] as $mail) {
-					$this->email($mail, "CLICKFORCE EAS ALERT : 時報檢查失敗 => DB Error After Retry! (Pc)", $e->getMessage());
+					$this->email($mail, "CLICKFORCE EAS ALERT : 時報檢查失敗  DB Error After Retry! (Pc)", $e->getMessage());
 				}
 				return "DB_ERROR";
 			}else{

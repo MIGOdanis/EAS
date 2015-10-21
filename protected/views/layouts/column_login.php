@@ -63,6 +63,17 @@
 			color: #fff;			
 		}
 	</style>	
+	<script type="text/javascript">
+	$(function(){
+		$(window).resize(function(){
+			if($(window).width() >= $(window).height()){
+				$("body").css("background-size","auto");
+			}else{
+				$("body").css("background-size","auto 100%");
+			}
+		});
+	})
+	</script>
 	</head>
 	<body>
 		<div id="main">	

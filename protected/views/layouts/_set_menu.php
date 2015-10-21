@@ -133,8 +133,8 @@ $this->nav = array(
 	"mediaReport" => array(
 		"title" => "報表查詢",
 		"url"=>"mediaReport/supplierReport",
-		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts","downloadData"),
-		"list" => array(
+		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts","downloadData","bookingReport"),
+		"list" => array(		
 			"mediaReport" => array(
 				"title" => "供應商日報",
 				"url"=>"mediaReport/supplierReport",
@@ -164,9 +164,21 @@ $this->nav = array(
 					"creatInvoice" => "建立發票",
 					"delInvoice" => "註銷發票",
 					"creatReceivables" => "認列款項",
+					"getDefindReceivables" => "取得預設認列",
 					"delReceivables" => "註銷款項"					
 				),					
 			),
+			"bookingReport" => array(
+				"title" => "BOOLING表",
+				"url"=>"bookingReport/weekBooking",
+				"action" => array(
+					"weekBooking" => "BOOLING周報表",
+					"filterDate" => "日期篩選",
+					"filterCampaign" => "訂單篩選",
+					"campaignListHistory" => "BOOLING日報表",
+					"campaign" => "訂單BOOLING表"
+				),
+			),			
 			"downloadData" => array(
 				"title" => "資料輸出",
 				"url"=>"downloadData/index",

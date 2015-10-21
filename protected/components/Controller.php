@@ -146,6 +146,10 @@ class Controller extends CController
 		$mailer->SMTPAuth = Yii::app()->params['mail']['smtpAuth'];
 		$mailer->Username = Yii::app()->params['mail']['smtpUsername'];
 		$mailer->Password = Yii::app()->params['mail']['smtpPassword'];
+		$mailer->SMTPSecure = "ssl";
+		// $mailer->SMTPDebug = 4;
+		$mailer->Port = 465; 
+		$mailer->SMTPAuth = true;		
 		$mailer->IsSMTP();
         $mailer->IsHTML(true);
 		$mailer->From = Yii::app()->params['mail']['adminEmail'];

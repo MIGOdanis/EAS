@@ -175,8 +175,8 @@ function getDefind(){
 	})
     .fail(function(e) {
         if(e.status == 403){
-        	alert("您的權限不足");
-            window.location.reload();
+        	alert("您的權限不足:取得預設認列權限未開啟");
+            // window.location.reload();
         }
         if(e.status == 500){
         	alert("請稍後再試，或聯繫管理人員");
@@ -188,14 +188,19 @@ function getDefind(){
 	<h4 class="modal-title" id="myModalLabel">已開認列款項總覽</h4>
 </div>
 <div class="modal-body">	
+	<?php
+		$unReceivables = ($campaign->budget->total_budget / 100) - $advertiserReceivables;
+	?>
 	<h3>訂單資訊</h3>
 	<h5>訂單編號 : <?php echo $campaign->tos_id; ?></h5>
 	<h5>訂單名稱 : <?php echo $campaign->campaign_name; ?></h5>
 	<h5>訂單金額 : <?php echo "$".number_format(($campaign->budget->total_budget / 100), 0, "." ,","); ?></h5>
 	<h5>訂單走期 : <?php echo date("Y-m-d", $campaign->start_time) . "~" . date("Y-m-d", $campaign->end_time); ?></h5>
 	<h5>訂單已認列金額 : <?php echo "$".number_format($advertiserReceivables, 0, "." ,","); ?></h5>
-	<h5>訂單未認列金額 : <?php echo "$".number_format(($campaign->budget->total_budget / 100) - $advertiserReceivables, 0, "." ,","); ?></h5>	
+	<h5 <?php echo ($unReceivables < 0)? "style='color:red;'" : ""; ?>>訂單未認列金額 : <?php echo "$".number_format($unReceivables, 0, "." ,","); ?></h5>	
 	<h5>訂單已執行金額 : <?php echo "$".number_format($allIncome, 0, "." ,","); ?></h5>
+	<h5>訂單已執行曝光 : <?php echo number_format($allImp, 0, "." ,","); ?></h5>
+	<h5>訂單已執行點擊 : <?php echo number_format($allClick, 0, "." ,","); ?></h5>
 	<h5>訂單可請款金額 : <?php echo "$".number_format( $sunIncome , 0, "." ,","); ?></h5>
 
 	<h3>已開認列款項</h3>

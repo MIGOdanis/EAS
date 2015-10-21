@@ -41,12 +41,12 @@ return array(
 	'adminMail' => array('danis@clickforce.com.tw'),
 
 	'mail' => array(
-		"adminEmail" => "web.service@clickforce.com.tw",
+		"adminEmail" => "ws.clickforce@gmail.com",
 		"adminEmailName" => "CLICKFORCE",
-		'smtpHost'=>'mail.clickforce.com.tw',
+		'smtpHost'=>'smtp.gmail.com',
 		'smtpAuth'=>true,
-		'smtpUsername'=>'web.service@clickforce.com.tw',
-		'smtpPassword'=>'clickforce168',
+		'smtpUsername'=>'clickforce.web@gmail.com',
+		'smtpPassword'=>'27198500',
 	),
 
 	'invoiceType' => array(

@@ -67,6 +67,8 @@ class AuthGroupController extends Controller
 		if(isset($_POST['AuthGroup']))
 		{
 			$model->auth = json_encode($_POST['auth']);
+			$model->name = $_POST['AuthGroup']['name'];
+			$model->group_id = $_POST['AuthGroup']['group_id'];
 			$model->update_time = time();
 			$model->update_by = Yii::app()->user->id;			
 			if($model->save()){
@@ -78,5 +80,13 @@ class AuthGroupController extends Controller
 			'model'=>$model,
 		));
 	}	
+
+	public function loadModel($id)
+	{
+		$model=AuthGroup::model()->findByPk($id);
+		if($model===null)
+			throw new CHttpException(404,'The requested page does not exist.');
+		return $model;
+	}
 
 }

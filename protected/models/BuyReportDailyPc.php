@@ -628,7 +628,7 @@ class BuyReportDailyPc extends CActiveRecord
 		return $this->temp_income_sum;
 	}
 
-	//經銷對帳查詢-成本
+	//經銷對帳查詢-IMP+CLICK
 	public function getCampaignAllIC($campaign_id)
 	{
 		$criteria=new CDbCriteria;

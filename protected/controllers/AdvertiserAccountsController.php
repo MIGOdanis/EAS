@@ -2,20 +2,20 @@
 
 class AdvertiserAccountsController extends Controller
 {
-	// //權限驗證模組
-	// public function filters()
-	// {
-	// 	return array(
-	// 		'accessControl', // perform access control for CRUD operations
-	// 		'postOnly + delete', // we only allow deletion via POST request
-	// 	);
-	// }
+	//權限驗證模組
+	public function filters()
+	{
+		return array(
+			'accessControl', // perform access control for CRUD operations
+			'postOnly + delete', // we only allow deletion via POST request
+		);
+	}
 
-	// public function accessRules()
-	// {
-	// 	return $this->checkUserAuth();
-	// }
-	// //權限驗證模組
+	public function accessRules()
+	{
+		return $this->checkUserAuth();
+	}
+	//權限驗證模組
 	
 	public function actionAdmin()
 	{
@@ -155,7 +155,9 @@ class AdvertiserAccountsController extends Controller
 
 		$allIncome = BuyReportDailyPc::model()->getCampaignAllIncome($id);
 		$advertiserReceivables = AdvertiserReceivables::model()->getCampaignAdvertiserReceivables($id);
-
+		$buyReportDaily = new BuyReportDailyPc();
+		$allImp = $buyReportDaily->getCampaignAllIC($campaign_id);
+		$allClick = $buyReportDaily->temp_click_sum;
 
 		if(isset($_POST['AdvertiserReceivables'])){
 			header('Content-type: application/json');
@@ -179,6 +181,8 @@ class AdvertiserAccountsController extends Controller
 			"model" => $model,
 			"campaign" => $campaign,
 			"allIncome" => $allIncome,
+			"allImp" => $allImp,
+			"allClick" => $allClick,
 			"advertiserReceivables" => $advertiserReceivables,
 		));
 	}

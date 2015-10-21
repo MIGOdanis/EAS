@@ -131,7 +131,7 @@ class User extends CActiveRecord
 		$criteria->compare('creat_time',$this->creat_time);
 		$criteria->compare('active',$this->active);
 
-		$criteria->addInCondition('t.group',array(1,2,3,4,5,6));
+		$criteria->addInCondition('t.group',array(1,2,3,4,5,6,8));
 		
 		return new CActiveDataProvider($this, array(
 			'pagination' => array(
