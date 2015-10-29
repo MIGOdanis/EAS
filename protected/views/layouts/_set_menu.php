@@ -169,14 +169,14 @@ $this->nav = array(
 				),					
 			),
 			"bookingReport" => array(
-				"title" => "BOOLING表",
+				"title" => "BOOKING表",
 				"url"=>"bookingReport/weekBooking",
 				"action" => array(
-					"weekBooking" => "BOOLING周報表",
+					"weekBooking" => "BOOKING周報表",
 					"filterDate" => "日期篩選",
 					"filterCampaign" => "訂單篩選",
 					"campaignListHistory" => "BOOLING日報表",
-					"campaign" => "訂單BOOLING表"
+					"campaign" => "訂單BOOKING表"
 				),
 			),			
 			"downloadData" => array(

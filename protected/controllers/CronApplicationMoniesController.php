@@ -23,6 +23,7 @@ class CronApplicationMoniesController extends Controller
 
 		//清除系統退回未申請的請款
 		$this->clearApplication();
+
 		//累計本月額度
 		$this->transSupplierMonies();
 
@@ -35,13 +36,16 @@ class CronApplicationMoniesController extends Controller
 		$accountsStatus->save();			
 	}	
 
+	//清除已申請完成的請款
 	public function clearSupplierMonies(){
 		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("status = 3");
-		$criteria->addCondition("year = '" . date("Y",$monthOfAccount->value) . "'");
-		$criteria->addCondition("month = '" . date("m",$monthOfAccount->value) . "'");
+		$criteria->addCondition("year = '" . date("Y", strtotime("-1 Months",$monthOfAccount->value)) . "'");
+		$criteria->addCondition("month = '" . date("m", strtotime("-1 Months",$monthOfAccount->value)) . "'");
 		$application = SupplierApplicationLog::model()->findAll($criteria);
+
+		// print_r($criteria); exit;
 		foreach ($application as $value) {
 			SupplierApplicationMonies::model()->updateAll(
 				array(

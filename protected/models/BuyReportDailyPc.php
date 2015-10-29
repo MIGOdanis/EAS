@@ -394,7 +394,7 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			sum(t.pv) as pv,
-			t.settled_time as time
+			t.settled_time
 		';
 
 		$criteria = $this->addReportTime($criteria);
@@ -403,18 +403,33 @@ class BuyReportDailyPc extends CActiveRecord
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
 
-		$criteria->addCondition("site.tos_id IS NOT NULL");
+		// $criteria->addCondition("site.tos_id IS NOT NULL");
 
 		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
 			$criteria = $this->addNoPayCampaign($criteria);
 		}
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
-		$criteria->group = "site.tos_id";
+		//主要維度
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+			$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+			$criteria->group = "site.tos_id";
+			$order = 'impression DESC, click DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+			$criteria->group = "t.settled_time";
+			$order = 't.settled_time DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+			$criteria->with = array("campaign");
+			$criteria->group = "t.campaign_id";
+			$order = 'impression DESC, click DESC';
+		}
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
-			$criteria->order = 'impression DESC, click DESC';
+			$criteria->order = $order;
 			return $this->findAll($criteria);
 		}
 		
@@ -422,7 +437,7 @@ class BuyReportDailyPc extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => $order,
 			),			
 			'criteria'=>$criteria,
 		));
@@ -437,7 +452,7 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			sum(t.pv) as pv,
-			t.settled_time as time
+			t.settled_time
 		';
 
 		$criteria = $this->addReportTime($criteria);
@@ -450,14 +465,29 @@ class BuyReportDailyPc extends CActiveRecord
 			$criteria = $this->addNoPayCampaign($criteria);
 		}		
 
-		$criteria->addCondition("adSpace.tos_id IS NOT NULL");
+		// $criteria->addCondition("adSpace.tos_id IS NOT NULL");
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+		//主要維度
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+			$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+			$criteria->group = "adSpace.tos_id";
+			$order = 'impression DESC, click DESC';
+		}
 
-		$criteria->group = "adSpace.tos_id";
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+			$criteria->group = "t.settled_time";
+			$order = 't.settled_time DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+			$criteria->with = array("campaign");
+			$criteria->group = "t.campaign_id";
+			$order = 'impression DESC, click DESC';
+		}
+
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
-			$criteria->order = 'impression DESC, click DESC';
+			$criteria->order = $order;
 			return $this->findAll($criteria);
 		}
 		
@@ -465,7 +495,7 @@ class BuyReportDailyPc extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => $order,
 			),			
 			'criteria'=>$criteria,
 		));

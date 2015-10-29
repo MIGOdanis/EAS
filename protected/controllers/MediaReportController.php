@@ -141,10 +141,28 @@ class MediaReportController extends Controller
 			$impression = 0;
 			$click = 0;
 			$media_cost = 0;
+
 			foreach ($model as $value) {
+
+				//主要維度
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+					$AValue = ((!empty($data->adSpace->site->name)) ? $data->adSpace->site->name : "其他");
+					$BValue = $value->adSpace->site->category->mediaCategory->name;
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+					$AValue = date("Y-m-d",$value->settled_time);
+					$BValue = "-";
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+					$AValue = $value->campaign->tos_id;
+					$BValue = (!empty($value->campaign->campaign_name)) ? $value->campaign->campaign_name : "其他";
+				}
+
 				$data[] = array(
-					"A" => $value->adSpace->site->name,
-					"B" => $value->adSpace->site->category->mediaCategory->name,
+					"A" => $AValue,
+					"B" => $BValue,
 					"C" => number_format($value->impression, 0, "." ,""),
 					"D" => number_format($value->click, 0, "." ,""),
 					"E" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
@@ -169,14 +187,30 @@ class MediaReportController extends Controller
 				"H" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
 			);
 
+			//主要維度
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+				$A2Name = "網站";
+				$B2Name = "網站類別";
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+				$A2Name = "日期";
+				$B2Name = "";
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+				$A2Name = "訂單編號";
+				$B2Name = "訂單名稱";
+			}
+
 			$report = array(
 				"name" => "供應商網站日報表",
 				"titleName" => "供應商網站日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"fileName" => "供應商網站日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"width" => "H1",
 				"title" => array(
-					"A2" => "網站",
-					"B2" => "網站類別",
+					"A2" => $A2Name,
+					"B2" => $B2Name,
 					"C2" => "曝光",
 					"D2" => "點擊",
 					"E2" => "點擊率",
@@ -226,12 +260,38 @@ class MediaReportController extends Controller
 			$click = 0;
 			$media_cost = 0;			
 			foreach ($model as $value) {
+
+				//主要維度
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+					$AValue = ((!empty($value->adSpace->site->name)) ? $value->adSpace->site->name : "其他");
+					$BValue = Yii::app()->params["siteType"][$value->adSpace->site->type];
+					$CValue = $value->adSpace->site->category->mediaCategory->name;
+					$DValue = $value->adSpace->name;
+					$EValue = ($value->adSpace->site->type == 1) ? $value->adSpace->width . " x " . $value->adSpace->height : str_replace (":"," x ",$value->adSpace->ratio_id);
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+					$AValue = date("Y-m-d",$value->settled_time);
+					$BValue = "";
+					$CValue = "";
+					$DValue = "";
+					$EValue = "";
+				}
+
+				if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+					$AValue = $value->campaign->tos_id;
+					$BValue = (!empty($value->campaign->campaign_name)) ? $value->campaign->campaign_name : "其他";
+					$CValue = "";
+					$DValue = "";		
+					$EValue = "";			
+				}
+
 				$data[] = array(
-					"A" => $value->adSpace->site->name,
-					"B" => Yii::app()->params["siteType"][$value->adSpace->site->type],
-					"C" => $value->adSpace->site->category->mediaCategory->name,
-					"D" => $value->adSpace->name,
-					"E" => ($value->adSpace->site->type == 1) ? $value->adSpace->width . " x " . $value->adSpace->height : str_replace (":"," x ",$value->adSpace->ratio_id),
+					"A" => $AValue,
+					"B" => $BValue,
+					"C" => $CValue,
+					"D" => $DValue,
+					"E" => $EValue,
 					"F" => number_format($value->impression, 0, "." ,""),
 					"G" => number_format($value->click, 0, "." ,""), 
 					"H" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
@@ -261,17 +321,42 @@ class MediaReportController extends Controller
 				"K" => (($click > 0) ? number_format(($media_cost / $click), 2, "." ,"") : 0),
 			);
 
+			//主要維度
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+				$A2Name = "網站名稱";
+				$B2Name = "網站類型";
+				$C2Name = "網站分類";
+				$D2Name = "版位名稱";	
+				$E2Name = "版位尺寸";			
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+				$A2Name = "日期";
+				$B2Name = "";
+				$C2Name = "";
+				$D2Name = "";
+				$E2Name = "";
+			}
+
+			if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+				$A2Name = "訂單編號";
+				$B2Name = "訂單名稱";
+				$C2Name = "";
+				$D2Name = "";	
+				$E2Name = "";			
+			}
+
 			$report = array(
 				"name" => "供應商版位日報表",
 				"titleName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"fileName" => "供應商版位日報表 查詢時間" . $day[0] . "~" . $day[1],
 				"width" => "K1",
 				"title" => array(
-					"A2" => "網站名稱",
-					"B2" => "網站類型",
-					"C2" => "網站分類",
-					"D2" => "版位名稱",
-					"E2" => "版位尺寸",
+					"A2" => $A2Name,
+					"B2" => $B2Name,
+					"C2" => $C2Name,
+					"D2" => $D2Name,
+					"E2" => $E2Name,
 					"F2" => "曝光",
 					"G2" => "點擊",
 					"H2" => "點擊率",

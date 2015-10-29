@@ -52,6 +52,24 @@
 		<?php
 			echo $this->renderPartial('_datepick');
 		?>	
+		<div class="panel panel-default">
+			<div class="panel-heading">主要維度</div>
+			<div class="panel-body">
+				<div class="filter-box">
+					<div class="btn-group index-btn-group" data-toggle="buttons">
+						<label class="btn btn-primary active" data-status="supplier">
+							<input type="radio" name="options" id="option2" autocomplete="off" checked> 網站 
+						</label>					
+						<label class="btn btn-primary" data-status="date">
+							<input type="radio" name="options" id="option1" autocomplete="off"> 日期 
+						</label>
+						<label class="btn btn-primary" data-status="campaign">
+							<input type="radio" name="options" id="option3" autocomplete="off"> 訂單 
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>			
 		<div class="filter-box">
 			<button class="btn btn-default" id="run-day" type="submit">套用</button>
 		</div>	

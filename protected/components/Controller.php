@@ -302,20 +302,28 @@ class Controller extends CController
 
 		if(isset($model->site) && is_array($model->site)){
 			foreach ($model->site as $site) {
-				$table = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTable.html');
-				$table = str_replace ("{site_name}",$site->name . (($site->status == 1) ? "" : "(停用)"),$table);
-				$table = str_replace ("{site_type}",Yii::app()->params["siteType"][$site->type],$table);
-				if(isset($site->adSpace) && is_array($site->adSpace)){
-					foreach ($site->adSpace as $adSpace) {
-						$tr .= file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTableTr.html');
-						$tr = str_replace ("{zone_name}",$adSpace->name . (($adSpace->status == 1) ? "" : "(停用)"),$tr);
-						$tr = str_replace ("{zone_size}",($site->type == 1) ? $adSpace->width . " x " . $adSpace->height : str_replace (":"," x ",$adSpace->ratio_id),$tr);
-						$tr = str_replace ("{pay_type}",Yii::app()->params['buyType'][$adSpace->buy_type],$tr);
-						$tr = str_replace ("{price}",Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type] . (($adSpace->buy_type == 2) ? "%" : ""),$tr);
+				if($site->status == 1){
+					$table = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTable.html');
+					$table = str_replace ("{site_name}",$site->name . (($site->status == 1) ? "" : "(停用)"),$table);
+					$table = str_replace ("{site_type}",Yii::app()->params["siteType"][$site->type],$table);
+					$tr = "";
+					if(isset($site->adSpace) && is_array($site->adSpace)){
+						foreach ($site->adSpace as $adSpace) {
+							if($adSpace->status == 1){
+								$tr .= file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTableTr.html');
+								$tr = str_replace ("{zone_name}",$adSpace->name . (($adSpace->status == 1) ? "" : "(停用)"),$tr);
+								$tr = str_replace ("{zone_size}",($site->type == 1) ? $adSpace->width . " x " . $adSpace->height : str_replace (":"," x ",$adSpace->ratio_id),$tr);
+								$tr = str_replace ("{pay_type}",Yii::app()->params['buyType'][$adSpace->buy_type],$tr);
+								$tr = str_replace ("{price}",Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type] . (($adSpace->buy_type == 2) ? "%" : ""),$tr);
+							}
+						}
+						$table = str_replace ("{tr}",$tr,$table);
 					}
-					$table = str_replace ("{tr}",$tr,$table);
+					if(empty($tr)){
+						$table = "";
+					}
+					$html .= $table;
 				}
-				$html .= $table;
 			}
 		}
 

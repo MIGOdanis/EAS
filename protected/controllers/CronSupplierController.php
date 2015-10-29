@@ -92,10 +92,10 @@ class CronSupplierController extends Controller
 
 		//print_r($lastCronUnapplicationMonies); exit;
 		$criteria = new CDbCriteria;
-		//$criteria->addCondition("sync_time > " . strtotime(date("Y-m") . "-01 00:00:00"));
-		$criteria->addCondition("settled_time >= " . strtotime("2015-08-01 00:00:00"));
+		// $criteria->addCondition("sync_time > " . strtotime(date("Y-m") . "-01 00:00:00"));
+		// $criteria->addCondition("settled_time >= " . strtotime("2015-08-01 00:00:00"));
 		// $criteria->addCondition("settled_time <= " . strtotime("2015-08-31 00:00:00"));
-		// $criteria->addCondition("sync_time > " . $lastTime);
+		$criteria->addCondition("sync_time > " . $lastTime);
 		// $criteria->addCondition("settled_time > 1434729600");
 		$criteria->addCondition("ad_space_id = " . $adSpaceId);
 		// $criteria->addInCondition("ad_space_id", $adSpaceId);
