@@ -14,6 +14,7 @@ $this->nav = array(
 					"create" => "新增使用者",
 					"active" => "停用/啟用使用者",
 					"view" => "檢視使用者資料",
+					"getUpmList" => "取得UPM清單",
 				),
 			),
 			"userAuth" => array(
@@ -165,7 +166,8 @@ $this->nav = array(
 					"delInvoice" => "註銷發票",
 					"creatReceivables" => "認列款項",
 					"getDefindReceivables" => "取得預設認列",
-					"delReceivables" => "註銷款項"					
+					"delReceivables" => "註銷款項",
+					"getUpmList" => "取得UPM清單"				
 				),					
 			),
 			"bookingReport" => array(

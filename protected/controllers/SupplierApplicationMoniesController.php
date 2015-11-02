@@ -134,13 +134,13 @@ class SupplierApplicationMoniesController extends Controller
 		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
 		if($_GET['year'] && $_GET['month']){
 
+			//製成供應商對帳表只有本月數字(SupplierApplicationMonies)
 			$criteria = new CDbCriteria;
-			$criteria->addCondition("year = " . $_GET['year']);
-			$criteria->addCondition("month = " . $_GET['month']);
+			// $criteria->addCondition("supplierMoniesMonthly.imp > 0");
+			$criteria->addCondition("supplierMoniesMonthly.year = " . $_GET['year']);
+			$criteria->addCondition("supplierMoniesMonthly.month = " . $_GET['month']);
 			$criteria->order = "supplier.tos_id DESC";
-			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->with("supplier","site","adSpace")->findAll($criteria);
-
-			//print_r($supplierMoniesMonthly); exit;
+			$supplierMoniesMonthly = SupplierApplicationMonies::model()->with("supplier","site","adSpace","supplierMoniesMonthly")->findAll($criteria);
 
 			$objPHPExcel = new PHPExcel();
 			$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
@@ -149,14 +149,7 @@ class SupplierApplicationMoniesController extends Controller
 	        $objPHPExcel = $this->makeSheetData($objPHPExcel, 0, $supplierMoniesMonthly);
 	        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '供應商對帳表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
 	        $objPHPExcel->setActiveSheetIndex(0)->setTitle("供應商對帳表");
-	        // $objPHPExcel->setActiveSheetIndex(0);
 
-	        //sheet2
-
-	        // $objPHPExcel->createSheet();
-	        // $objPHPExcel = $this->makeSheetData($objPHPExcel, 1, $supplierMoniesMonthlyByLog);
-	        // $objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '供應商對帳表 - 請款完成(' . $_GET['year'] . " / " . $_GET['month'] . ')');
-	        // $objPHPExcel->setActiveSheetIndex(1)->setTitle("供應商對帳表 - 請款完成");
 	        $objPHPExcel->setActiveSheetIndex(0);
 
 			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -165,8 +158,8 @@ class SupplierApplicationMoniesController extends Controller
 			// If you're serving to IE 9, then the following may be needed
 			header('Cache-Control: max-age=1');
 			// If you're serving to IE over SSL, then the following may be needed
-			header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-			header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+			header ('Expires: ' . date("D, d M Y H:i:s") . ' TST'); // Date in the past 
+			header ('Last-Modified: '.date('D, d M Y H:i:s').' TST'); // always modified
 			header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
 			header ('Pragma: public'); // HTTP/1.0
 			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
@@ -259,6 +252,7 @@ class SupplierApplicationMoniesController extends Controller
 			$total_monies = 0;
 			$cril_total_monies = 0;
 			foreach ($data as $value) {
+
 				$obj->setActiveSheetIndex($sheet)->setCellValue('A' . $r, $value->supplier_id);
 				$obj->setActiveSheetIndex($sheet)->setCellValue('B' . $r, $value->supplier->name);
 				$obj->setActiveSheetIndex($sheet)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$value->supplier->type]);
@@ -268,20 +262,20 @@ class SupplierApplicationMoniesController extends Controller
 				$obj->setActiveSheetIndex($sheet)->setCellValue('G' . $r, $value->adSpace_id);
 				$obj->setActiveSheetIndex($sheet)->setCellValue('H' . $r, $value->adSpace->name);
 				$obj->setActiveSheetIndex($sheet)->setCellValue('I' . $r, ($value->site->type == 1) ? $value->adSpace->width . " x " . $value->adSpace->height : str_replace (":"," x ",$value->adSpace->ratio_id));
-				$obj->setActiveSheetIndex($sheet)->setCellValue('J' . $r, Yii::app()->params['buyType'][$value->buy_type]);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('K' . $r, Yii::app()->params['chrgeType'][$value->charge_type]);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('L' . $r, ($value->price * Yii::app()->params['priceType'][$value->charge_type]));
-				$obj->setActiveSheetIndex($sheet)->setCellValue('M' . $r, $value->imp);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('N' . $r, $value->click);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('O' . $r, $value->total_monies);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('P' . $r, $value->total_monies);
-				$obj->setActiveSheetIndex($sheet)->setCellValue('Q' . $r, ceil($value->total_monies));
+				$obj->setActiveSheetIndex($sheet)->setCellValue('J' . $r, Yii::app()->params['buyType'][$value->supplierMoniesMonthly->buy_type]);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('K' . $r, Yii::app()->params['chrgeType'][$value->supplierMoniesMonthly->charge_type]);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('L' . $r, ($value->supplierMoniesMonthly->price * Yii::app()->params['priceType'][$value->supplierMoniesMonthly->charge_type]));
+				$obj->setActiveSheetIndex($sheet)->setCellValue('M' . $r, $value->supplierMoniesMonthly->imp);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('N' . $r, $value->supplierMoniesMonthly->click);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('O' . $r, $value->month_monies);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('P' . $r, $value->month_monies);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('Q' . $r, ceil($value->month_monies));
 
-				$total_monies += $value->total_monies;
-				$cril_total_monies += ceil($value->total_monies);
+				$month_monies += $value->month_monies;
+				$cril_total_monies += ceil($value->month_monies);
 				$r++;
 			}
-			$obj->setActiveSheetIndex($sheet)->setCellValue('P' . $r, $total_monies);
+			$obj->setActiveSheetIndex($sheet)->setCellValue('P' . $r, $month_monies);
 			$obj->setActiveSheetIndex($sheet)->setCellValue('Q' . $r, $cril_total_monies);
 		}else{
 			$obj->setActiveSheetIndex($sheet)->setCellValue('A4', '沒有資料');

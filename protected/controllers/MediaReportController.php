@@ -146,7 +146,7 @@ class MediaReportController extends Controller
 
 				//主要維度
 				if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
-					$AValue = ((!empty($data->adSpace->site->name)) ? $data->adSpace->site->name : "其他");
+					$AValue = ((!empty($value->adSpace->site->name)) ? $value->adSpace->site->name : "其他");
 					$BValue = $value->adSpace->site->category->mediaCategory->name;
 				}
 

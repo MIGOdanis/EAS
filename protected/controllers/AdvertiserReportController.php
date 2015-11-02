@@ -19,7 +19,24 @@ class AdvertiserReportController extends Controller
 	//權限驗證模組
 
 	public function getCampaign($campaignId){
+
 		$criteria=new CDbCriteria;
+
+		if($this->user->group == 8){
+			$createrCriteria=new CDbCriteria;
+			$createrCriteria->addCondition("id = '" . $this->user->supplier_id . "' OR parent_id = '" . $this->user->supplier_id . "'");
+			$creater = TosUpmUser::model()->findAll($createrCriteria);
+			$createrArray = array();
+			foreach($creater as $value){
+				$createrArray[] = $value->id;
+			}
+			if(is_array($createrArray)){
+				$criteria->addInCondition("t.create_user",$createrArray);
+			}else{
+				$criteria->addCondition("t.create_user = '" . $_GET['creater'] . "'");	
+			}
+		}
+
 		$criteria->addCondition("tos_id = '" . $campaignId . "'");
 		return $model = Campaign::model()->find($criteria);
 		

@@ -49,13 +49,8 @@
 			</div>			
 		</div>
 
-		<div class="filter-box">
-			<select class="form-control" id="select-creater">
-				<option>全部</option>
-				<?php foreach ($creater as $value) {?>
-					<option value="<?php echo $value->id;?>"><?php echo $value->real_name;?></option>
-				<?php }?>
-			</select>			
+		<div class="filter-box" id="upm-list">
+			UPM清單載入中..
 		</div>
 
 		<div class="filter-box">

@@ -338,9 +338,7 @@ class BuyReportDailyPc extends CActiveRecord
 
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
-		}
-
-		
+		}		
 
 		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
 			$criteria = $this->addNoPayCampaign($criteria);
@@ -515,6 +513,31 @@ class BuyReportDailyPc extends CActiveRecord
 
 	*/
 
+	public function setCreate($criteria){
+
+		// print_r(); exit;
+		$user = User::model()->findByPk(Yii::app()->user->id);
+		if($user->group == 8){
+			$createrCriteria=new CDbCriteria;
+			$createrCriteria->addCondition("id = '" . $user->supplier_id . "' OR parent_id = '" . $user->supplier_id . "'");
+			$creater = TosUpmUser::model()->findAll($createrCriteria);
+			$createrArray = array();
+			foreach($creater as $value){
+				$createrArray[] = $value->id;
+			}
+			if(is_array($createrArray)){
+				$criteria->addInCondition("campaign.create_user",$createrArray);
+			}else{
+				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
+			}
+		}
+
+		return $criteria;
+
+	}
+
+
+
 
 	//訂單類別報表
 	public function supplierCategoryReport($campaignId)
@@ -525,6 +548,8 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.click) as click,
 			sum(t.impression) as impression
 		';
+
+		$criteria = $this->setCreate($criteria);
 
 		$criteria = $this->addReportTime($criteria);	
 
@@ -552,8 +577,9 @@ class BuyReportDailyPc extends CActiveRecord
 	}
 
 	//訂單活動報表
-	public function campaignBannerReport($campaignId)
+	public function campaignBannerReport($campaignId,$user)
 	{
+
 		$criteria=new CDbCriteria;
 		$criteria->select = '
 			sum(t.income) / 100000 as income,
@@ -561,6 +587,8 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.impression) as impression,
 			t.width_height as width_height
 		';
+
+		$criteria = $this->setCreate($criteria);
 
 		$criteria = $this->addReportTime($criteria);
 
@@ -618,7 +646,6 @@ class BuyReportDailyPc extends CActiveRecord
 			}else{
 				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
 			}
-			
 		}
 
 		if(isset($_GET['active']) && ($_GET['active'] > 0))
@@ -744,6 +771,8 @@ class BuyReportDailyPc extends CActiveRecord
 			t.width_height as width_height
 		';
 
+		$criteria = $this->setCreate($criteria);
+
 		$criteria = $this->addReportTime($criteria);
 
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
@@ -808,8 +837,6 @@ class BuyReportDailyPc extends CActiveRecord
 		
 		$functionReport = EveDspLogsDspTosFunc::model()->funcReporByDay($criteria);
 		
-
-
 		$criteria=new CDbCriteria;
 		if(!empty($YtbWhere)){
 			$YtbWhere = implode(" OR ", $YtbWhere);
@@ -939,6 +966,8 @@ class BuyReportDailyPc extends CActiveRecord
 			sum(t.impression) as impression,
 			t.width_height as width_height
 		';
+
+		$criteria = $this->setCreate($criteria);
 
 		$criteria = $this->addReportTime($criteria);
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");

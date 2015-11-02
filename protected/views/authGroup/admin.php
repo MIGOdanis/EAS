@@ -14,9 +14,14 @@ $('.search-form form').submit(function(){
 	return false;
 });
 ");
-?>
-<a class="btn btn-default" href="create">新增權限群組</a>
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+$this->widget('UIAuthWidget', array(
+	'checkType'=>"auth",
+	'auth'=>array("user/authGroup/create"),
+	'user'=>$this->user,
+	'html'=>'<a class="btn btn-default" href="create">新增權限群組</a>'
+)); 
+
+$this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered table-striped',
 	'dataProvider'=>$model->search(),

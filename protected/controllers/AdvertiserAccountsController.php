@@ -27,8 +27,10 @@ class AdvertiserAccountsController extends Controller
 		}
 		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
 			$day = $this->getDay();
+
 			if(isset($_GET['creater']) && ($_GET['creater'] > 0))
 				$creater = TosUpmUser::model()->findByPk((int)$_GET['creater']);
+			
 			//$campaign = $this->getCampaign($_GET['CampaignId']);
 			//print_r($_GET['CampaignId']); exit;
 			$model = new BuyReportDailyPc('search');
@@ -46,13 +48,7 @@ class AdvertiserAccountsController extends Controller
 			Yii::app()->end();
 		}
 
-		$criteria=new CDbCriteria;
-		$criteria->addCondition("account_id = 2");
-		$creater = TosUpmUser::model()->findAll($criteria);
-
-		$this->render('admin',array(
-			"creater" => $creater,
-		));
+		$this->render('admin');
 	}
 
 	public function actionSelectBelong($id)

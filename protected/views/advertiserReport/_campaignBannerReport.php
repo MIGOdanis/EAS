@@ -34,7 +34,7 @@ Yii::app()->clientScript->registerScript('search', "
 $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered',
-	'dataProvider'=>$allData = $model->campaignBannerReport($_GET['CampaignId']),
+	'dataProvider'=>$allData = $model->campaignBannerReport($_GET['CampaignId'],$this->user),
 	'filter'=>$model,
 	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
 	'emptyText'=>'沒有資料',

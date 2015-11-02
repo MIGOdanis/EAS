@@ -491,7 +491,21 @@ class Controller extends CController
 		$savelog->certificate_image = $model->certificate_image;
 		$savelog->bank_book_img = $model->bank_book_img;
 		$savelog->save();
-
 	}
+
+	public function ActionGetUpmList(){
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("account_id = 2");
+		$criteria->order = "real_name ASC";
+		$creater = TosUpmUser::model()->findAll($criteria);
+
+		$select = '<select class="form-control" id="select-creater" name="upm_list"><option>全部</option>';
+		foreach ($creater as $value) {
+			$select .= '<option value="' . $value->id . '">' . $value->real_name . '</option>';
+		}
+		$select .= '</select>';		
+		echo $select;
+		Yii::app()->end();
+	}	
 
 }

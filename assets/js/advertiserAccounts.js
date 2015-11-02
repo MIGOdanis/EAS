@@ -79,6 +79,7 @@ function initLinkBtn(){
 };
 
 $(function(){
+
 	$("#run-day").click(function(){
 		CampaignId = $("#Campaign_id").val();
 		siteId = $("#site-id").val();
@@ -96,8 +97,6 @@ $(function(){
         $("#supplier-report-dropup-now").html("自訂");
 		type = "custom";        
     });
-
-	
 
 	$(".select-report").click(function(){
 		type = $(this).data("type");
@@ -126,4 +125,21 @@ $(function(){
 		getReport();
 	});	
     
+	$.ajax({
+		url: "getUpmList",
+		success:function(html){
+			$('#upm-list').html(html);
+			$('#upm-list').show();
+		}
+	})
+	.fail(function(e) {
+		if(e.status == 403){
+			alert('您的權限不足! : 請取得[存取UPM帳號] : 無法提供建單帳號選擇');
+		}
+		if(e.status == 500){
+			alert('現在無法取得UMP清單，請聯繫管理人員');
+		}  
+		$('#upm-list').hide();          
+	});		
+
 })

@@ -44,7 +44,11 @@ class UserController extends Controller
 			$model->auth_id = 0;
 			$model->active = 1;
 			$model->creat_time = time();
-			
+				
+			if($model->group == 8){
+				$model->supplier_id = $_POST['upm_list'];
+			}
+
 			if (!empty($_POST['User']['password']) && ($_POST['User']['repeat_password'] == $_POST['User']['password'])){
 				$model->password = $model->hashPassword($_POST['User']['password']);
 				if($model->save()){
@@ -77,6 +81,9 @@ class UserController extends Controller
 		if(isset($_POST['User']))
 		{
 			$model->attributes=$_POST['User'];
+			if($model->group == 8){
+				$model->supplier_id = $_POST['upm_list'];
+			}			
 			if ($model->save()) {
 				$this->redirect(array('admin'));
 			}
