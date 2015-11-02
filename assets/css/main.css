@@ -4,12 +4,13 @@ body , html{
 	width: 100%;
 	height: 100%;
 	padding: 10px;
+	overflow-x:hidden;
 }
 
 #main{
 	/*padding-top: 50px;*/
 	width: 100%;
-	height: 100%;
+	/*height: 100%;*/
 	/*overflow: hidden;*/
 }
 
@@ -36,7 +37,7 @@ body , html{
 	border:1px #CACACA solid;
 }
 
-@media (min-width: 768px){
+@media (min-width: 1200px){
 	#left-main{
 		float: left;
 		width: 180px;
@@ -47,6 +48,17 @@ body , html{
 		margin-left: 200px;	
 	}
 }
+
+@media (max-width: 768px){
+	body{
+		font-size: 10px;
+	}
+	#right-main{
+		overflow-x:auto; 
+	}
+}
+
+
 
 #contents{
 	padding-bottom: 50px;

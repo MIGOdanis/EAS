@@ -13,7 +13,8 @@
 			<div class="alert alert-success" role="alert">
 				<?php if(Yii::app()->params["androidSdkVersionNowNew"]){ ?>
 					<div>
-						最新版本的 Android SDK <?php echo Yii::app()->params["androidSdkVersion"];?> 現已開放下載!!
+						最新版本的 Android SDK <?php echo Yii::app()->params["androidSdkVersion"];?> 現已開放下載!!<br><br>
+						<p>Android SDK 1.17 修正以下 : <br> LOGO顯示的問題</p>
 					</div>
 				<?php }?>
 				<?php if(Yii::app()->params["iosSdkVersionNowNew"]){ ?>
@@ -26,8 +27,8 @@
 
 		<a target="_blank" href="<?php echo Yii::app()->params["androidSdkUrl"];?>" class="btn btn-primary download-btn">Android SDK (V <?php echo Yii::app()->params["androidSdkVersion"];?>)</a>
 		<a target="_blank" href="<?php echo Yii::app()->params["androidSdkDoc"];?>" class="btn btn-primary download-btn">Android SDK Document</a>
-		<!-- <a target="_blank" href="<?php echo Yii::app()->params["iosSdkUrl"];?>" class="btn btn-primary download-btn">IOS SDK (V <?php echo Yii::app()->params["iosSdkVersion"];?>)</a> -->
-		<!-- <a target="_blank" href="<?php echo Yii::app()->params["iosSdkDoc"];?>" class="btn btn-primary download-btn">IOS SDK Document</a> -->
+		<a target="_blank" href="<?php echo Yii::app()->params["iosSdkUrl"];?>" class="btn btn-primary download-btn">IOS SDK (V <?php echo Yii::app()->params["iosSdkVersion"];?>)</a>
+		<a target="_blank" href="<?php echo Yii::app()->params["iosSdkDoc"];?>" class="btn btn-primary download-btn">IOS SDK Document</a>
 	<?php }?>
 </div>
 <?php 
@@ -36,8 +37,9 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 		<div class="display-supplier-adSpace">
 			<h4><?php echo $value->name;?></h4>
 
+			<h5>網站編號 : <?php echo $value->site->tos_id;?></h5>
+			<h5>版位編號 : <?php echo $value->tos_id;?></h5>
 			<h5>版位大小 : <?php echo ($model->type == 1) ? $value->width . " x " . $value->height : str_replace (":"," x ",$value->ratio_id);?></h5>
-
 			<h5>拆分方式 : <?php echo Yii::app()->params['buyType'][$value->buy_type]; ?></h5>
 			<h5>
 			價格 : <?php echo Yii::app()->params['chrgeType'][$value->charge_type] . $value->price * Yii::app()->params['priceType'][$value->charge_type]; ?>

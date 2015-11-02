@@ -100,6 +100,12 @@ class AuthGroup extends CActiveRecord
 		$criteria->compare('active',$this->active);
 
 		return new CActiveDataProvider($this, array(
+			'pagination' => array(
+				'pageSize' => 50
+			),
+			'sort' => array(
+				'defaultOrder' => 't.id DESC',
+			),
 			'criteria'=>$criteria,
 		));
 	}

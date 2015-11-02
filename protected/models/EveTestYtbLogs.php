@@ -13,7 +13,7 @@ class EveTestYtbLogs extends CActiveRecord
             return self::$conection;
         else
         {
-            self::$conection = Yii::app()->eve;
+            self::$conection = Yii::app()->eveTest;
             if (self::$conection instanceof CDbConnection)
             {
                 self::$conection->setActive(true);
@@ -76,12 +76,12 @@ class EveTestYtbLogs extends CActiveRecord
 
 		if($_GET['type'] == "pastMonth"){
 			$criteria->addCondition("starttime >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("starttime <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition("starttime <= " . strtotime(date("Y-m-t 23:59:59",strtotime("-1 Months"))));
 		}
 
 		if($_GET['type'] == "thisMonth"){
 			$criteria->addCondition("starttime >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("starttime <= " . strtotime(date("Y-m-t 00:00:00")));
+			$criteria->addCondition("starttime <= " . strtotime(date("Y-m-t 23:59:59")));
 		}	
 
 		if($_GET['type'] == "custom"){
@@ -89,7 +89,7 @@ class EveTestYtbLogs extends CActiveRecord
 				$criteria->addCondition("starttime >= " . strtotime($_GET['startDay'] . "00:00:00"));
 			}
 			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("starttime <= " . strtotime($_GET['endDay'] . "00:00:00"));
+				$criteria->addCondition("starttime <= " . strtotime($_GET['endDay'] . "23:59:59"));
 			}			
 
 		}
@@ -97,52 +97,76 @@ class EveTestYtbLogs extends CActiveRecord
 		return $criteria;
 	}
 
-	public function ytbReport($campaign_id)
+	public function ytbCategoryReport($criteria)
 	{
-		set_time_limit(0);
-		$criteria=new CDbCriteria;
-		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
-		$model = CreativeMaterial::model()->findAll($criteria);
-		
-		$where = array();
-		foreach ($model as $value) {
-			$where[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
-		}
-
-		$criteria=new CDbCriteria;
-		if(!empty($where)){
-			$where = implode(" OR ", $where);
-			$criteria->addCondition($where);
-			$criteria = $this->addReportTime($criteria);
-		}else{
-			$criteria->addCondition("t.id = 0");
-		}
-
+		$criteria = $this->addReportTime($criteria);
 		$report = $this->findAll($criteria);
-
-		
 
 		$rawData = array();
 
 		foreach ($report as $key => $value) {
 			$sp = explode(":", $value->queryStr);
 			$ratings = $this->ratings($value->play_duration, $value->video_duration);
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]]["totView"]++;
-			$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]][$ratings]++;
-		}
 
-		$rawData = $this->transInfoByCount($rawData);
+			$criteria=new CDbCriteria;
+			$criteria->addCondition("t.tos_id = '" . $sp[1] . "'");				
+			$siteCategory = AdSpace::model()->with("site")->find($criteria);
 
-		if(isset($_GET['export']) && $_GET['export'] == 1){
-			return $rawData;
-		}
+			$rawData[$siteCategory->site->category->category_id]["totView"]++;
+			$rawData[$siteCategory->site->category->category_id][$ratings]++;
+		}			
 		
-		return new CArrayDataProvider($rawData, array(
-			'pagination'=>false
-		));	
+		return $rawData;
 		
 	}
 
+	public function ytbReport($criteria)
+	{
+		$criteria = $this->addReportTime($criteria);
+		$report = $this->findAll($criteria);
+
+		$rawData = array();
+
+
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			foreach ($report as $key => $value) {
+				$sp = explode(":", $value->queryStr);
+				$ratings = $this->ratings($value->play_duration, $value->video_duration);
+				$rawData[date("Y-m-d",$value->starttime)]["totView"]++;
+				$rawData[date("Y-m-d",$value->starttime)][$ratings]++;
+			}			
+			$rawData = $this->transInfoByCountDay($rawData);
+		}else{
+			foreach ($report as $key => $value) {
+				$sp = explode(":", $value->queryStr);
+				$ratings = $this->ratings($value->play_duration, $value->video_duration);
+				$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]]["totView"]++;
+				$rawData[date("Y-m-d",$value->starttime)][$sp[1]][$sp[2]][$sp[3]][$ratings]++;
+			}			
+			$rawData = $this->transInfoByCount($rawData);	
+		}
+		
+		return $rawData;
+		
+	}
+
+	function transInfoByCountDay($rawData){
+		$data = array();
+		foreach ($rawData as $date => $dateValue) {
+			$data[$date] = array(
+				"totView" => $dateValue["totView"],
+				"0" => (int)$dateValue["0"],
+				"25" => (int)$dateValue["25"],
+				"50" => (int)$dateValue["50"],							
+				"75" => (int)$dateValue["75"],
+				"100" => (int)$dateValue["100"],
+			);	
+		}
+
+		return $data;
+
+	}
 
 	function transInfoByCount($rawData){
 		$data = array();
@@ -161,8 +185,7 @@ class EveTestYtbLogs extends CActiveRecord
 						$criteria->addCondition("t.tos_id = '" . $creative . "'");
 						$creative = CreativeMaterial::model()->find($criteria);
 
-						$data[] = array(
-							"date" => $date,
+						$data[$date][$strategy->tos_id][$creative->tos_id][$adspace->site->category->mediaCategory->id] = array(
 							"totView" => $creativeValue["totView"],
 							"0" => (int)$creativeValue["0"],
 							"25" => (int)$creativeValue["25"],

@@ -23,21 +23,18 @@ function certificate_status($data,$accountsStatus){
 
 		return "<div class='" . $class . "'>" . $data->certificateChecker->name . "<br>" . Yii::app()->params["invoiceType"][$data->certificate_status] . "</div>";
 	}else{
-		if($accountsStatus == 1){
-			return $data->certificateChecker->name . "<br>" . CHtml::dropDownList("certificate_status",$data->certificate_status,array(
-				"0"=> ($data->certificate_by == Yii::app()->user->id && $data->certificate_status > 0) ? "取消確認" : "未確認",
-				"1"=> "三聯式電子計算機",
-				"2"=> "三聯式收銀機",
-				"3"=> "電子發票",
-				"4"=> "載有稅額憑證(有字軌)",
-				"5"=> "載有稅額其他憑證",
-				"6"=> "勞報單",
-				"7"=> "Invoice",
-				"8"=> "其他",
-			), $option);
-		}else{
-			return "關帳中";			
-		}
+		return $data->certificateChecker->name . "<br>" . CHtml::dropDownList("certificate_status",$data->certificate_status,array(
+			"0"=> ($data->certificate_by == Yii::app()->user->id && $data->certificate_status > 0) ? "取消確認" : "未確認",
+			"1"=> "三聯式",
+			"2"=> "三聯式收銀機",
+			"3"=> "電子發票",
+			"4"=> "載有稅額憑證(有字軌)",
+			"5"=> "載有稅額其他憑證",
+			"6"=> "勞報單",
+			"7"=> "Invoice",
+			"8"=> "其他",
+			"9"=> "電子計算機",
+		), $option);
 	}
 }
 
@@ -61,12 +58,7 @@ function invoice($data,$accountsStatus){
 			$invoice =  '<a class="btn btn-default invoice-view" data-id="' . $data->id . '">' . $data->invoice . '</a>';
 		
 		}else{
-			if($accountsStatus == 0){
-				return '關帳中';
-			}else{
-				//$invoice = '<input class="form-control invoice-input" data-id="' . $data->id . '" type="text" placeholder="發票號碼">';
-				$invoice =  '<a class="btn btn-default invoice-view" data-id="' . $data->id . '">新增憑證</a>';
-			}
+			$invoice =  '<a class="btn btn-default invoice-view" data-id="' . $data->id . '">新增憑證</a>';
 		}
 		
 	}else{
@@ -361,7 +353,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		array(
 			'header'=>'退回',
 			'type'=>'raw',
-			'value'=> '(' . $accountsStatus->value . ' == 1) ? CHtml::link("退回",array(),array("class"=>"btn btn-default sendback-btn","data-id" => $data->id)) : "關帳中"',
+			'value'=> 'CHtml::link("退回",array(),array("class"=>"btn btn-default sendback-btn","data-id" => $data->id))',
 			'htmlOptions'=>array('width'=>'55'),
 		),
 	),

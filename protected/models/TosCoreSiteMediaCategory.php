@@ -36,7 +36,9 @@ class TosCoreSiteMediaCategory extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array();
+		return array(
+
+		);
 	}
 
 	/**
@@ -47,6 +49,7 @@ class TosCoreSiteMediaCategory extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'mediaCategory' => array(self::HAS_ONE, 'TosCoreMediaCategory', array('id' => 'category_id')),
 		);
 	}
 

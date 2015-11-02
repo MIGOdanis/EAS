@@ -146,6 +146,10 @@ class Controller extends CController
 		$mailer->SMTPAuth = Yii::app()->params['mail']['smtpAuth'];
 		$mailer->Username = Yii::app()->params['mail']['smtpUsername'];
 		$mailer->Password = Yii::app()->params['mail']['smtpPassword'];
+		$mailer->SMTPSecure = "ssl";
+		// $mailer->SMTPDebug = 4;
+		$mailer->Port = 465; 
+		$mailer->SMTPAuth = true;		
 		$mailer->IsSMTP();
         $mailer->IsHTML(true);
 		$mailer->From = Yii::app()->params['mail']['adminEmail'];
@@ -298,20 +302,28 @@ class Controller extends CController
 
 		if(isset($model->site) && is_array($model->site)){
 			foreach ($model->site as $site) {
-				$table = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTable.html');
-				$table = str_replace ("{site_name}",$site->name . (($site->status == 1) ? "" : "(停用)"),$table);
-				$table = str_replace ("{site_type}",Yii::app()->params["siteType"][$site->type],$table);
-				if(isset($site->adSpace) && is_array($site->adSpace)){
-					foreach ($site->adSpace as $adSpace) {
-						$tr .= file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTableTr.html');
-						$tr = str_replace ("{zone_name}",$adSpace->name . (($adSpace->status == 1) ? "" : "(停用)"),$tr);
-						$tr = str_replace ("{zone_size}",($site->type == 1) ? $adSpace->width . " x " . $adSpace->height : str_replace (":"," x ",$adSpace->ratio_id),$tr);
-						$tr = str_replace ("{pay_type}",Yii::app()->params['buyType'][$adSpace->buy_type],$tr);
-						$tr = str_replace ("{price}",Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type] . (($adSpace->buy_type == 2) ? "%" : ""),$tr);
+				if($site->status == 1){
+					$table = file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTable.html');
+					$table = str_replace ("{site_name}",$site->name . (($site->status == 1) ? "" : "(停用)"),$table);
+					$table = str_replace ("{site_type}",Yii::app()->params["siteType"][$site->type],$table);
+					$tr = "";
+					if(isset($site->adSpace) && is_array($site->adSpace)){
+						foreach ($site->adSpace as $adSpace) {
+							if($adSpace->status == 1){
+								$tr .= file_get_contents(dirname(__FILE__).'/../extensions/wordTemp/SupplierContractSiteTableTr.html');
+								$tr = str_replace ("{zone_name}",$adSpace->name . (($adSpace->status == 1) ? "" : "(停用)"),$tr);
+								$tr = str_replace ("{zone_size}",($site->type == 1) ? $adSpace->width . " x " . $adSpace->height : str_replace (":"," x ",$adSpace->ratio_id),$tr);
+								$tr = str_replace ("{pay_type}",Yii::app()->params['buyType'][$adSpace->buy_type],$tr);
+								$tr = str_replace ("{price}",Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type] . (($adSpace->buy_type == 2) ? "%" : ""),$tr);
+							}
+						}
+						$table = str_replace ("{tr}",$tr,$table);
 					}
-					$table = str_replace ("{tr}",$tr,$table);
+					if(empty($tr)){
+						$table = "";
+					}
+					$html .= $table;
 				}
-				$html .= $table;
 			}
 		}
 
@@ -479,7 +491,21 @@ class Controller extends CController
 		$savelog->certificate_image = $model->certificate_image;
 		$savelog->bank_book_img = $model->bank_book_img;
 		$savelog->save();
-
 	}
+
+	public function ActionGetUpmList(){
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("account_id = 2");
+		$criteria->order = "real_name ASC";
+		$creater = TosUpmUser::model()->findAll($criteria);
+
+		$select = '<select class="form-control" id="select-creater" name="upm_list"><option>全部</option>';
+		foreach ($creater as $value) {
+			$select .= '<option value="' . $value->id . '">' . $value->real_name . '</option>';
+		}
+		$select .= '</select>';		
+		echo $select;
+		Yii::app()->end();
+	}	
 
 }

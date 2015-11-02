@@ -28,7 +28,12 @@ $('.search-form form').submit(function(){
 			<?php }?>
 		</ul>
 	</div>	
-	<a class="btn btn-default" href="create">新增使用者</a>
+	<?php $this->widget('UIAuthWidget', array(
+		'checkType'=>"auth",
+		'auth'=>array("user/user/create"),
+		'user'=>$this->user,
+		'html'=>'<a class="btn btn-default" href="create">新增使用者</a>'
+	)); ?>	
 </div>
 
 

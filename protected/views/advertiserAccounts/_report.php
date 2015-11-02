@@ -16,7 +16,7 @@
 /*	th{
 		background-color: #DCDCDC;
 	}*/
-	.belong-btn, .active-btn{
+	.belong-btn, .active-btn, .receivables-btn{
 		width: 100%;
 		margin-top: 5px;
 	}
@@ -33,6 +33,7 @@ if(isset($_GET['active']) && ($_GET['active'] > 0))
 	echo '<h5>查詢狀態 :' . (($_GET['active'] == 1) ? "已結案" : "未結案")  . '</h5>';
 ?>
 <script type="text/javascript">
+	var updateReports = 0;
 	$('.set-btn').click(function() {
 		var url = $(this).prop('href');
 		$.ajax({
@@ -137,17 +138,17 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(				
 		array(	
 			'name' => "campaign.advertiser.tos_id",
-			'header' => "<div class='topItem'>統一編號</div>發票抬頭",
+			'header' => "<div class='topItem'>統一編號</div>訂單編號",
 			'type' => "raw",
-			'value'=>'"<div class=\'topItem\'>" .  "-" ."</div>" . $data->campaign->advertiser->advertiser_name',
+			'value'=>'"<div class=\'topItem\'>" .  "-" ."</div>" . $data->campaign_id',
 			// 'htmlOptions'=>array('width'=>'120'),
 			'filter'=>false,
 		),						
 		array(
 			'name' => "campaign_id",
-			'header' => "<div class='topItem'>訂單編號</div>訂單名稱",
+			'header' => "<div class='topItem'>發票抬頭</div>訂單名稱",
 			'type' => "raw",
-			'value'=>'"<div class=\'topItem\'>" . $data->campaign_id ."</div>" . $data->campaign->campaign_name',
+			'value'=>'"<div class=\'topItem\'>" . $data->campaign->advertiser->advertiser_name ."</div>" . $data->campaign->campaign_name',
 			'filter'=>false,
 			// 'htmlOptions'=>array('width'=>'120'),
 		),	
@@ -178,7 +179,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'type' => "raw",
 			'value'=>'"<div class=\'topItem\'>" . date("Y-m-d", $data->campaign->start_time) ."</div>" . date("Y-m-d", $data->campaign->end_time)',
 			'filter'=>false,
-			'htmlOptions'=>array('width'=>'85'),
+			// 'htmlOptions'=>array('width'=>'85'),
 		),	
 		array(
 			'header' => "<div class='topItem'>查詢曝光</div>查詢點擊",
@@ -215,9 +216,15 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			//'htmlOptions'=>array('width'=>'100'),
 		),
 		array(
+			'header'=>"<div class='topItem'>查詢期<br>間認列<br>金額</div>認列<br>作業",
+			'type'=>'raw',
+			'value'=> '"<div class=\'topItem\'>$" . number_format($data->getCampaignAdvertiserReceivables($data->campaign_id), 0, "." ,",") . "</div>" .CHtml::link("認列",array("advertiserAccounts/creatReceivables","id"=>$data->campaign_id),array("class"=>"btn btn-" . $data->temp_receivables_btn . " receivables-btn set-btn"))',
+			'htmlOptions'=>array('width'=>'55')
+		),		
+		array(
 			'header'=>'發票<br>作業',
 			'type'=>'raw',
-			'value'=> 'CHtml::link("檢視",array("advertiserAccounts/creatInvoice","id"=>$data->campaign_id),array("class"=>"btn btn-default set-btn"))',
+			'value'=> 'CHtml::link("發票",array("advertiserAccounts/creatInvoice","id"=>$data->campaign_id),array("class"=>"btn btn-default set-btn"))',
 			'htmlOptions'=>array('width'=>'55')
 		),
 		array(

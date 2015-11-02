@@ -10,19 +10,65 @@ class CronSupplierController extends Controller
 		ini_set("memory_limit","2048M");
 
 		$pcSite = $this->getPcSite();
+		$adSpaceArray = array();
+
+		$noPayCriteria = new CDbCriteria;
+		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
+		$noPayCampaignId = array();
+		foreach ($noPayCampaign as $value) {
+			$noPayCampaignId[] = $value->tos_id;
+		}
 
 		foreach ($pcSite as $site) {
 			foreach ($site->adSpace as $space) {
-				$pcReport = $this->getPcSpaceMonies($space->tos_id);
+				$pcReport = $this->getPcSpaceMonies($space->tos_id,$noPayCampaignId);
 
 				//print_r($pcReport); exit;
 
-				if(!empty($pcReport))
+				if(!empty($pcReport)){
 					$this->countPcSupplierMonies($pcReport);
+					$adSpaceArray[] = $space->tos_id;
+				}
 			}
 		}
 		
+		$this->syncSupplierMoniesMonthlyByZero($adSpaceArray);
 		$this->saveLog("lastCronUnapplicationMonies",time());
+	}
+
+	public function syncSupplierMoniesMonthlyByZero($adSpaceArray){
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("total_monies > 0");
+		$criteria->addNotInCondition("adSpace_id",$adSpaceArray);
+		$adSpace = SupplierApplicationMonies::model()->with("adSpace")->findAll($criteria);
+		foreach ($adSpace as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("adSpace_id = '" . $value->adSpace_id . "'");
+			$criteria->addCondition("year = '" . date("Y",$monthOfAccount->value) . "'");
+			$criteria->addCondition("month = '" . date("m",$monthOfAccount->value) . "'");
+			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->find($criteria);
+			if($supplierMoniesMonthly === null){
+				$supplierMoniesMonthly = new SupplierMoniesMonthly();
+			}
+			$supplierMoniesMonthly->total_monies = $value->total_monies;	
+			$supplierMoniesMonthly->imp = 0;
+			$supplierMoniesMonthly->click = 0;	
+			$supplierMoniesMonthly->supplier_id = $value->supplier_id;
+			$supplierMoniesMonthly->site_id = $value->site_id;
+			$supplierMoniesMonthly->adSpace_id = $value->adSpace_id;
+			$supplierMoniesMonthly->year = date("Y",$monthOfAccount->value);
+			$supplierMoniesMonthly->month = date("m",$monthOfAccount->value);
+			$supplierMoniesMonthly->buy_type = $value->adSpace->buy_type;
+			$supplierMoniesMonthly->charge_type = $value->adSpace->charge_type;
+			$supplierMoniesMonthly->price = $value->adSpace->price;
+
+			if(!$supplierMoniesMonthly->save()){
+				print_r($supplierMoniesMonthly);
+				print_r($supplierMoniesMonthly->getErrors()); exit;
+			}
+		}
 	}
 
 	public function getPcSite(){
@@ -32,7 +78,7 @@ class CronSupplierController extends Controller
 		return Site::model()->with("adSpace")->findAll($criteria);
 	}
 
-	public function getPcSpaceMonies($adSpaceId){
+	public function getPcSpaceMonies($adSpaceId,$noPayCampaignId){
 
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("adSpace_id = " . $adSpaceId);
@@ -46,12 +92,16 @@ class CronSupplierController extends Controller
 
 		//print_r($lastCronUnapplicationMonies); exit;
 		$criteria = new CDbCriteria;
-		//$criteria->addCondition("sync_time > " . strtotime(date("Y-m") . "-01 00:00:00"));
+		// $criteria->addCondition("sync_time > " . strtotime(date("Y-m") . "-01 00:00:00"));
+		// $criteria->addCondition("settled_time >= " . strtotime("2015-08-01 00:00:00"));
+		// $criteria->addCondition("settled_time <= " . strtotime("2015-08-31 00:00:00"));
 		$criteria->addCondition("sync_time > " . $lastTime);
 		// $criteria->addCondition("settled_time > 1434729600");
 		$criteria->addCondition("ad_space_id = " . $adSpaceId);
 		// $criteria->addInCondition("ad_space_id", $adSpaceId);
-		$criteria->select = "sum(media_cost)/100000 AS media_cost_count, sum(pv) AS pv, sum(click) AS click, ad_space_id";
+		$criteria->select = "sum(media_cost)/100000 AS media_cost_count, sum(impression) AS impression, sum(click) AS click, ad_space_id";
+		$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+
 		$criteria->group = 'ad_space_id';
 		return BuyReportDailyPc::model()->find($criteria);
 	}
@@ -67,6 +117,8 @@ class CronSupplierController extends Controller
 		$criteria->addCondition("adSpace_id = '" . $model->ad_space_id . "'");
 		$type = "update";
 		$supplierApplicationMonies = SupplierApplicationMonies::model()->find($criteria);
+
+		//建立新資料
 		if($supplierApplicationMonies === null){
 			$type = "create";
 			$supplierApplicationMonies = new SupplierApplicationMonies();
@@ -77,18 +129,20 @@ class CronSupplierController extends Controller
 			$supplierApplicationMonies->application_by = 0;	
 			$supplierApplicationMonies->create_time = time();		
 		}
-
-		//$supplierApplicationMonies->this_application = strtotime(date("Y-m")."-01");
+		
 		$supplierApplicationMonies->supplier_id = $space->site->supplier->tos_id;
 		$supplierApplicationMonies->site_id = $space->site->tos_id;
 		$supplierApplicationMonies->adSpace_id =  $space->tos_id;
+
+		//紀錄更改前金額
 		$beforSaveMonies = $supplierApplicationMonies->month_monies;
+
+
 		$supplierApplicationMonies->month_monies += $model->media_cost_count;
 		$supplierApplicationMonies->this_application = $monthOfAccount->value;
 		$supplierApplicationMonies->update_time = time();
-		if(!$supplierApplicationMonies->save()){
 
-			//print_r($supplierApplicationMonies->getErrors()); exit;
+		if(!$supplierApplicationMonies->save()){
 			$this->writeLog(
 				"儲存同步資料時發生錯誤 : SID=" . $supplierApplicationMonies->id . ",TYPE=" . $type . ",adSpace_id=" . $model->ad_space_id,
 				"CronSupplier/error",
@@ -134,20 +188,19 @@ class CronSupplierController extends Controller
 			$criteria->addCondition("month = '" . date("m",$monthOfAccount->value) . "'");
 			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->find($criteria);
 			if($supplierMoniesMonthly === null){
-
 				$supplierMoniesMonthly = new SupplierMoniesMonthly();
 				$supplierMoniesMonthly->total_monies = 0;
-				$supplierMoniesMonthly->imp = $model->pv;
+				$supplierMoniesMonthly->imp = $model->impression;
 				$supplierMoniesMonthly->click = $model->click;				
 			}else{
-				$supplierMoniesMonthly->imp += $model->pv;
+				$supplierMoniesMonthly->imp += $model->impression;
 				$supplierMoniesMonthly->click += $model->click;					
 			}
 
 			$supplierMoniesMonthly->supplier_id = $space->site->supplier->tos_id;
 			$supplierMoniesMonthly->site_id = $space->site->tos_id;
 			$supplierMoniesMonthly->adSpace_id = $space->tos_id;
-			$supplierMoniesMonthly->total_monies = $supplierApplicationMonies->month_monies;
+			$supplierMoniesMonthly->total_monies = $supplierApplicationMonies->month_monies + $supplierApplicationMonies->total_monies;
 			$supplierMoniesMonthly->year = date("Y",$monthOfAccount->value);
 			$supplierMoniesMonthly->month = date("m",$monthOfAccount->value);
 			$supplierMoniesMonthly->buy_type = $space->buy_type;
@@ -155,10 +208,26 @@ class CronSupplierController extends Controller
 			$supplierMoniesMonthly->price = $space->price;
 
 			if(!$supplierMoniesMonthly->save()){
-				print_r($supplierMoniesMonthly);
-				print_r($supplierMoniesMonthly->getErrors()); exit;
+				// print_r($supplierMoniesMonthly);
+				// print_r($supplierMoniesMonthly->getErrors()); exit;
 			}
 
+		}
+	}
+
+	public function ActionReCountPcSupplierMonies(){
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("year = '" . date("Y",$monthOfAccount->value) . "'");
+		$criteria->addCondition("month = '" . date("m",$monthOfAccount->value) . "'");
+		$supplierMoniesMonthly = SupplierMoniesMonthly::model()->findAll($criteria);
+		foreach ($supplierMoniesMonthly as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("adSpace_id = '" . $value->adSpace_id . "'");
+			$supplierApplicationMonies = SupplierApplicationMonies::model()->find($criteria);
+			$monthly = SupplierMoniesMonthly::model()->findByPk($value->id);	
+			$monthly->total_monies = $supplierApplicationMonies->month_monies + $supplierApplicationMonies->total_monies;
+			$monthly->save();
 		}
 	}
 }

@@ -103,12 +103,26 @@ class CronCheckHourlyController extends Controller
 				$impression = $impression+$value->impression;
 				$click = $click+$value->click;
 				$income = $income+$value->income;
-				$media_cost = $media_cost+$value->media_cost;
+				$media_cost = $media_cost+$value->media_cost;			
+			}
 
-				$dailyImpression = $dailyImpression + $daily->impression;
-				$dailyClick = $dailyClick+$daily->click;
-				$dailyIncome = $dailyIncome+$daily->income;
-				$dailyMedia_cost = $dailyMedia_cost+$daily->media_cost;				
+
+
+			$criteria = new CDbCriteria;
+			$criteria->select = '
+				sum(t.media_cost) / 100000 as media_cost,
+				sum(t.income) / 100000 as income,
+				sum(t.click) as click,
+				sum(t.impression) as impression,
+				sum(t.pv) as pv,
+				t.campaign_id as campaign_id
+			';
+			$criteria->addCondition("t.settled_time >= '" . date("Y-m-d 00:00:00") . "'");
+
+			if($type == "PC"){
+				$daily = $this->tryGetDailyPc(1,$criteria);
+			}else if($type == "MOB"){
+				$daily = $this->tryGetDailyMob(1,$criteria);
 			}
 
 			$tot .= '
@@ -139,14 +153,14 @@ class CronCheckHourlyController extends Controller
 				</tr>	
 				<tr>
 					<td>本日當前 ('. date("Y-m-d"). ')</td>
-					<td>' . number_format($dailyImpression,0,".",",") . '</td>
-					<td>' . number_format($dailyClick,0,".",",") . '</td>
-					<td>' . number_format(($dailyImpression == 0)? "0" : (($dailyClick / $dailyImpression) * 100),2,".",",") . '%</td>
-					<td>$' . number_format($dailyIncome,2,".",",") . '</td>
-					<td>$' . number_format((($dailyClick == 0)? 0 : ($dailyIncome / $dailyClick)),2,".",",") . '</td>
-					<td>$' . number_format((($dailyImpression == 0)? 0 : ($dailyIncome / $dailyImpression) * 1000),2,".",",")  . '</td>
-					<td>' . number_format($dailyMedia_cost,2,".",",") . '</td>
-					<td>' . number_format((($dailyIncome == 0)? 0 : ($dailyMedia_cost / $dailyIncome)) * 100,2,".",",") . '%</td>
+					<td>' . number_format($daily->impression,0,".",",") . '</td>
+					<td>' . number_format($daily->click,0,".",",") . '</td>
+					<td>' . number_format(($daily->impression == 0)? "0" : (($daily->click / $daily->impression) * 100),2,".",",") . '%</td>
+					<td>$' . number_format($daily->income,2,".",",") . '</td>
+					<td>$' . number_format((($daily->click == 0)? 0 : ($daily->income / $daily->click)),2,".",",") . '</td>
+					<td>$' . number_format((($daily->impression == 0)? 0 : ($daily->income / $daily->impression) * 1000),2,".",",")  . '</td>
+					<td>' . number_format($daily->media_cost,2,".",",") . '</td>
+					<td>' . number_format((($daily->income == 0)? 0 : ($daily->media_cost / $daily->income)) * 100,2,".",",") . '%</td>
 				</tr>	
 			</table>
 			<br>
@@ -178,7 +192,7 @@ class CronCheckHourlyController extends Controller
 
 			if($try > 3){
 				foreach (Yii::app()->params['adminMail'] as $mail) {
-					$this->email($mail, "CLICKFORCE EAS ALERT : 時報檢查失敗 => DB Error After Retry! (Pc)", $e->getMessage());
+					$this->email($mail, "CLICKFORCE EAS ALERT : 時報檢查失敗  DB Error After Retry! (Pc)", $e->getMessage());
 				}
 				return "DB_ERROR";
 			}else{

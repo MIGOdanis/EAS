@@ -31,6 +31,14 @@ $('#AdvertiserInvoice_time').datepicker({
     todayHighlight: true,
      autoclose: true,
 });
+
+$('.close-btn').click(function(){
+	if(updateReports){
+		updateReports = 0;
+		getReport();
+	}
+});
+
 $('.save-btn').click(function(){
 	var number = $("#AdvertiserInvoice_number").val();
 	var price = $("#AdvertiserInvoice_price").val();
@@ -51,7 +59,7 @@ $('.save-btn').click(function(){
 					dataType:"json",
 					success:function(data){
 						if(data.code == 1){
-							getReport();
+							updateReports = 1;
 							alert("新增完成");
 						}else{
 							alert("新增失敗");
@@ -84,7 +92,7 @@ $('.del-btn').click(function(){
 			dataType:"json",
 			success:function(data){
 				if(data.code == 1){
-					getReport();
+					updateReports = 1;
 					alert("註銷完成");
 				}else{
 					alert("註銷失敗 #" + data.code);
@@ -107,21 +115,24 @@ $('.del-btn').click(function(){
 });	
 
 function refresh(){
-	$.ajax({
-		url:thisPage ,
-		success:function(html){
-			$('#modal-content-lg').html(html);
-		}
-	})
-	.fail(function(e) {
-		if(e.status == 403){
-			alert('您的權限不足');
-			window.location.reload();
-		}
-		if(e.status == 500){
-			alert('請稍後再試，或聯繫管理人員');
-		}            
-	});
+	$('#yiiCGrid-AI').html("更新中...");
+	setTimeout(function(){
+		$.ajax({
+			url:thisPage ,
+			success:function(html){
+				$('#modal-content-lg').html(html);
+			}
+		})
+		.fail(function(e) {
+			if(e.status == 403){
+				alert('您的權限不足');
+				window.location.reload();
+			}
+			if(e.status == 500){
+				alert('請稍後再試，或聯繫管理人員');
+			}            
+		});
+	}, 500);
 }
 
 </script>

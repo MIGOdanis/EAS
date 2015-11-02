@@ -14,9 +14,14 @@ $('.search-form form').submit(function(){
 	return false;
 });
 ");
-?>
-<a class="btn btn-default" href="create">新增權限群組</a>
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+$this->widget('UIAuthWidget', array(
+	'checkType'=>"auth",
+	'auth'=>array("user/authGroup/create"),
+	'user'=>$this->user,
+	'html'=>'<a class="btn btn-default" href="create">新增權限群組</a>'
+)); 
+
+$this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered table-striped',
 	'dataProvider'=>$model->search(),
@@ -62,7 +67,7 @@ $('.search-form form').submit(function(){
 			(
 				'activate'=>array(
 						'label'=>'啟用',
-						'url'=>'Yii::app()->createUrl("user/active", array("id"=>$data->id))',
+						'url'=>'Yii::app()->createUrl("authGroup/active", array("id"=>$data->id))',
 						'click'=>"function() {
 							if(!confirm('是否啟用?')) return false;
 							var th = this,
@@ -85,7 +90,7 @@ $('.search-form form').submit(function(){
 				),
 				'deactivate'=>array(
 						'label'=>'停用',
-						'url'=>'Yii::app()->createUrl("user/active", array("id"=>$data->id))',
+						'url'=>'Yii::app()->createUrl("authGroup/active", array("id"=>$data->id))',
 						'click'=>"function() {
 							if(!confirm('是否停用?')) return false;
 							var th = this,

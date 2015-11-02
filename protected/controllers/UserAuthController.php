@@ -51,6 +51,7 @@ class UserAuthController extends Controller
 
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("group_id = " . $model->group);
+		$criteria->addCondition("active = 1");
 		$authGroup = AuthGroup::model()->findAll($criteria);
 		$this->renderPartial('_update',array(
 			"authGroup" => $authGroup,

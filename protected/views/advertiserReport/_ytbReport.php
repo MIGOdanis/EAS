@@ -43,7 +43,7 @@ Yii::app()->clientScript->registerScript('search', "
 $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'yiiCGrid',
 	'itemsCssClass' => 'table table-bordered',
-	'dataProvider'=>$allData = $model->ytbReport($_GET['CampaignId']),
+	'dataProvider'=>$allData = $model->ytbReport($_GET['CampaignId'],$this->user),
 	'filter'=>$model,
 	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
 	'emptyText'=>'沒有資料',
@@ -60,59 +60,98 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		'nextPageCssClass' => ''
 	),
 	'template'=>'{pager}{items}{pager}',
-	'columns'=>array(		
+	'columns'=>array(	
 		array(	
-			'header' => "日期",
-			'value'=>'$data["date"]',
-			'htmlOptions'=>array('width'=>'100','class'=>'day'),
+			'name' => "settled_time",
+			'header' => "時間",
+			'value'=>'date("Y-m-d",$data["settled_time"])',
+			// 'htmlOptions'=>array('width'=>'120','class'=>'day  sm-text'),
 			'filter'=>false,
-			'footer'=>"總計",
 		),	
 		array(	
-			'header' => "策略",
-			'value'=>'"(" . $data["strategyId"] . ")" . $data["strategy"]',
-			//'htmlOptions'=>array('width'=>'100'),
-		),		
-		array(	
-			'header' => "素材",
-			'value'=>'"(" . $data["creativeId"] . ")" . $data["creative"]',
-			//'htmlOptions'=>array('width'=>'100'),
+			'name' => "campaign_id",
+			'header' => "訂單名稱",
+			'value'=>'$data["campaign"]->campaign_name',
+			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
+			'filter'=>false,
 		),	
 		array(	
-			'header' => "版位",
-			'value'=>'"(" . $data["adspaceId"] . ")" . $data["adspace"]',
-			//'htmlOptions'=>array('width'=>'100'),
+			'name' => "strategy_id",
+			'header' => "策略名稱",
+			'value'=>'$data["strategy"]->strategy_name',
+			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
+			'filter'=>false,
 		),	
 		array(	
-			'header' => "類別",
-			'value'=>'$data["siteCategory"]',
-			//'htmlOptions'=>array('width'=>'100'),
-		),			
+			'name' => "creative_id",
+			'header' => "素材名稱",
+			'value'=>'$data["creative"]->creativeGroup->name',
+			// 'htmlOptions'=>array('width'=>'170','class'=>'sm-text'),
+			'filter'=>false,
+			// 'footer'=>"總計",
+		),	
 		array(	
-			'header' => "收視數",
-			'value'=>'$data["totView"]',
-			'footer'=>number_format(sumColumn($allData,"totView"), 0, "." ,","),
+			'name' => "width_height",
+			'header' => "尺寸",
+			'value'=>'$data["data"]->width_height',
+			'htmlOptions'=>array('width'=>'50','class'=>'sm-text'),
+			'filter'=>false,
 		),
 		array(	
-			'header' => "25%收視數",
-			'value'=>'$data["25"]',
-			'footer'=>number_format(sumColumn($allData,"25"), 0, "." ,","),
-		),		
-		array(	
-			'header' => "50%收視數",
-			'value'=>'$data["50"]',
-			'footer'=>number_format(sumColumn($allData,"50"), 0, "." ,","),
-		),	
-		array(	
-			'header' => "75%收視數",
-			'value'=>'$data["75"]',
-			'footer'=>number_format(sumColumn($allData,"75"), 0, "." ,","),
-		),	
-		array(	
-			'header' => "100%收視數",
-			'value'=>'$data["100"]',
-			'footer'=>number_format(sumColumn($allData,"100"), 0, "." ,","),
+			'name' => "adSpace.site.category.mediaCategory.id",
+			'header' => "媒體分類",
+			'value'=>'$data["mediaCategory"]->name',
+			// 'htmlOptions'=>array('width'=>'100','class'=>'sm-text'),
+			'filter'=>false,
 		),					
+		array(
+			'name' => "impression",
+			'header' => "曝光",
+			'value'=>'number_format($data["data"]->impression, 0, "." ,",")',
+			'filter'=>false,
+		),		
+		array(
+			'name' => "click",
+			'header' => "點擊",
+			'value'=>'number_format($data["data"]->click, 0, "." ,",")',
+			'filter'=>false,
+		),	
+		array(
+			'header' => "點擊率",
+			'value'=>'(($data["data"]->impression > 0) ? round(($data["data"]->click / $data["data"]->impression) * 100, 2) : 0) . "%"',
+			'filter'=>false,
+		),	
+		array(
+			'header' => "收視",
+			'value'=>'(int)$data["temp_table"]["totView"]',
+			'filter'=>false,
+		),	
+		array(
+			'header' => "收視率",
+			'value'=>'(($data["data"]->impression > 0) ? round(($data["temp_table"]["totView"] / $data["data"]->impression) * 100, 2) : 0) . "%"',
+			'filter'=>false,
+		),	
+		array(
+			'header' => "25%收視",
+			'value'=>'(int)$data["temp_table"]["25"]',
+			'filter'=>false,
+		),
+		array(
+			'header' => "50%收視",
+			'value'=>'(int)$data["temp_table"]["50"]',
+			'filter'=>false,
+		),
+		array(
+			'header' => "75%收視",
+			'value'=>'(int)$data["temp_table"]["75"]',
+			'filter'=>false,
+		),
+		array(
+			'header' => "100%收視",
+			'value'=>'(int)$data["temp_table"]["100"]',
+			'filter'=>false,
+		)		
 	),
 ));
+
 ?>

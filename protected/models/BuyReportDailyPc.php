@@ -1,41 +1,19 @@
 <?php
-
-/**
- * This is the model class for table "{{buyReportDailyPc}}".
- *
- * The followings are the available columns in table '{{buyReportDailyPc}}':
- * @property string $id
- * @property integer $settled_time
- * @property string $campaign_id
- * @property string $ad_space_id
- * @property string $strategy_id
- * @property string $creative_id
- * @property integer $media_category_id
- * @property integer $screen_pos
- * @property integer $adformat
- * @property string $width_height
- * @property string $pv
- * @property string $impression
- * @property string $impression_ten_sec
- * @property string $click
- * @property string $media_cost
- * @property string $media_tax_cost
- * @property string $media_ops_cost
- * @property string $income
- * @property string $income_ten_sec
- * @property string $agency_income
- * @property integer $is_outside_tracking
- * @property integer $sync_time
- */
 class BuyReportDailyPc extends CActiveRecord
 {
 	public $media_cost_count; 
+	public $click_sum;
+	public $impression_sum;
+	public $income_sum;
+	public $temp_income_sum;
+	public $temp_click_sum;
+	public $temp_imp_sum;
+	public $temp_advertiser_invoice_sum;
+	public $temp_table;
+	public $temp_receivables;
+	public $temp_receivables_sql;
+	public $temp_receivables_btn;
 
-public $click_sum;
-public $impression_sum;
-public $income_sum;
-public $temp_income_sum;
-public $temp_advertiser_invoice_sum;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -164,36 +142,84 @@ public $temp_advertiser_invoice_sum;
 		return $keySum;
 	}
 
-	public function addReportTime($criteria)
+	public function addReceivablesTime()
 	{
+		$sql = array();
 		if(!isset($_GET) || $_GET['type'] == "yesterday"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
+			$day = strtotime(date("Y-m-d 00:00:00",strtotime('-1 day')));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
 		}
 
 		if($_GET['type'] == "7day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
+			$allDay = 7;
 		}
 
 		if($_GET['type'] == "30day"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
+			$allDay = 30;
 		}
 
 		if($_GET['type'] == "pastMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+			$day = strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months")));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
 		}
 
 		if($_GET['type'] == "thisMonth"){
-			$criteria->addCondition("settled_time >= " . strtotime(date("Y-m-01 00:00:00")));
-			$criteria->addCondition("settled_time <= " . strtotime(date("Y-m-t 00:00:00")));
+			$day = strtotime(date("Y-m-01 00:00:00"));
+			$sql[] = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+			$allDay = 0;
+		}	
+
+		if($_GET['type'] == "custom"){
+			$allDay = ceil((strtotime($_GET['endDay'] . "23:59:59") - strtotime($_GET['startDay'] . "00:00:00"))  / 86400);
+			// print_r($allDay); exit;
+		}
+
+		if($allDay > 0){
+			
+			for($r=0;$r<=$allDay;$r++){
+				$day = strtotime(date("Y-m-d 00:00:00",strtotime('-' . $r . ' day')));
+				$daySql = "( year = " . date("Y",$day) . " AND month = " . date("m",$day) ." )";
+				if(!in_array($daySql, $sql)){
+					$sql[] = $daySql;
+				}
+			}		
+		}
+		
+		return implode (" OR ", $sql);
+	}
+
+	public function addReportTime($criteria, $columns = "settled_time")
+	{
+		if(!isset($_GET) || $_GET['type'] == "yesterday"){
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-1 day'))));
+		}
+
+		if($_GET['type'] == "7day"){
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-7 day'))));
+		}
+
+		if($_GET['type'] == "30day"){
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-d 00:00:00",strtotime('-30 day'))));
+		}
+
+		if($_GET['type'] == "pastMonth"){
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-01 00:00:00",strtotime("-1 Months"))));
+			$criteria->addCondition($columns ." <= " . strtotime(date("Y-m-t 00:00:00",strtotime("-1 Months"))));
+		}
+
+		if($_GET['type'] == "thisMonth"){
+			$criteria->addCondition($columns ." >= " . strtotime(date("Y-m-01 00:00:00")));
+			$criteria->addCondition($columns ." <= " . strtotime(date("Y-m-t 00:00:00")));
 		}	
 
 		if($_GET['type'] == "custom"){
 			if(isset($_GET['startDay']) && !empty($_GET['startDay'])){
-				$criteria->addCondition("settled_time >= " . strtotime($_GET['startDay'] . "00:00:00"));
+				$criteria->addCondition($columns ." >= " . strtotime($_GET['startDay'] . "00:00:00"));
 			}
 			if(isset($_GET['endDay']) &&  !empty($_GET['endDay'])){
-				$criteria->addCondition("settled_time <= " . strtotime($_GET['endDay'] . "00:00:00"));
+				$criteria->addCondition($columns ." <= " . strtotime($_GET['endDay'] . "00:00:00"));
 			}			
 
 		}
@@ -201,22 +227,30 @@ public $temp_advertiser_invoice_sum;
 		return $criteria;
 	}
 
-	//前台供應商查詢
-	public function supplierDailyReport($tos_id,$reportType)
-	{
-		$criteria = new CDbCriteria;
-		$criteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
-		$noPayCampaign = Campaign::model()->findAll($criteria);
+	public function addNoPayCampaign($criteria){
+		$noPayCriteria = new CDbCriteria;
+		$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+		$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
 		$noPayCampaignId = array();
 		foreach ($noPayCampaign as $value) {
 			$noPayCampaignId[] = $value->tos_id;
 		}
 
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] == "only"){
+			 $criteria->addInCondition("campaign_id",$noPayCampaignId);
+		}else{
+			$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+		}
+		
+		return $criteria;
+	}
+
+	//前台供應商查詢
+	public function supplierDailyReport($tos_id,$reportType)
+	{
+		
 		$criteria=new CDbCriteria;
-
 		$criteria->addCondition("t.tos_id = '" . $tos_id ."'");
-
 		if($reportType == "supplier"){
 			if(isset($_GET['site']) && $_GET['site'] > 0){
 				$criteria->addCondition("site.tos_id = '" . $_GET['site'] . "'");
@@ -251,7 +285,7 @@ public $temp_advertiser_invoice_sum;
 
 		$criteria->addInCondition("ad_space_id",$adSpacArray);
 		
-		$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+		$criteria = $this->addNoPayCampaign($criteria);
 
 		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
 
@@ -272,7 +306,7 @@ public $temp_advertiser_invoice_sum;
 			return $this->findAll($criteria);
 		}
 		
-		// print_r($adSpacArray); exit;
+		// print_r($criteria); exit;
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
@@ -281,6 +315,10 @@ public $temp_advertiser_invoice_sum;
 			'criteria'=>$criteria,
 		));
 	}
+
+
+
+
 
 	//後台查詢供應商
 	public function adminSupplierDailyReport($adSpacArray)
@@ -292,7 +330,7 @@ public $temp_advertiser_invoice_sum;
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			sum(t.pv) as pv,
-			t.settled_time as time
+			t.settled_time
 		';
 
 
@@ -300,18 +338,38 @@ public $temp_advertiser_invoice_sum;
 
 		if(!empty($adSpacArray)){
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
+		}		
+
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
 		}
 
-		$criteria->addCondition("supplier.tos_id IS NOT NULL");
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+		//主要維度
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+			// $criteria->addCondition("supplier.tos_id IS NOT NULL");
+			$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+			$criteria->group = "supplier.tos_id";
+			$order = 'impression DESC, click DESC';
+		}
 
-		$criteria->group = "supplier.tos_id";
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+			$criteria->group = "t.settled_time";
+			$order = 't.settled_time DESC';
+		}
 
-		//print_r($criteria); exit;
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+			// $criteria->addCondition("campaign.tos_id IS NOT NULL");
+			$criteria->with = array("campaign");
+			$criteria->group = "t.campaign_id";
+			$order = 'impression DESC, click DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == 1){
+			$criteria->order = 'impression DESC, click DESC';
+		}
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
-			$criteria->order = 'impression DESC, click DESC';
 			return $this->findAll($criteria);
 		}
 		
@@ -319,7 +377,7 @@ public $temp_advertiser_invoice_sum;
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => $order,
 			),			
 			'criteria'=>$criteria,
 		));
@@ -334,7 +392,7 @@ public $temp_advertiser_invoice_sum;
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			sum(t.pv) as pv,
-			t.settled_time as time
+			t.settled_time
 		';
 
 		$criteria = $this->addReportTime($criteria);
@@ -343,14 +401,33 @@ public $temp_advertiser_invoice_sum;
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
 
-		$criteria->addCondition("site.tos_id IS NOT NULL");
+		// $criteria->addCondition("site.tos_id IS NOT NULL");
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
+		}
 
-		$criteria->group = "site.tos_id";
+
+		//主要維度
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+			$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+			$criteria->group = "site.tos_id";
+			$order = 'impression DESC, click DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+			$criteria->group = "t.settled_time";
+			$order = 't.settled_time DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+			$criteria->with = array("campaign");
+			$criteria->group = "t.campaign_id";
+			$order = 'impression DESC, click DESC';
+		}
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
-			$criteria->order = 'impression DESC, click DESC';
+			$criteria->order = $order;
 			return $this->findAll($criteria);
 		}
 		
@@ -358,7 +435,7 @@ public $temp_advertiser_invoice_sum;
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => $order,
 			),			
 			'criteria'=>$criteria,
 		));
@@ -373,7 +450,7 @@ public $temp_advertiser_invoice_sum;
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			sum(t.pv) as pv,
-			t.settled_time as time
+			t.settled_time
 		';
 
 		$criteria = $this->addReportTime($criteria);
@@ -382,14 +459,33 @@ public $temp_advertiser_invoice_sum;
 			$criteria->addInCondition("ad_space_id",$adSpacArray);
 		}
 
-		$criteria->addCondition("adSpace.tos_id IS NOT NULL");
+		if(isset($_GET['showNoPay']) && $_GET['showNoPay'] != "all"){
+			$criteria = $this->addNoPayCampaign($criteria);
+		}		
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+		// $criteria->addCondition("adSpace.tos_id IS NOT NULL");
 
-		$criteria->group = "adSpace.tos_id";
+		//主要維度
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "supplier"){
+			$criteria->with = array("adSpace","adSpace.site","adSpace.site.supplier");
+			$criteria->group = "adSpace.tos_id";
+			$order = 'impression DESC, click DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "date"){
+			$criteria->group = "t.settled_time";
+			$order = 't.settled_time DESC';
+		}
+
+		if(isset($_GET['indexType']) && $_GET['indexType'] == "campaign"){
+			$criteria->with = array("campaign");
+			$criteria->group = "t.campaign_id";
+			$order = 'impression DESC, click DESC';
+		}
+
 
 		if(isset($_GET['export']) && $_GET['export'] == 1){
-			$criteria->order = 'impression DESC, click DESC';
+			$criteria->order = $order;
 			return $this->findAll($criteria);
 		}
 		
@@ -397,14 +493,53 @@ public $temp_advertiser_invoice_sum;
 		return new CActiveDataProvider($this, array(
 			'pagination' => false,
 			'sort' => array(
-				'defaultOrder' => 'impression DESC, click DESC',
+				'defaultOrder' => $order,
 			),			
 			'criteria'=>$criteria,
 		));
 	}
 
-	//--------------Make Adv report--------------------
+	/*
+	======   ================      ===========   ==============   ====
+	===    ==    ============   ===   =========   ============   =====
+	===   ====   ============   =====   ========   ==========   ======
+	===   ====   ============   ======   ========   ========   =======
+	===          ============   ======   =========   ======   ========
+	===   ====   ============   =====   ===========   ====   =========
+	===   ====   ============   ===    =============   ==   ==========
+	===   ====   ============      ==================      ===========
+	
+	廣告主報表
 
+	*/
+
+	public function setCreate($criteria){
+
+		// print_r(); exit;
+		$user = User::model()->findByPk(Yii::app()->user->id);
+		if($user->group == 8){
+			$createrCriteria=new CDbCriteria;
+			$createrCriteria->addCondition("id = '" . $user->supplier_id . "' OR parent_id = '" . $user->supplier_id . "'");
+			$creater = TosUpmUser::model()->findAll($createrCriteria);
+			$createrArray = array();
+			foreach($creater as $value){
+				$createrArray[] = $value->id;
+			}
+			if(is_array($createrArray)){
+				$criteria->addInCondition("campaign.create_user",$createrArray);
+			}else{
+				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
+			}
+		}
+
+		return $criteria;
+
+	}
+
+
+
+
+	//訂單類別報表
 	public function supplierCategoryReport($campaignId)
 	{
 		$criteria=new CDbCriteria;
@@ -413,6 +548,8 @@ public $temp_advertiser_invoice_sum;
 			sum(t.click) as click,
 			sum(t.impression) as impression
 		';
+
+		$criteria = $this->setCreate($criteria);
 
 		$criteria = $this->addReportTime($criteria);	
 
@@ -439,8 +576,10 @@ public $temp_advertiser_invoice_sum;
 		));
 	}
 
-	public function campaignBannerReport($campaignId)
+	//訂單活動報表
+	public function campaignBannerReport($campaignId,$user)
 	{
+
 		$criteria=new CDbCriteria;
 		$criteria->select = '
 			sum(t.income) / 100000 as income,
@@ -448,6 +587,8 @@ public $temp_advertiser_invoice_sum;
 			sum(t.impression) as impression,
 			t.width_height as width_height
 		';
+
+		$criteria = $this->setCreate($criteria);
 
 		$criteria = $this->addReportTime($criteria);
 
@@ -505,7 +646,6 @@ public $temp_advertiser_invoice_sum;
 			}else{
 				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
 			}
-			
 		}
 
 		if(isset($_GET['active']) && ($_GET['active'] > 0))
@@ -534,24 +674,34 @@ public $temp_advertiser_invoice_sum;
 		));
 	}
 
-
+	//經銷對帳查詢-成本
 	public function getCampaignAllIncome($campaign_id)
 	{
-		//print_r($campaign_id); exit;
-		set_time_limit(0);
 		$criteria=new CDbCriteria;
 		$criteria->select = 'sum(t.income) / 100000 as income_sum';		
 		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
 		$model = $this->find($criteria);
 		$this->temp_income_sum = $model->income_sum;
 		return $this->temp_income_sum;
-		
 	}
 
+	//經銷對帳查詢-IMP+CLICK
+	public function getCampaignAllIC($campaign_id)
+	{
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+		sum(t.click) as click,
+		sum(t.impression) as impression';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$model = $this->find($criteria);
+		// print_r($model); exit;
+		$this->temp_click_sum = $model->click;
+		return $model->impression;
+	}
+
+	//經銷對帳查詢-發票
 	public function getCampaignAdvertiserInvoice($campaign_id)
 	{
-		//print_r($campaign_id); exit;
-		set_time_limit(0);
 		$criteria=new CDbCriteria;
 		$criteria->select = 'sum(t.price) as price';		
 		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
@@ -561,6 +711,294 @@ public $temp_advertiser_invoice_sum;
 		return $this->temp_advertiser_invoice_sum;
 		
 	}
+
+	//經銷對帳查詢-發票
+	public function getCampaignAdvertiserReceivables($campaign_id)
+	{
+		$receivables_sql = $this->addReceivablesTime();
+
+		$criteria=new CDbCriteria;
+		$criteria->select = 'sum(t.price) as price';		
+		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
+		$criteria->addCondition($receivables_sql);	
+		$criteria->addCondition("t.active = 1");
+		
+		$model = AdvertiserReceivables::model()->find($criteria);
+
+
+
+		$this->temp_receivables = $model->price;
+
+		if($model->price > 0){
+			$this->temp_receivables_btn = "success";
+		}else{
+			$this->temp_receivables_btn = "default";
+		}
+		// print_r($this->temp_receivables); exit;
+		return $this->temp_receivables;
+		
+	}
+	
+
+	//收視報表
+	public function ytbReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+
+		$this->temp_table = EveTestYtbLogs::model()->ytbReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->setCreate($criteria);
+
+		$criteria = $this->addReportTime($criteria);
+
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign","strategy","creative","creative.creativeGroup");
+
+		$criteria->group = "t.settled_time, t.strategy_id, t.creative_id, category.category_id"; 
+		
+		$criteria->order = "t.settled_time DESC, t.strategy_id DESC, t.creative_id DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"strategy" => $value->strategy ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"mediaCategory" => $value->adSpace->site->category->mediaCategory,
+				"temp_table" => $this->temp_table[date("Y-m-d",$value->settled_time)][$value->strategy->tos_id][$value->creative->tos_id][$value->adSpace->site->category->mediaCategory->id]
+			);
+		}
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.settled_time DESC, t.strategy_id DESC, t.creative_id DESC';
+			return $data;
+		}
+
+		return new CArrayDataProvider($data, array(
+			'pagination'=>false
+		));	
+
+	}
+
+	//輸出收視報表
+	public function exportYtbReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$creative = CreativeMaterial::model()->findAll($criteria);
+
+		$FnWhere = array();
+		$YtbWhere = array();
+		foreach ($creative as $value) {
+			$FnWhere[] =  "`creative` LIKE '%" . $value->tos_id . "%' ";
+			$YtbWhere[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($FnWhere)){
+			$FnWhere = implode(" OR ", $FnWhere);
+			$criteria->addCondition($FnWhere);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		
+		$functionReport = EveDspLogsDspTosFunc::model()->funcReporByDay($criteria);
+		
+		$criteria=new CDbCriteria;
+		if(!empty($YtbWhere)){
+			$YtbWhere = implode(" OR ", $YtbWhere);
+			$criteria->addCondition($YtbWhere);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		$ytbReport =  EveTestYtbLogs::model()->ytbReport($criteria);
+
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("campaign");
+		$criteria->group = "t.settled_time"; 
+		$criteria->order = "t.settled_time DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"functionReport" => $functionReport[date("Y-m-d",$value->settled_time)],
+				"ytbReport" => $ytbReport[date("Y-m-d",$value->settled_time)]
+			
+			); 
+		}
+
+		return $data;
+
+	}
+
+	//輸出收視類別報表
+	public function exportYtbCategoryReport($campaignId)
+	{
+
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`queryStr` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+
+		$ytb = EveTestYtbLogs::model()->ytbCategoryReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign",);
+		$criteria->group = "category.category_id"; 
+		$criteria->order = "category.category_id";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"data" => $value,
+				"ytb" => $ytb[$value->adSpace->site->category->category_id]
+			);
+		}
+
+		return $data;
+
+	}
+
+	//加值報表
+	public function functionReport($campaignId)
+	{
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$model = CreativeMaterial::model()->findAll($criteria);
+		
+		$where = array();
+		foreach ($model as $value) {
+			$where[] =  "`creative` LIKE '%" . $value->tos_id . "%' ";
+		}
+
+		$criteria=new CDbCriteria;
+		if(!empty($where)){
+			$where = implode(" OR ", $where);
+			$criteria->addCondition($where);
+		}else{
+			$criteria->addCondition("t.id = 0");
+		}
+		
+		$this->temp_table = EveDspLogsDspTosFunc::model()->funcReport($criteria);
+
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.width_height as width_height
+		';
+
+		$criteria = $this->setCreate($criteria);
+
+		$criteria = $this->addReportTime($criteria);
+		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+		$criteria->with = array("adSpace","campaign","creative","creative.creativeGroup");
+		$criteria->group = "t.settled_time,creativeGroup.tos_id"; 
+		$criteria->order = "t.settled_time DESC";
+
+		$model = $this->findAll($criteria);
+
+		$data = array();
+
+		foreach ($model as $value) {
+			$data[] = array(
+				"settled_time" => $value->settled_time ,
+				"campaign" => $value->campaign ,
+				"creative" => $value->creative ,
+				"data" => $value ,
+				"temp_table" => $this->temp_table[date("Y-m-d",$value->settled_time)][$value->creative->tos_id]
+			);
+		}
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			return $data;
+		}
+
+		return new CArrayDataProvider($data, array(
+			'pagination'=>false
+		));	
+	}
+
 
 	/**
 	 * Returns the static model of the specified AR class.

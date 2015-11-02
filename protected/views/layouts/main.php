@@ -8,7 +8,8 @@
 <html class="modern" lang="zh">
 <!--<![endif]-->
 	<head>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"> 
+	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+	<meta name="viewport" content="width=device-width">
 	<meta charset="utf-8">
 	<title>CLICKFORCE EAS</title>
 	<link rel="SHORTCUT ICON" href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/image/cfd.png">
@@ -100,8 +101,8 @@
 		</div>		
 		
 		<script type="text/javascript">
+		keyEvent = false;
 		$(function(){
-			var keyEvent = false;
 			var leftNavStatus = true;
 			$(document).keydown(function(e) {
 				if(e.keyCode == 16)

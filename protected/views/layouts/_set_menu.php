@@ -14,6 +14,7 @@ $this->nav = array(
 					"create" => "新增使用者",
 					"active" => "停用/啟用使用者",
 					"view" => "檢視使用者資料",
+					"getUpmList" => "取得UPM清單",
 				),
 			),
 			"userAuth" => array(
@@ -133,8 +134,8 @@ $this->nav = array(
 	"mediaReport" => array(
 		"title" => "報表查詢",
 		"url"=>"mediaReport/supplierReport",
-		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts"),
-		"list" => array(
+		"controllers" => array("mediaReport","advertiserReport","advertiserAccounts","downloadData","bookingReport"),
+		"list" => array(		
 			"mediaReport" => array(
 				"title" => "供應商日報",
 				"url"=>"mediaReport/supplierReport",
@@ -150,20 +151,48 @@ $this->nav = array(
 				"action" => array(
 					"categoryReport" => "媒體分類報表",
 					"campaignBannerReport" => "廣告活動總表",
-					"ytbReport" => "影音廣告報表"
+					"ytbReport" => "影音廣告報表",
+					"functionReport" => "加值功能報表",
 				),					
 			),
 			"advertiserAccounts" => array(
 				"title" => "經銷對帳查詢",
 				"url"=>"advertiserAccounts/admin",
 				"action" => array(
-					"admin" => "媒體分類報表",
+					"admin" => "經銷對帳查詢",
 					"selectBelong" => "設定訂單業務",
 					"selectActive" => "設定結案",
 					"creatInvoice" => "建立發票",
-					"delInvoice" => "註銷發票"
+					"delInvoice" => "註銷發票",
+					"creatReceivables" => "認列款項",
+					"getDefindReceivables" => "取得預設認列",
+					"delReceivables" => "註銷款項",
+					"getUpmList" => "取得UPM清單"				
 				),					
-			)						
+			),
+			"bookingReport" => array(
+				"title" => "BOOKING表",
+				"url"=>"bookingReport/weekBooking",
+				"action" => array(
+					"weekBooking" => "BOOKING周報表",
+					"filterDate" => "日期篩選",
+					"filterCampaign" => "訂單篩選",
+					"campaignListHistory" => "BOOLING日報表",
+					"campaign" => "訂單BOOKING表"
+				),
+			),			
+			"downloadData" => array(
+				"title" => "資料輸出",
+				"url"=>"downloadData/index",
+				"action" => array(
+					"index" => "資料輸出列表",
+					"siteAdSpaceInfor" => "網站版位資訊",
+					"strategyInfor" => "訂單策略資訊",
+					"creativeInfor" => "訂單素材資訊",
+				),					
+			),
+
+
 		)
 	),
 	"Message" => array(
