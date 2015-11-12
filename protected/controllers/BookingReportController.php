@@ -53,8 +53,8 @@ class BookingReportController extends Controller
 	public function actionFilterCampaign()
 	{
 		$criteria = new CDbCriteria;
-		$criteria->addCondition("t.booking_time >= '" . strtotime(date("Y-m-d") . ' -5 day') . "'");
-		$criteria->addCondition("t.booking_time <= '" . strtotime(date("Y-m-d") . ' +15 day') . "'");
+		$criteria->addCondition("t.booking_time >= '" . strtotime(date("Y-m-d") . ' -35 day') . "'");
+		$criteria->addCondition("t.booking_time <= '" . strtotime(date("Y-m-d") . ' +35 day') . "'");
 		$criteria->group = "t.campaign_id";	
 		$model = Booking::model()->with("campaign")->findAll($criteria);
 		$this->renderPartial('filterCampaign',array(

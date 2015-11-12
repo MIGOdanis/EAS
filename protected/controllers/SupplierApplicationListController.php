@@ -388,8 +388,8 @@ class SupplierApplicationListController extends Controller
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $r, $value->supplier->bank_name);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R' . $r, $value->supplier->bank_sub_name);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('S' . $r, (string)$value->supplier->account_number,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);						
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('T' . (string)$r, $value->supplier->bank_id,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);											
-						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('U' . (string)$r, $value->supplier->bank_sub_id,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);											
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('T' . $r, (string)$value->supplier->bank_id,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);											
+						$objPHPExcel->setActiveSheetIndex(0)->setCellValueExplicit('U' . $r, (string)$value->supplier->bank_sub_id,PHPExcel_Cell_DataType::TYPE_STRING); //setCellValue('P' . $r, $value->supplier->account_number);											
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('V' . $r, $value->supplier->bank_swift);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('W' . $r, $value->supplier->bank_swift2);
 						$objPHPExcel->setActiveSheetIndex(0)->setCellValue('X' . $r, $value->supplier->email);

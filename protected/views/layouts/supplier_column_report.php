@@ -4,6 +4,11 @@ $this->beginContent('/layouts/supplier_main');
 <div id="left-main">
 	<div id="menu-list-group">
 		<?php 
+		if($this->action->id == "mySite"){
+		?>
+		<div class="menu-list report-list applySite"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 申請新網站</div>
+		<?php 
+		}
 		$r = 0;
 		foreach ($this->site as $site) {
 			$r++;

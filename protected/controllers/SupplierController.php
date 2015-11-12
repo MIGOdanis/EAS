@@ -263,6 +263,83 @@ class SupplierController extends Controller
 		));
 	}
 
+	public function actionApplyAdSpace($id)
+	{	
+
+
+		$site = Site::model()->findByPk($id);
+
+		$model=new AdSpaceApply();
+
+		if(isset($_POST['AdSpaceApply']))
+		{
+			$model->attributes=$_POST['AdSpaceApply'];
+
+			$model->size = implode (",", $_POST['AdSpaceApply']['size']);
+			$model->site_id = $site->tos_id;
+			$model->status = 1;
+			$model->create_time = time();
+			$model->apply_by = Yii::app()->user->id;
+
+			if($model->save()){
+				foreach (Yii::app()->params['bdTeam'] as $value) {
+					$Subject = "有新的版位申請";
+					$Body = "有一則新的版位申請";
+					$this->email($value, $Subject, $Body);
+				}					
+				echo json_encode(array("code" => "1"));
+			}else{
+				print_r($model->getErrors()); exit;
+				echo json_encode(array("code" => "2"));
+			}
+
+			Yii::app()->end();
+
+		}		
+		
+		$this->renderPartial('_applyAdSpace',array(
+			'site'=>$site,
+			'model'=>$model,
+		));
+	}
+
+	public function actionApplySite($id)
+	{	
+
+		$site = Site::model()->findByPk($id);
+
+		$model=new SiteApply();
+
+		if(isset($_POST['SiteApply']))
+		{
+			$model->attributes=$_POST['SiteApply'];
+			$model->supplier_id = $this->supplier->tos_id;
+			$model->status = 1;
+			$model->create_time = time();
+			$model->apply_by = Yii::app()->user->id;
+
+			if($model->save()){
+				foreach (Yii::app()->params['bdTeam'] as $value) {
+					$Subject = "有新的網站申請";
+					$Body = "有一則新的網站申請";
+					$this->email($value, $Subject, $Body);
+				}					
+				echo json_encode(array("code" => "1"));
+			}else{
+				print_r($model->getErrors()); exit;
+				echo json_encode(array("code" => "2"));
+			}
+
+			Yii::app()->end();
+
+		}		
+		
+		$this->renderPartial('_applySite',array(
+			'site'=>$site,
+			'model'=>$model,
+		));
+	}
+
 	public function actionGetSupplierReport()
 	{
 		$model = new BuyReportDailyPc('search');

@@ -41,7 +41,7 @@ $this->nav = array(
 	"tosSupplier" => array(
 		"title" => "供應商管理",
 		"url"=>"tosSupplier/admin",
-		"controllers" => array("tosSupplier","tosSite","tosAdSpace","supplierRegister"),
+		"controllers" => array("tosSupplier","tosSite","tosAdSpace","supplierRegister","tosSiteApply","tosAdSpaceApply"),
 		"list" => array(
 			"supplierRegister" => array(
 				"title" => "供應商電子合約管理",
@@ -86,7 +86,25 @@ $this->nav = array(
 					"admin" => "供應商網站版位清單",
 					"view" => "檢視供應商網站版位"
 				),
-			),						
+			),
+			"tosSiteApply" => array(
+				"title" => "供應商網站申請",
+				"url"=>"tosSiteApply/admin",
+				"action" => array(
+					"admin" => "供應商網站申請",
+					"view" => "檢視供應商網站申請",
+					"status" => "核准網站申請"
+				),
+			),
+			"tosAdSpaceApply" => array(
+				"title" => "供應商網站版位申請",
+				"url"=>"tosAdSpaceApply/admin",
+				"action" => array(
+					"admin" => "供應商網站版位申請",
+					"view" => "檢視供應商網站版位申請",
+					"status" => "核准網站版位申請"
+				),
+			),												
 		)
 	),
 	"supplierApplicationMonies" => array(

@@ -7,6 +7,7 @@
 	<h1><?php echo $model->name;?></h1>
 	<h6>申請與異動網站版位資訊，請洽您的專員！</h6>
 	<h6>網站類型 : <?php echo Yii::app()->params["siteType"][$model->type];?></h6>
+	<button type="button" class="btn btn-primary applyAdSpace">申請新版位</button>
 	<?php if($model->type == 2){ ?>
 
 		<?php if(Yii::app()->params["androidSdkVersionNowNew"] || Yii::app()->params["iosSdkVersionNowNew"]){ ?>
@@ -51,33 +52,74 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 			</h5> 
 			<?php if($model->type != 2){ ?>
 				<button type="button" class="btn btn-primary code-btn" data-id="<?php echo $value->tos_id;?>">取得版位代碼</button>
-				<script type="text/javascript">
-				$(function(){
-					$('.code-btn').click(function() {
-						var id = $(this).data('id');
-						$.ajax({
-							url:"getAdSpaceCode",
-							type:"get",
-							data : { id : id },
-							success:function(html){
-								$('#modal-content').html(html);
-								$('#modal').modal('show');
-							}
-						})
-					    .fail(function(e) {
-					        if(e.status == 403){
-					        	alert('您的權限不足');
-					            window.location.reload();
-					        }
-					        if(e.status == 500){
-					        	alert('請稍後再試，或聯繫管理人員');
-					        }            
-					    });
-						return false;//阻止a标签		
-					});
-				})
-				</script>
 			<?php }?>
+			<script type="text/javascript">
+			$(function(){
+				$('.code-btn').click(function() {
+					var id = $(this).data('id');
+					$.ajax({
+						url:"getAdSpaceCode",
+						type:"get",
+						data : { id : id },
+						success:function(html){
+							$('#modal-content').html(html);
+							$('#modal').modal('show');
+						}
+					})
+				    .fail(function(e) {
+				        if(e.status == 403){
+				        	alert('您的權限不足');
+				            window.location.reload();
+				        }
+				        if(e.status == 500){
+				        	alert('請稍後再試，或聯繫管理人員');
+				        }            
+				    });
+					return false;//阻止a标签		
+				});
+
+
+				$('.applyAdSpace').click(function() {
+					$.ajax({
+						url:"applyAdSpace?id=<?php echo $value->site->id;?>",
+						success:function(html){
+							$('#modal-content').html(html);
+							$('#modal').modal('show');
+						}
+					})
+				    .fail(function(e) {
+				        if(e.status == 403){
+				        	alert('您的權限不足');
+				            window.location.reload();
+				        }
+				        if(e.status == 500){
+				        	alert('請稍後再試，或聯繫管理人員');
+				        }            
+				    });
+					return false;//阻止a标签		
+				});
+
+				$('.applySite').click(function() {
+					$.ajax({
+						url:"applySite?id=<?php echo $this->supplier->tos_id;?>",
+						success:function(html){
+							$('#modal-content').html(html);
+							$('#modal').modal('show');
+						}
+					})
+				    .fail(function(e) {
+				        if(e.status == 403){
+				        	alert('您的權限不足');
+				            window.location.reload();
+				        }
+				        if(e.status == 500){
+				        	alert('請稍後再試，或聯繫管理人員');
+				        }            
+				    });
+					return false;//阻止a标签		
+				});
+			})
+			</script>			
 		</div>
 	<?php }
 }

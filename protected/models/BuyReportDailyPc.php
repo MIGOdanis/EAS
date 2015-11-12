@@ -557,7 +557,7 @@ class BuyReportDailyPc extends CActiveRecord
 
 		$criteria->addCondition("category.id IS NOT NULL");
 
-		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory");
+		$criteria->with = array("adSpace","adSpace.site","adSpace.site.category","adSpace.site.category.mediaCategory","campaign");
 
 		$criteria->group = "category.category_id";
 		
@@ -577,7 +577,7 @@ class BuyReportDailyPc extends CActiveRecord
 	}
 
 	//訂單活動報表
-	public function campaignBannerReport($campaignId,$user)
+	public function campaignBannerReport($campaignId)
 	{
 
 		$criteria=new CDbCriteria;

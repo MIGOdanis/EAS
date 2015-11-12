@@ -261,7 +261,6 @@ function refresh(){
 			<?php echo $form->textField($model,'remark',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'remark'); ?></p>
 		</div>
-
 	</div>
 </div>
 <div class="modal-footer">
