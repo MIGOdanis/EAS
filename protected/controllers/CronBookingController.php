@@ -17,6 +17,7 @@ class CronBookingController extends Controller
 			$criteria->addCondition("t.id = '" . $_GET['id'] . "'");
 		
 		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit","strategy.strategyPartialDate")->findAll($criteria);
+		
 		foreach ($campaign as $value) {
 
 			$campaignBookingDay = 0;
@@ -113,10 +114,11 @@ class CronBookingController extends Controller
 				}				
 			}
 
-			if($value->status == 1){
-				$this->updateStrategyStatus($value->id);
-				$this->updateStrategyStatusByDay($value->id);
-			}
+
+			// if($value->status == 1){
+			// 	$this->updateStrategyStatus($value->id);
+			// 	$this->updateStrategyStatusByDay($value->id);
+			// }
 
 		}
 		$this->checkCampaignStatus();
@@ -127,7 +129,7 @@ class CronBookingController extends Controller
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("booking_time >= '" . strtotime(date("Y-m-d 00:00:00")) . "'");
 		$criteria->addCondition("status = 1");
-		// $criteria->group = "campaign_id";
+		$criteria->group = "campaign_id";
 		$model = Booking::model()->findAll($criteria);
 
 		foreach ($model as $value) {
@@ -143,11 +145,15 @@ class CronBookingController extends Controller
 			$booking = Booking::model()->findByPk($value->id);
 			$booking->status = $status;
 			$booking->save();
+
+			$this->updateStrategyStatus($value->campaign_id);
+			$this->updateStrategyStatusByDay($value->campaign_id);
+
 		}
 	}
 
-
 	public function updateStrategyStatus($campaignId){
+
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
 		$model = TosCoreStrategy::model()->with("strategyPartialDate")->findAll($criteria);
@@ -160,6 +166,8 @@ class CronBookingController extends Controller
 			if($value->status != 1){
 				$status = 0;
 			}
+
+
 
 			Booking::model()->updateAll(array(
 				'status' => $status
