@@ -33,7 +33,9 @@ $this->widget('zii.widgets.CDetailView', array(
 			'name' => '是否輪播',
 			'value' => ($model->is_only == 1) ? "是" : "否",
 		),	
+		'other_network',
 		'size',
+		'remark',
 		array(
 			'name' => '申請資料建立時間',
 			'value' => (empty($model->create_time)) ? "未填寫" : date("Y-m-d H:i",$model->create_time),

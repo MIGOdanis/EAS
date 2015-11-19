@@ -45,6 +45,9 @@ $(function(){
 	.wait-btn{
 		display: none;
 	}
+	.form-group{
+		margin-top: 25px;
+	}
 </style>
 <div class="modal-header">
 	<h4 class="modal-title" id="myModalLabel">申請新版位</h4>
@@ -61,37 +64,48 @@ $(function(){
 	)); ?>	
 	<div id="form">
 		<div class="form-group">
-			<label><?php echo $form->labelEx($model,'position'); ?></label>
-			<?php echo $form->textField($model,'position',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
+			<label>廣告擺放位置</label>
+			<?php echo $form->textField($model,'position',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"範例：首頁右側 / 內文中間 , 內文下方")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'position'); ?></p>
 		</div>
 
 		<div class="form-group">
 			<label><?php echo $form->labelEx($model,'url'); ?></label>
+			<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>您欲申請的版位放置頁面(app免填)</div>	
 			<?php echo $form->textField($model,'url',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'url'); ?></p>
 		</div>
 
 		<div class="form-group">
-			<label><?php echo $form->labelEx($model,'imp'); ?></label>
+			<label>網站單日PV數</label>
 			<?php echo $form->textField($model,'imp',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'imp'); ?></p>
 		</div>
 
 		<div class="form-group">
 			<label><?php echo $form->labelEx($model,'is_only'); ?></label><br>
+			<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>目前是否有與其他廣告聯播網輪播</div>	
 			<input type="radio" name="AdSpaceApply[is_only]" value="1"> 是
 			<input type="radio" name="AdSpaceApply[is_only]" value="0" checked> 否
 		</div>		
 
 		<div class="form-group">
-			<label><?php echo $form->labelEx($model,'other_network'); ?></label>
-			<?php echo $form->textField($model,'other_network',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
+			<div>
+				<label><?php echo $form->labelEx($model,'other_network'); ?></label>
+				<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>承上，請舉例說明(可複選)</div>
+			</div>
+			<?php foreach (Yii::app()->params['otherNetwork'] as $name) {?>
+				<label class="checkbox-inline">
+					<input type="checkbox" name="AdSpaceApply[other_network][]" value="<?php echo $name;?>" class="size-check">
+					<?php echo $name;?>
+				</label>
+			<?php }?>			
 			<p class="text-danger"><?php echo $form->error($model,'other_network'); ?></p>
 		</div>
 
 
 		<div><label><?php echo $form->labelEx($model,'ctr'); ?></label></div>
+		<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請列出網站目前所放置廣告之CTR(點擊率)</div>
 		<div class="input-group">
 			<?php echo $form->textField($model,'ctr',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<span class="input-group-addon">%</span>
@@ -99,6 +113,8 @@ $(function(){
 		<p class="text-danger"><?php echo $form->error($model,'ctr'); ?></p>
 
 		<div><label><?php echo $form->labelEx($model,'size'); ?></label></div>
+		<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>欲申請之廣告版位尺寸，可複選</div>
+		
 		<?php 
 		if($site->type == 1){
 			$size = Yii::app()->params['cfAdSpace'];
@@ -112,6 +128,11 @@ $(function(){
 				<?php echo $sizeName;?>
 			</label>
 		<?php }?>	
+
+		<div class="form-group">
+			<label><?php echo $form->labelEx($model,'remark'); ?></label><br>
+			<textarea class="form-control" rows="3" name="AdSpaceApply[remark]"></textarea>		
+		</div>	
 
 	</div>
 </div>

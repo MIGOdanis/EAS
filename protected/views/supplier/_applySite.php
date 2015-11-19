@@ -59,13 +59,14 @@ $(function(){
 	)); ?>	
 	<div id="form">
 		<div class="form-group">
-			<label><?php echo $form->labelEx($model,'name'); ?></label>
+			<label>網站名稱/APP名稱</label>
 			<?php echo $form->textField($model,'name',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'name'); ?></p>
 		</div>
 
 		<div class="form-group">
 			<label><?php echo $form->labelEx($model,'url'); ?></label>
+			<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>申請APP，請填上APP Store / Google Play頁面網址</div>			
 			<?php echo $form->textField($model,'url',array('size'=>60,'maxlength'=>255 , "class"=>"form-control" , "placeholder"=>"")); ?>
 			<p class="text-danger"><?php echo $form->error($model,'url'); ?></p>
 		</div>
@@ -79,6 +80,7 @@ $(function(){
 
 		<div class="form-group">
 			<label><?php echo $form->labelEx($model,'summary'); ?></label><br>
+			<div><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>請簡單介紹您欲申請的新網站，亦可附上網站基本數據(流量、男女比例、不重複人口等數據)，以加速網站審核</div>			
 			<textarea class="form-control" rows="3" name="SiteApply[summary]"></textarea>		
 		</div>	
 

@@ -70,6 +70,15 @@ return array(
 		"2" => "緊急通知",
 	),
 
+	'otherNetwork' => array(
+		"Google",
+		"Yahoo",
+		"Scupio(酷比)",
+		"vpon",
+		"KuAD",
+		"其他",
+	),
+
 	'alertMailGroup' => array('danis@clickforce.com.tw'),
 	'adminMail' => array('danis@clickforce.com.tw'),
 

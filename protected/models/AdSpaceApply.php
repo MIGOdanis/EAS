@@ -74,7 +74,7 @@ class AdSpaceApply extends CActiveRecord
 			'ctr' => '參考CTR',
 			'is_only' => '是否輪播',
 			'other_network' => '其他聯播網',
-			'remark' => 'Remark',
+			'remark' => '備註',
 			'status' => 'Status',
 			'apply_by' => 'Apply By',
 			'create_time' => 'Create Time',

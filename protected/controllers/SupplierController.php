@@ -275,6 +275,7 @@ class SupplierController extends Controller
 		{
 			$model->attributes=$_POST['AdSpaceApply'];
 
+			$model->other_network = implode (",", $_POST['AdSpaceApply']['other_network']);
 			$model->size = implode (",", $_POST['AdSpaceApply']['size']);
 			$model->site_id = $site->tos_id;
 			$model->status = 1;

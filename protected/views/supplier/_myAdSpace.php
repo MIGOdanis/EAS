@@ -8,6 +8,7 @@
 	<h6>申請與異動網站版位資訊，請洽您的專員！</h6>
 	<h6>網站類型 : <?php echo Yii::app()->params["siteType"][$model->type];?></h6>
 	<button type="button" class="btn btn-primary applyAdSpace">申請新版位</button>
+	<a href="http://eas.doublemax.net/assets/doc/GET_CODE.pdf" target="_blank" class="btn btn-primary">代碼取得說明</a>
 	<?php if($model->type == 2){ ?>
 
 		<?php if(Yii::app()->params["androidSdkVersionNowNew"] || Yii::app()->params["iosSdkVersionNowNew"]){ ?>
