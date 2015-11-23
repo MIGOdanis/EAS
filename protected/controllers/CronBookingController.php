@@ -640,7 +640,7 @@ class CronBookingController extends Controller
 		ini_set("memory_limit","2048M");
 
 		$criteria = new CDbCriteria;	
-		$criteria->addCondition("t.status = 1");
+		$criteria->addCondition("t.status != 2");
 		$criteria->addCondition("t.booking_time < " . strtotime(date("Y-m-d 00:00:00")));
 
 		$model = Booking::model()->findAll($criteria);
@@ -670,6 +670,7 @@ class CronBookingController extends Controller
 					$pcRunClick = $pc->click;
 					$pcRunImp = $pc->impression;
 					$pcRunBudget = $pc->income;
+					$strategy->status = 2;	
 				}		
 
 				if($mob === null){
@@ -680,6 +681,7 @@ class CronBookingController extends Controller
 					$mobRunClick = $mob->click;
 					$mobRunImp = $mob->impression;
 					$mobRunBudget = $mob->income;
+					$strategy->status = 2;	
 				}
 
 
@@ -687,8 +689,9 @@ class CronBookingController extends Controller
 				$strategy->run_imp = $pcRunImp+$mobRunImp;
 				$strategy->run_budget = $pcRunBudget+$mobRunBudget;					
 				$strategy->update_time = time();
-				$strategy->status = 2;		
-				$strategy->save();		
+	
+				if($strategy->status == 2)
+					$strategy->save();		
 			}
 		}
 	}

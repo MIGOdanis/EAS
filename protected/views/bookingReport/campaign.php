@@ -2,52 +2,11 @@
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js" charset="UTF-8"></script>
 <link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/advertiserReport.css" rel="stylesheet">
+<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/css/booking.css" rel="stylesheet">
 <script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/js/advertiserReport.js" charset="UTF-8"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['corechart']}]}"></script>
 <div id="supplier-report">
 	<h3>CAMPAIGN BOOKING</h3>
-	<style type="text/css">
-		#yiiCGrid{
-			text-align: left;
-		}
-		table{
-			border: solid 1px #ACACAC;
-			font-size: 12px;
-		}	
-		tfoot{
-			text-align: center;
-			font-weight: bold;
-		}
-		.click{
-			background-color: #FF988A;
-			color: #fff;
-			text-align: center;
-			font-size: 13px;
-			line-height: 52px;
-		}
-		.imp{
-			background-color: #75AF75;
-			color: #fff;
-			text-align: center;
-			font-size: 13px;
-			line-height: 52px;
-		}
-		.budget{
-			background-color: #4696AA;
-			color: #fff;
-			text-align: center;	
-			font-size: 13px;		
-			line-height: 52px;
-		}	
-		#content-singe{
-			width: 100%;
-			overflow-x:auto; 
-		}				
-		.topItem{
-			border-bottom: solid 1px;
-		}
-
-	</style>
 	<script type="text/javascript">
 		$(function(){
 			$("#filter-btn").click(function(){
@@ -68,6 +27,15 @@
 					}            
 				});
 			});
+
+			$(document).keydown(function(e) {
+				if(e.keyCode == 39){
+					$("#content-singe").scrollLeft($("#content-singe").scrollLeft()+50);
+				}	
+				if(e.keyCode == 37){
+					$("#content-singe").scrollLeft($("#content-singe").scrollLeft()-50);
+				}				
+			});			
 		})
 	</script>
 	<div id="chart_div" style="width:100%; height:600px; display:none;"></div>
@@ -91,7 +59,10 @@
 			echo "訂單 : (" . $campaign->tos_id . ") " .  $campaign->campaign_name;
 		}
 		?>
-	</div>		
+	</div>	
+
+	<p>
+	<div><span class="glyphicon glyphicon-tag" aria-hidden="true"></span>使用鍵盤左右鍵可以移動下表</div>		
 	<?php
 	Yii::app()->clientScript->registerScript('search', "
 		$('.search-button, .sort-link').click(function(){
@@ -229,7 +200,21 @@
 				'filter'=>false,
 				'footer'=>number_format( (($day_budget > 0) ? ($run_budget / $day_budget) * 100 : 0) , 2, "." ,",") . "%",
 
-			)						
+			),
+			array(	
+				'header' => "eCPC",
+				'value'=>'number_format((($data->run_click <= 0) ? $data->run_budget : $data->run_budget / $data->run_click), 2, "." ,",")',
+				'htmlOptions'=>array('class'=>'ecpc'),
+				'filter'=>false,
+				'footer'=>number_format((($run_click <= 0) ? $run_budget : $run_budget / $run_click), 2, "." ,","),
+			),	
+			array(	
+				'header' => "eCPM",
+				'value'=>'number_format((($data->run_imp <= 0) ? $data->run_budget : ($data->run_budget / $data->run_imp) * 1000), 2, "." ,",")',
+				'htmlOptions'=>array('class'=>'ecpm'),
+				'filter'=>false,
+				'footer'=>number_format((($run_imp <= 0) ? $run_budget : ($run_budget / $run_imp) * 1000), 2, "." ,","),
+			),									
 		),
 	));
 

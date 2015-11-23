@@ -108,6 +108,7 @@ class AdvertiserReportController extends Controller
 
 	public function actionCampaignBannerReport()
 	{	
+		ini_set('memory_limit', '512M');
 		
 		if(isset($_GET['export']) && $_GET['export'] == 1){
 			$day = $this->getDay();
