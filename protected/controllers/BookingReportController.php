@@ -37,6 +37,19 @@ class BookingReportController extends Controller
 		));
 	}
 
+	public function actionStrategyListHistory()
+	{
+		$this->layout = "column1";
+		$model = new Booking('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Booking']))
+			$model->attributes=$_GET['Booking'];
+
+		$this->render('strategyListHistory',array(
+			'model'=>$model
+		));
+	}
+
 	public function actionCampaignListHistory()
 	{
 		$this->layout = "column1";

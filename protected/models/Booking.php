@@ -92,6 +92,9 @@ class Booking extends CActiveRecord
 		);
 	}
 
+
+
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 *
@@ -144,7 +147,7 @@ class Booking extends CActiveRecord
 		return $keySum;
 	}
 
-	public function campaignList()
+	public function strategyList()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 		$criteria=new CDbCriteria;
@@ -187,6 +190,76 @@ class Booking extends CActiveRecord
 		$criteria->addCondition("t.status > 0");
 
 		$criteria->with = array("strategy","campaign");
+
+		$day = strtotime($_GET['day'] . "00:00:00");
+		// print_r($day); exit;
+		$criteria->addCondition("t.booking_time = '" . $day . "'");
+		// print_r($criteria); exit;
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,	
+			'criteria'=>$criteria,
+		));
+	}
+
+	public function campaignList()
+	{
+		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria=new CDbCriteria;
+
+		$criteria->select = '
+			campaign_id,
+			sum(t.booking_click) as booking_click,
+			sum(t.day_click) as day_click,
+			sum(t.run_click) as run_click,
+			sum(t.booking_imp) as booking_imp,
+			sum(t.day_imp) as day_imp,
+			sum(t.run_imp) as run_imp,
+			sum(t.booking_budget) as booking_budget,
+			sum(t.day_budget) as day_budget,
+			(sum(t.run_budget) ) as run_budget,
+			booking_time as booking_time
+		';	
+
+		$noPayCampaignId = array();
+		if(isset($_GET['resetFilter']) && !isset($_POST['setCampaign'])){
+			unset($_COOKIE['noPayCampaignId']);
+		}
+
+		if(isset($_POST['setCampaign'])){
+			if(!empty($_POST['noPayCampaignId'])){
+				$noPayCampaignId = $_POST['noPayCampaignId'];
+			}else{
+
+				$noPayCampaignId[] = 1;
+			}
+			
+		}else if(isset($_COOKIE)){
+			if(!empty($_COOKIE['noPayCampaignId'])){
+				$noPayCampaignId = explode(":", $_COOKIE['noPayCampaignId']);
+			}		
+		}
+
+		if( empty($noPayCampaignId) ){
+			$noPayCriteria = new CDbCriteria;
+			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noBookingAdvertiser']);		
+			$noPayCampaign = TosCoreCampaign::model()->findAll($noPayCriteria);
+			foreach ($noPayCampaign as $value) {
+				$noPayCampaignId[] = $value->id;
+			}		
+		}
+
+		setcookie("noPayCampaignId", implode(":", $noPayCampaignId), time() + 3600);
+
+		if(isset($_GET['type']) && $_GET['type'] > 0)
+			$criteria->addCondition("t.type = " . (int)$_GET['type']);
+
+		$criteria->addNotInCondition("t.campaign_id", $noPayCampaignId);
+
+		$criteria->addCondition("t.status > 0");
+
+		$criteria->with = array("campaign");
+
+		$criteria->group = "t.campaign_id";
 
 		$day = strtotime($_GET['day'] . "00:00:00");
 		// print_r($day); exit;
@@ -252,6 +325,28 @@ class Booking extends CActiveRecord
 		}
 
 		return $data;
+	}
+
+	public function getSurplusDay($today,$endDay)
+	{
+
+		// print_r($endDay); exit;
+		if(empty($today))
+			$today = date("Y-m-d 00:00:00");
+
+		$surplusDay = $endDay -  strtotime($today);
+		$surplusDay = ceil($surplusDay / 86400);
+
+		if($surplusDay == 0)
+			$surplusDay = 1;
+
+		if($surplusDay < 0)
+			$surplusDay = 0;
+
+		if($surplusDay < 3)
+			$surplusDay = "<span style='color:red;font-weight:bold;'>" . $surplusDay . "</span>";
+
+		return $surplusDay;
 	}
 
 	/**

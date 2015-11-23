@@ -17,6 +17,7 @@ class CronBookingController extends Controller
 			$criteria->addCondition("t.id = '" . $_GET['id'] . "'");
 		
 		$campaign = TosCoreCampaign::model()->with("budget","totalHit","strategy","strategy.strategyBudget","strategy.strategyTotalHit","strategy.strategyPartialDate")->findAll($criteria);
+		
 		foreach ($campaign as $value) {
 
 			$campaignBookingDay = 0;
@@ -113,17 +114,46 @@ class CronBookingController extends Controller
 				}				
 			}
 
-			if($value->status == 1){
-				$this->updateStrategyStatus($value->id);
-				$this->updateStrategyStatusByDay($value->id);
-			}
+
+			// if($value->status == 1){
+			// 	$this->updateStrategyStatus($value->id);
+			// 	$this->updateStrategyStatusByDay($value->id);
+			// }
 
 		}
+		$this->checkCampaignStatus();
 		$this->saveLog("lastCronBooking",time());
 	}
 
+	public function checkCampaignStatus(){
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("booking_time >= '" . strtotime(date("Y-m-d 00:00:00")) . "'");
+		$criteria->addCondition("status = 1");
+		$criteria->group = "campaign_id";
+		$model = Booking::model()->findAll($criteria);
+
+		foreach ($model as $value) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("id = '" . $value->campaign_id . "'");
+			$campaign = TosCoreCampaign::model()->find($criteria);
+
+			$status = 1;
+			if($campaign->status != 1 || strtotime($campaign->end_time) < strtotime(date("Y-m-d 23:59:59", $value->booking_time)) ){
+				$status = 0;
+			}
+
+			$booking = Booking::model()->findByPk($value->id);
+			$booking->status = $status;
+			$booking->save();
+
+			$this->updateStrategyStatus($value->campaign_id);
+			$this->updateStrategyStatusByDay($value->campaign_id);
+
+		}
+	}
 
 	public function updateStrategyStatus($campaignId){
+
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
 		$model = TosCoreStrategy::model()->with("strategyPartialDate")->findAll($criteria);
@@ -136,6 +166,8 @@ class CronBookingController extends Controller
 			if($value->status != 1){
 				$status = 0;
 			}
+
+
 
 			Booking::model()->updateAll(array(
 				'status' => $status
@@ -608,7 +640,7 @@ class CronBookingController extends Controller
 		ini_set("memory_limit","2048M");
 
 		$criteria = new CDbCriteria;	
-		$criteria->addCondition("t.status = 1");
+		$criteria->addCondition("t.status != 2");
 		$criteria->addCondition("t.booking_time < " . strtotime(date("Y-m-d 00:00:00")));
 
 		$model = Booking::model()->findAll($criteria);
@@ -638,6 +670,7 @@ class CronBookingController extends Controller
 					$pcRunClick = $pc->click;
 					$pcRunImp = $pc->impression;
 					$pcRunBudget = $pc->income;
+					$strategy->status = 2;	
 				}		
 
 				if($mob === null){
@@ -648,6 +681,7 @@ class CronBookingController extends Controller
 					$mobRunClick = $mob->click;
 					$mobRunImp = $mob->impression;
 					$mobRunBudget = $mob->income;
+					$strategy->status = 2;	
 				}
 
 
@@ -655,8 +689,9 @@ class CronBookingController extends Controller
 				$strategy->run_imp = $pcRunImp+$mobRunImp;
 				$strategy->run_budget = $pcRunBudget+$mobRunBudget;					
 				$strategy->update_time = time();
-				$strategy->status = 2;		
-				$strategy->save();		
+	
+				if($strategy->status == 2)
+					$strategy->save();		
 			}
 		}
 	}
