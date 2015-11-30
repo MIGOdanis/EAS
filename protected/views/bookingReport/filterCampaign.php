@@ -7,6 +7,7 @@
 		var videoStatus = "";
 		var nopayStatus = "";
 		var prStatus = "";
+		var prnopay = "";
 
 		$(".select-btn").click(function(){
 			$(".checkbox").each(function(){
@@ -73,11 +74,26 @@
 			}			
 			$(".checkbox").each(function(){
 				var name = $(this).prop("title");
-				if(name.indexOf("(PR)") > -1 || name.indexOf("(pr)") > -1 || name.indexOf("(PR贈送)") > -1){
+				if(name.indexOf("(PR)") > -1 || name.indexOf("(pr)") > -1 || name.indexOf("(PR贈送)") > -1 || name.indexOf("(PR墊檔)") > -1){
 					$(this).prop("checked",prStatus);
 				}
 			})
 		});
+
+		$(".prnopay-btn").click(function(){
+			if(prnopay === true){
+				prnopay = "";
+			}else{
+				prnopay = true;
+			}			
+			$(".checkbox").each(function(){
+				var name = $(this).prop("title");
+				if(name.indexOf("(PR墊檔)") > -1 || name.indexOf("(PR贈送)") > -1){
+					$(this).prop("checked",prnopay);
+				}
+			})
+		});
+
 
 	})
 </script>
@@ -118,7 +134,7 @@ if(isset($_COOKIE['noPayCampaignId']) && !empty($_COOKIE['noPayCampaignId'])){
 		</table>
 	</div>
 	<div class="modal-footer">
-
+		<button type="button" class="btn btn-primary prnopay-btn">選PR墊檔</button>
 		<button type="button" class="btn btn-primary pr-btn">選PR</button>
 		<button type="button" class="btn btn-primary nopay-btn">選墊檔</button>
 		<button type="button" class="btn btn-primary video-btn">選影音</button>

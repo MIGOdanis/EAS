@@ -195,7 +195,8 @@ $this->nav = array(
 					"weekBooking" => "BOOKING周報表",
 					"filterDate" => "日期篩選",
 					"filterCampaign" => "訂單篩選",
-					"campaignListHistory" => "BOOLING日報表",
+					"campaignListHistory" => "BOOLING日報表(訂單)",
+					"strategyListHistory" => "BOOLING日報表(策略)",
 					"campaign" => "訂單BOOKING表"
 				),
 			),			

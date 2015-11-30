@@ -28,6 +28,9 @@ class CronBookingController extends Controller
 					foreach ($strategyData->strategyPartialDate as $date) {
 						$partialDate = strtotime($date->end_time) -  strtotime($date->start_time);
 						$campaignBookingDay = $campaignBookingDay + $partialDate;
+						if(isset($_GET['test'])){
+							print_r($value->strategy->id . "走期+" . $partialDate . "<br>");
+						}						
 					}				
 				}
 			}
@@ -649,7 +652,6 @@ class CronBookingController extends Controller
 			$criteria->addCondition("t.id = '" . $value->id . "'");
 			$strategy = Booking::model()->find($criteria);
 			if($strategy !== null){
-				$criteria = new CDbCriteria;
 				$criteria = new CDbCriteria;
 				$criteria->select = '
 					sum(t.income) / 100000 as income,
