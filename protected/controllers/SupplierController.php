@@ -452,9 +452,9 @@ class SupplierController extends Controller
 		$document->setValue('name',  $this->supplier->invoice_name . "(" . $this->supplier->tos_id  . ")");
 		$document->setValue('y',  (date("Y",$monthOfAccount->value) - 1911));
 		$document->setValue('m',  date("m",$monthOfAccount->value));
-		$document->setValue('pay_y',  (date("Y") - 1911));
-		$document->setValue('pay_m',  date("m"));
-		$document->setValue('pay_d',  date("t"));
+		$document->setValue('pay_y',  (date("Y",strtotime("+1 month")) - 1911));
+		$document->setValue('pay_m',  date("m",strtotime("+1 month")));
+		$document->setValue('pay_d',  date("t",strtotime("+1 month")));
 		$document->setValue('title_taxid',  $taxid);
 		$document->setValue('taxid',  $this->supplier->tax_id);
 		$document->setValue('address_type',  $addressType);

@@ -1,5 +1,5 @@
 <?php
-class TosCoreStrategy extends CActiveRecord
+class TosCoreAdSpacePricingStrategy extends CActiveRecord
 {
 	public static $conection; 
 
@@ -26,7 +26,7 @@ class TosCoreStrategy extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{strategy}}';
+		return '{{ad_space_pricing_strategy}}';
 	}
 
 	/**
@@ -36,7 +36,9 @@ class TosCoreStrategy extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array();
+		return array(
+			
+		);
 	}
 
 	/**
@@ -47,11 +49,7 @@ class TosCoreStrategy extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'campaign' => array(self::HAS_ONE, 'TosCoreCampaign', array('id' => 'campaign_id')),
-			'strategyBudget' =>  array(self::HAS_ONE, 'TosCoreStrategyBudget', array('strategy_id' => 'id'), 'condition'=>'strategyBudget.status = 1'),
-			'strategyTotalHit' =>  array(self::HAS_ONE, 'TosCoreStrategyTotalHit', array('strategy_id' => 'id')),
-			'strategyPartialDate' =>  array(self::HAS_MANY, 'TosCoreStrategyPartialDate', array('strategy_id' => 'id'), 'condition'=>'strategyPartialDate.status = 1'),
-	
+			'pricingStrategy' => array(self::HAS_MANY, 'TosCorePricingStrategy', array('id' => 'pricing_strategy_id'), 'condition'=>'pricingStrategy.status = 1'),
 		);
 	}
 

@@ -50,6 +50,7 @@ class TosCoreAdSpace extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'site' => array(self::HAS_ONE, 'TosCoreSite', array('id' => 'site_id')),
+			'adSpacePricingStrategy' => array(self::HAS_MANY, 'TosCoreAdSpacePricingStrategy', array('ad_space_id' => 'id'), 'condition'=>'adSpacePricingStrategy.status = 1'),
 		);
 	}
 

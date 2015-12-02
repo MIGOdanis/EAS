@@ -28,6 +28,16 @@ return array(
 		'1'=>'管理員','2'=>'域動_PM','3'=>'域動_財務','4'=>'域動_BD','5'=>'域動_業務','6'=>'域動_行銷','7'=>'供應商','8'=>'經銷商','9'=>'廣告主','10'=>'代理商'
 	),
 	
+	'strategyPacingType' => array("","盡快","按預算平均","按曝光平均","按點擊平均"),
+
+	'strategyKpiType' => array("","CPM","CPC"),
+
+	'strategyChargeType' => array("","CPM","CPC"),
+
+	'strategyBidType' => array("","智能","固定"),
+
+	'strategyBuyMode' => array("","固定購買","競價購買"),
+
 	'mfAdSpace' => array(
 		"300x250" => "300x250",
 		"300x100" => "300x100",
