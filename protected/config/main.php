@@ -27,7 +27,7 @@ return array(
 			'allowAutoLogin'=>true,
 		),
 		'db'=>array(
-			'connectionString' => 'mysql:host=127.0.0.1;dbname=EAS',
+			'connectionString' => 'mysql:host=192.168.1.231;dbname=EAS',
 			'emulatePrepare' => true,
 			'username' => 'danis',
 			'password' => 'gn0233',

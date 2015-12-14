@@ -25,19 +25,24 @@ function status($status){
 	);
 	return $statusArra[$status];
 }
+
+$count_monies = $model->count_monies + $countYearAccounts;
 ?>
 <div id="payments">
 	<div class="page-header">
 		<?php if((empty($this->supplier->account_number) || empty($this->supplier->account_name)  || empty($this->supplier->bank_sub_id)  || empty($this->supplier->bank_id))){?>
 			<div class="alert alert-danger" role="alert">您尚未填妥匯款資訊，請聯繫您的窗口! (電洽 <?php echo Yii::app()->params["cfTel"]?>)</div>
 		<?php }?>
+		<?php if($countYearAccounts > 0){ ?>
+			<div class="alert alert-warning" role="alert">您前年度尚有款項累計 $<?php echo number_format($countYearAccounts, 0, "." ,",");?> 請您盡早請款! (此款項已包含在前期累計中)</div>
+		<?php }?>		
 		<h1>請款</h1>
 	</div>
 	<div>
 		<div id="pay-infor">
 			<div class="pay-infor-box">
 				<div><h4>前期累計</h4></div>
-				<div class="cash-text"><strong>$<?php echo number_format($model->total_monies, 0, "." ,",");?></strong></div>			
+				<div class="cash-text"><strong>$<?php echo number_format($model->total_monies + $countYearAccounts, 0, "." ,",");?></strong></div>			
 			</div>
 
 			<div class="pay-infor-box">
@@ -57,19 +62,18 @@ function status($status){
 
 			<div class="pay-infor-box">
 				<div><h4>可請款收益(未稅)</h4></div>
-				<div class="cash-text"><strong>$<?php echo number_format(unTax($this->supplier->type,$model->count_monies), 0, "." ,",");?></strong></div>			
+				<div class="cash-text"><strong>$<?php echo number_format(unTax($this->supplier->type,$count_monies), 0, "." ,",");?></strong></div>			
 			</div>
 
 			<div class="pay-infor-box">
 				<div><h4>可請款收益(含稅)</h4></div>
-				<div class="cash-text"><strong>$<?php echo number_format(tax($this->supplier->type,$model->count_monies), 0, "." ,",");?></strong></div>			
+				<div class="cash-text"><strong>$<?php echo number_format(tax($this->supplier->type,$count_monies), 0, "." ,",");?></strong></div>			
 			</div>
 		</div>
 		<br>
 		<?php if(!empty($lastApplication->id)){ ?>
 			<div>前次請款月份為　<?php echo $lastApplication->year?>/<?php echo $lastApplication->month?></div>
 		<?php }?>
-		
 		<br>
 		<div id="application-group">
 			<div><h4>申請款項</h4></div>
@@ -80,7 +84,7 @@ function status($status){
 					<div><h4>申請狀態</h4></div>
 					<div><strong><h4><?php echo status($thisApplication->status);?></h4></strong></div>
 				<?php }else{?>
-					<?php if($model->count_monies > 0){?>
+					<?php if($count_monies > 0){?>
 					<a href="payments?type=applicationPay" class="btn btn-primary btn-xl">申請支付款項</a>
 					<?php }else{?>
 						<div>您沒有收益可供申請</div>

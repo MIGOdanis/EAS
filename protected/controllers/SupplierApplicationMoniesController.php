@@ -80,6 +80,7 @@ class SupplierApplicationMoniesController extends Controller
 				$log = SupplierApplicationLog::model()->find($criteria);
 
 				if($log === null || $log->status == 0){
+					$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($id);	
 					$application = new SupplierApplicationLog();
 					$application->status = 1;
 					$application->start_time = $model->last_application;
@@ -90,7 +91,7 @@ class SupplierApplicationMoniesController extends Controller
 					$application->invoice = 0;
 					$application->invoice_time = 0;
 					$application->invoice_by = 0;
-					$application->monies = $model->count_monies;
+					$application->monies = $model->count_monies + $yearAccounts->total_monies;
 					$application->year = date("Y", $model->this_application);
 					$application->month = date("m", $model->this_application);
 					$application->application_time = time();
@@ -99,6 +100,7 @@ class SupplierApplicationMoniesController extends Controller
 					$application->lock = 1;
 					$application->pay_time = 0;
 					if($application->save()){
+
 						SupplierApplicationMonies::model()->updateAll(
 							array(
 								'application_type' => 1,
@@ -107,6 +109,17 @@ class SupplierApplicationMoniesController extends Controller
 							),
 							'supplier_id = ' . $id
 						);
+
+						SupplierYearAccounts::model()->updateAll(
+							array(
+								'application_type' => 1,
+								'application_year' => date("Y", $model->this_application),
+								'application_month' => date("m", $model->this_application),
+
+							),
+							'supplier_id = ' . $id . ' AND application_type = 0'
+						);
+
 						header('Content-type: application/json');
 						echo json_encode(array("code" => "1"));
 						Yii::app()->end();

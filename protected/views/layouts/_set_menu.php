@@ -110,7 +110,7 @@ $this->nav = array(
 	"supplierApplicationMonies" => array(
 		"title" => "供應商請款管理",
 		"url"=>"supplierApplicationMonies/admin",
-		"controllers" => array("supplierApplicationMonies", "supplierApplicationList", "accountsStatus", "supplierApplicationLog"),
+		"controllers" => array("supplierApplicationMonies", "supplierApplicationList", "accountsStatus", "supplierApplicationLog","supplierYearAccounts"),
 		"list" => array(
 			"supplierApplicationMonies" => array(
 				"title" => "供應商請款管理",
@@ -140,6 +140,13 @@ $this->nav = array(
 					"InvoiceView" => "檢視發票",
 				),
 			),
+			"supplierYearAccounts" => array(
+				"title" => "供應商年度款項凍結",
+				"url"=>"supplierYearAccounts/admin",
+				"action" => array(
+					"admin" => "供應商年度款項凍結",
+				),
+			),			
 			"accountsStatus" => array(
 				"title" => "開關帳設定",
 				"url"=>"accountsStatus/admin",
