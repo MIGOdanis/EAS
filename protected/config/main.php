@@ -73,7 +73,7 @@ return array(
 		//events
 		'eveTest'=>array(
 		    'class'=>'CDbConnection',
-		    'connectionString' => 'mysql:host=127.0.0.1;port=3308;dbname=TEST',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3309;dbname=TEST',
 		    'emulatePrepare' => true,
 		    'username' => 'root',
 		    'password' => '87976705',
@@ -83,7 +83,7 @@ return array(
 
 		'dspAlert'=>array(
 		    'class'=>'CDbConnection',
-		    'connectionString' => 'mysql:host=127.0.0.1;port=3308;dbname=dspLogs',
+		    'connectionString' => 'mysql:host=127.0.0.1;port=3309;dbname=dspLogs',
 		    'emulatePrepare' => true,
 		    'username' => 'root',
 		    'password' => '87976705',

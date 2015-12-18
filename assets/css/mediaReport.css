@@ -73,6 +73,14 @@
 	.index-btn-group .btn{
 		width: 33.4%;
 	}	
+	.system-btn-group{
+		width: 100%;
+	}
+	.system-btn-group .btn{
+		width: 33.4%;
+	}	
+
+	
 	.filter-datepicker{
 		/*width: 280px;*/
 		padding-top: 10px;

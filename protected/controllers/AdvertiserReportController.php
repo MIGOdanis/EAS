@@ -42,6 +42,31 @@ class AdvertiserReportController extends Controller
 		
 	}
 
+	public function getStrategy($StrategyId){
+
+		$criteria=new CDbCriteria;
+
+		if($this->user->group == 8){
+			$createrCriteria=new CDbCriteria;
+			$createrCriteria->addCondition("id = '" . $this->user->supplier_id . "' OR parent_id = '" . $this->user->supplier_id . "'");
+			$creater = TosUpmUser::model()->findAll($createrCriteria);
+			$createrArray = array();
+			foreach($creater as $value){
+				$createrArray[] = $value->id;
+			}
+			if(is_array($createrArray)){
+				$criteria->addInCondition("campaign.create_user",$createrArray);
+			}else{
+				$criteria->addCondition("campaign.create_user = '" . $_GET['creater'] . "'");	
+			}
+		}
+
+		$criteria->addCondition("t.tos_id = '" . $StrategyId . "'");
+		return $model = Strategy::model()->with("campaign")->find($criteria);
+		
+	}
+	
+
 	public function actionCategoryReport()
 	{	
 		
@@ -251,6 +276,36 @@ class AdvertiserReportController extends Controller
 		$this->render('ytbReport');
 	}
 
+	public function actionStrategyReport()
+	{	
+		
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$day = $this->getDay();
+			$this->exportStrategyReport();
+			Yii::app()->end();
+		}
+		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			$strategy = $this->getStrategy($_GET['StrategyId']);
+			//print_r($_GET['CampaignId']); exit;
+			$model = new BuyReportDailyPc('search');
+			$model->unsetAttributes();  // clear any default values
+			if(isset($_GET['BuyReportDailyPc']))
+				$model->attributes=$_GET['BuyReportDailyPc'];
+
+			$this->renderPartial('_strategyReport',array(
+				'model'=>$model,
+				'campaign'=>$campaign,
+				'strategy'=>$strategy,
+				'day'=>$day
+
+			));	
+			Yii::app()->end();
+		}
+
+		$this->render('strategyReport');
+	}
 	public function exportYtbReport($campaign,$day){
 		require dirname(__FILE__).'/../extensions/phpexcel/PHPExcel.php';
 
@@ -449,4 +504,74 @@ class AdvertiserReportController extends Controller
 		$this->render('functionReport');
 	}
 
+
+	public function exportStrategyReport()
+	{	
+		
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$model = BuyReportDailyPc::model()->strategyReport($_GET['CampaignId'],$_GET['StrategyId']);
+	
+			$data = array();
+
+			$impression = 0;
+			$click = 0;
+			$income = 0;				
+			foreach ($model as $value) {
+				$data[] = array(
+					"A" => $value->campaign_id,
+					"B" => $value->campaign->campaign_name,
+					"C" => $value->strategy_id,
+					"D" => $value->strategy->strategy_name,
+					"E" => number_format($value->impression, 0, "." ,""),
+					"F" => number_format($value->click, 0, "." ,""),
+					"G" => (($value->impression > 0) ? round(($value->click / $value->impression) * 100, 2) : 0) . "%",
+					"H" => number_format($value->income, 2, "." ,""),
+					"I" => (($value->impression > 0) ? number_format(($value->income / $value->impression) * 1000, 2, "." ,"") : 0),
+					"J" => (($value->click > 0) ? number_format(($value->income / $value->click), 2, "." ,"") : 0),
+				);
+			}
+
+			$report = array(
+				"name" => "素材報表",
+				"titleName" => "(" . $campaign->tos_id . ")" . $campaign->campaign_name . " 素材報表 查詢時間" . $day[0] . "~" . $day[1],
+				"fileName" => "素材報表 查詢時間" . $day[0] . "~" . $day[1],
+				"width" => "J1",
+				"title" => array(
+					"A2" => "訂單編號",
+					"B2" => "訂單名稱",
+					"C2" => "策略編號",
+					"D2" => "策略名稱",
+					"E2" => "曝光",
+					"F2" => "點擊",
+					"G2" => "點擊率",
+					"H2" => "廣告主花費",					
+					"I2" => "eCPC",
+					"J2" => "eCPM"
+				),
+				"data" => $data
+			);	
+
+			$this->exportExcel($report);
+			Yii::app()->end();	
+
+		}
+		if(isset($_GET['ajax']) && $_GET['ajax'] == 1){
+			$day = $this->getDay();
+			$campaign = $this->getCampaign($_GET['CampaignId']);
+			$model = new BuyReportDailyPc('search');
+			$model->unsetAttributes();  // clear any default values
+			if(isset($_GET['BuyReportDailyPc']))
+				$model->attributes=$_GET['BuyReportDailyPc'];
+
+			$this->renderPartial('_functionReport',array(
+				'model'=>$model,
+				'campaign'=>$campaign,
+				'day'=>$day
+
+			));	
+			Yii::app()->end();
+		}
+
+		$this->render('functionReport');
+	}
 }

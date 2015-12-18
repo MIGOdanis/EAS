@@ -615,6 +615,58 @@ class BuyReportDailyPc extends CActiveRecord
 		));
 	}
 
+	//策略報表
+	public function strategyReport($campaignId, $StrategyId)
+	{
+		set_time_limit(0);
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			t.*
+		';
+
+		$criteria = $this->setCreate($criteria);
+
+		$criteria = $this->addReportTime($criteria);
+
+		if(isset($campaignId) && !empty($campaignId))
+			$criteria->addCondition("t.campaign_id = '" . $campaignId . "'");
+
+		if(isset($StrategyId) && !empty($StrategyId))
+			$criteria->addCondition("t.strategy_id = '" . $StrategyId . "'");
+
+		if(isset($_GET['system']) && !empty($_GET['system'])){
+			if($_GET['system'] == "MF"){
+				$criteria->addCondition("strategy.medium = 2");
+			}else{
+				$criteria->addCondition("strategy.medium = 1");
+			}
+			
+		}
+
+		$criteria->addCondition("campaign.tos_id IS NOT NULL");
+
+		$criteria->with = array("campaign","strategy");
+
+		$criteria->group = "t.strategy_id"; 
+		
+		// print_r($adSpacArray); exit;
+
+		if(isset($_GET['export']) && $_GET['export'] == 1){
+			$criteria->order = 't.campaign_id DESC';
+			return $this->findAll($criteria);
+		}
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.campaign_id DESC',
+			),			
+			'criteria'=>$criteria,
+		));
+	}
+
 	//經銷對帳
 	public function advertiserAccountsReport()
 	{

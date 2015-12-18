@@ -22,11 +22,40 @@
 					</div>	
 				</div>
 
+				<div class="filter-box">
+					<div class="form-group id-input-group">
+						<div class="input-group">
+							<div class="input-group-addon">策</div>
+							<input type="text" class="input-sm form-control id-input" id="Strategy_id" value="<?php echo $_GET['Strategy_id'];?>">
+						</div>
+					</div>	
+				</div>			
+
 			</div>		
 		</div>
 		<?php
 			echo $this->renderPartial('_datepick');
-		?>				
+		?>			
+
+		<div class="panel panel-default">
+			<div class="panel-heading">系統</div>
+			<div class="panel-body">
+				<div class="filter-box">
+					<div class="btn-group system-btn-group" data-toggle="buttons">
+						<label class="btn btn-primary active" data-status="">
+							<input type="radio" name="options" id="option2" autocomplete="off" checked> 全部 
+						</label>					
+						<label class="btn btn-primary" data-status="CF">
+							<input type="radio" name="options" id="option1" autocomplete="off"> CF 
+						</label>
+						<label class="btn btn-primary" data-status="MF">
+							<input type="radio" name="options" id="option3" autocomplete="off"> MF
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>	
+
 		<div class="filter-box">
 			<button class="btn btn-default" id="run-day" type="submit">套用</button>
 		</div>	
@@ -42,14 +71,14 @@
 	<div class="dropList-box">
 	<?php
 		echo $this->renderPartial('_reportDropList',array(
-			'defReport'=>"廣告活動總表",
+			'defReport'=>"策略報表",
 		));
 	?>
 	</div>
-	<div><h3>廣告活動總表</h3></div>
+	<div><h3>策略報表</h3></div>
 	<ul class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active tabs-btn" id="def">
-			<a href="#home" aria-controls="home" role="tab" data-toggle="tab">廣告活動總表</a>
+			<a href="#home" aria-controls="home" role="tab" data-toggle="tab">策略報表</a>
 		</li>
 		<li role="presentation" id="createNewTab" >
 			<a href="#profile"  >
@@ -64,7 +93,7 @@
 	</div>
 </div>
 <script>
-	var reportUrl = 'campaignBannerReport';
+	var reportUrl = 'strategyReport';
 	<?php if((isset($_GET['Campaign_id']) && $_GET['Campaign_id'] > 0)){ ?>
 		var type = "<?php echo $_GET['type']?>";
 		$(function(){

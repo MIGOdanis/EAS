@@ -23,6 +23,14 @@
 		<li>
 		<?php $this->widget('UIAuthWidget', array(
 			'checkType'=>"auth",
+			'auth'=>array("mediaReport/advertiserReport/strategyReport"),
+			'user'=>$this->user,
+			'html'=>'<a href="strategyReport">策略報表</a>'
+		)); ?>		
+		</li>		
+		<li>
+		<?php $this->widget('UIAuthWidget', array(
+			'checkType'=>"auth",
 			'auth'=>array("mediaReport/advertiserReport/ytbReport"),
 			'user'=>$this->user,
 			'html'=>"<a href=\"ytbReport\">影音廣告報表</a>"

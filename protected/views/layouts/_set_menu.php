@@ -169,6 +169,7 @@ $this->nav = array(
 				"action" => array(
 					"categoryReport" => "媒體分類報表",
 					"campaignBannerReport" => "廣告活動總表",
+					"strategyReport" => "策略報表",
 					"ytbReport" => "影音廣告報表",
 					"functionReport" => "加值功能報表",
 				),					
