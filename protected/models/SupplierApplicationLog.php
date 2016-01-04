@@ -165,6 +165,24 @@ class SupplierApplicationLog extends CActiveRecord
 		));
 	}
 
+	public function paymentsHistroy($supplier_id)
+	{
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("supplier_id = " . $supplier_id);
+		$criteria->addCondition("status = 3");
+		$criteria->order = "id DESC";
+
+		return new CActiveDataProvider($this, array(
+			'pagination' => array(
+				'pageSize' => 50
+			),
+			'sort' => array(
+				'defaultOrder' => 't.monies DESC',
+			),
+			'criteria'=>$criteria,
+		));
+	}
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!

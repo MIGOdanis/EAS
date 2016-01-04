@@ -99,6 +99,14 @@ class SupplierApplicationListController extends Controller
 				$model->invoice_by = Yii::app()->user->id;
 				$model->status = 3;
 				if($model->save()){
+					SupplierYearAccounts::model()->updateAll(
+						array(
+							'application_type' => 2,
+						),
+						'supplier_id = ' . $model->supplier_id . ' 
+							AND application_year = "' . $model->year .'" 
+							AND application_month = "' . $model->month .'"'
+					);					
 					//儲存成功
 					$data = array(
 						'code' => 1
@@ -140,6 +148,14 @@ class SupplierApplicationListController extends Controller
 					$data = array(
 						'code' => 1
 					);	
+					SupplierYearAccounts::model()->updateAll(
+						array(
+							'application_type' => 1,
+						),
+						'supplier_id = ' . $model->supplier_id . ' 
+							AND application_year = "' . $model->year .'" 
+							AND application_month = "' . $model->month .'"'
+					);					
 				}else{
 					//儲存失敗
 					$data = array(
@@ -188,8 +204,17 @@ class SupplierApplicationListController extends Controller
 						'application_id' => $application->id,
 						'application_by' => Yii::app()->user->id
 					),
-					'supplier_id = ' . $model->supplier_id
+						'supplier_id = ' . $model->supplier_id . ' 
+							AND application_year = "' . $model->year .'" 
+							AND application_month = "' . $model->month .'"'
 				);
+				SupplierYearAccounts::model()->updateAll(
+					array(
+						'application_type' => 0,
+					),
+					'supplier_id = ' . $this->supplier->tos_id . ' AND application_type = 1'
+				);
+
 				if($model->save()){
 					//儲存成功
 					$data = array(
@@ -204,7 +229,7 @@ class SupplierApplicationListController extends Controller
 			}else{
 				//ID錯誤
 				$data = array(
-					'code' => 0
+					'code' => 4
 				);				
 			}
 		}else{
@@ -468,6 +493,7 @@ class SupplierApplicationListController extends Controller
 			$objPHPExcel->setActiveSheetIndex(1)->getStyle('O3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(1)->getStyle('P3')->applyFromArray($title2);
 			$objPHPExcel->setActiveSheetIndex(1)->getStyle('Q3')->applyFromArray($title2);
+			$objPHPExcel->setActiveSheetIndex(1)->getStyle('R3')->applyFromArray($title2);
 
 			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A3', '供應商ID');
 			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('B3', '供應商名稱');
@@ -486,12 +512,57 @@ class SupplierApplicationListController extends Controller
 			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('O3', '媒體營收');
 			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('P3', '原始金額');
 			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('Q3', '未稅金額');
+			$objPHPExcel->setActiveSheetIndex(1)->setCellValue('R3', '年度');
 
 			if($supplierMoniesMonthlyByLog !== null){
 				$r = 4;
 				$total_monies = 0;
 				$cril_total_monies = 0;
+				$checkId = 0;
 				foreach ($supplierMoniesMonthlyByLog as $value) {
+
+					if($checkId != $value->supplier_id){ 
+						$checkId = $value->supplier_id;
+						$criteria = new CDbCriteria;
+						$criteria->addCondition("supplier_id = " . $value->supplier_id);
+						$criteria->addCondition("application_type = 2");
+						$criteria->addCondition("application_year = " . $_GET['year']);
+						$criteria->addCondition("application_month = " . $_GET['month']);
+						$yearAccounts = SupplierYearAccounts::model()->findAll($criteria);	
+						foreach ($yearAccounts as $year) {
+							$criteria = new CDbCriteria;
+							$criteria->addCondition("adSpace_id = " . $year->adSpace_id);
+							$criteria->addCondition("year = " . $year->year);
+							$criteria->order = "t.id DESC";
+							$yearMoniesMonthly = SupplierMoniesMonthly::model()->find($criteria);
+
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A' . $r, $yearMoniesMonthly->supplier_id);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('B' . $r, $yearMoniesMonthly->supplier->name);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$yearMoniesMonthly->supplier->type]);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('D' . $r, $yearMoniesMonthly->site_id);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('E' . $r, $yearMoniesMonthly->site->name);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('F' . $r, Yii::app()->params["siteType"][$yearMoniesMonthly->site->type]);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('G' . $r, $yearMoniesMonthly->adSpace_id);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('H' . $r, $yearMoniesMonthly->adSpace->name);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('I' . $r, ($yearMoniesMonthly->site->type == 1) ? $yearMoniesMonthly->adSpace->width . " x " . $yearMoniesMonthly->adSpace->height : str_replace (":"," x ",$yearMoniesMonthly->adSpace->ratio_id));
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('J' . $r, Yii::app()->params['buyType'][$yearMoniesMonthly->buy_type]);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('K' . $r, Yii::app()->params['chrgeType'][$yearMoniesMonthly->charge_type]);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('L' . $r, ($yearMoniesMonthly->price * Yii::app()->params['priceType'][$yearMoniesMonthly->charge_type]));
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('M' . $r, $yearMoniesMonthly->imp);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('N' . $r, $yearMoniesMonthly->click);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('O' . $r, $yearMoniesMonthly->total_monies);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('P' . $r, $yearMoniesMonthly->total_monies);
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('Q' . $r, ceil($yearMoniesMonthly->total_monies));
+							$objPHPExcel->setActiveSheetIndex(1)->setCellValue('R' . $r, $yearMoniesMonthly->year);
+
+							$total_monies += $yearMoniesMonthly->total_monies;
+							$cril_total_monies += ceil($yearMoniesMonthly->total_monies);
+							$r++;
+						}
+					}
+
+					
+
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('A' . $r, $value->supplier_id);
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('B' . $r, $value->supplier->name);
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$value->supplier->type]);
@@ -509,11 +580,15 @@ class SupplierApplicationListController extends Controller
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('O' . $r, $value->total_monies);
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('P' . $r, $value->total_monies);
 					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('Q' . $r, ceil($value->total_monies));
+					$objPHPExcel->setActiveSheetIndex(1)->setCellValue('R' . $r, $value->year);
 
 					$total_monies += $value->total_monies;
 					$cril_total_monies += ceil($value->total_monies);
 					$r++;
 				}
+
+
+
 				$objPHPExcel->setActiveSheetIndex(1)->setCellValue('P' . $r, $total_monies);
 				$objPHPExcel->setActiveSheetIndex(1)->setCellValue('Q' . $r, $cril_total_monies);
 			}else{
@@ -536,4 +611,7 @@ class SupplierApplicationListController extends Controller
 			$objWriter->save('php://output');
 		}
 	}
+
+
+
 }

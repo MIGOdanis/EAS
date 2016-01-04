@@ -136,7 +136,7 @@ function tax($data,$floor){
 	// if($data->site->supplier->type == 1)
 	// 	$tax = 1;
 
-	return number_format($data->count_monies * $tax, $floor, "." ,",");
+	return number_format(($data->count_monies  + $data->countAllMonies) * $tax, $floor, "." ,",");
 	
 }
 
@@ -182,6 +182,12 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'htmlOptions'=>array('width'=>'240'),
 		),	
 		array(
+			'header'=>'年度帳款',
+			'htmlOptions'=>array('width'=>'130'),
+			'value'=>'number_format($data->countAllMonies = $data->yearAccounts($data->site->supplier->tos_id)->total_monies, 2, "." ,",")',
+			'filter'=>false,
+		),		
+		array(
 			'header'=>'前期累計',
 			'name'=>'total_monies',
 			'htmlOptions'=>array('width'=>'130'),
@@ -199,7 +205,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'header'=>'稅前總額',
 			'name'=>'count_monies',
 			'htmlOptions'=>array('width'=>'130'),
-			'value'=>'number_format($data->count_monies, 2, "." ,",")',
+			'value'=>'number_format($data->count_monies + $data->countAllMonies, 2, "." ,",")',
 			'filter'=>false,
 		),	
 		array(
