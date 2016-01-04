@@ -545,6 +545,7 @@ class BuyReportDailyPc extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->select = '
 			sum(t.income) / 100000 as income,
+			sum(t.agency_income) / 100000 as agency_income,
 			sum(t.click) as click,
 			sum(t.impression) as impression
 		';
@@ -583,6 +584,7 @@ class BuyReportDailyPc extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->select = '
 			sum(t.income) / 100000 as income,
+			sum(t.agency_income) / 100000 as agency_income,
 			sum(t.click) as click,
 			sum(t.impression) as impression,
 			t.width_height as width_height

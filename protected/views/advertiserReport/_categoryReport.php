@@ -31,34 +31,9 @@ Yii::app()->clientScript->registerScript('search', "
 	});
 ");
 
-$this->widget('zii.widgets.grid.CGridView', array(
-	'id'=>'yiiCGrid',
-	'itemsCssClass' => 'table table-bordered',
-	'dataProvider'=>$allData = $model->supplierCategoryReport($_GET['CampaignId'],$this->user),
-	'filter'=>$model,
-	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
-	'emptyText'=>'沒有資料',
-	'pager' => array(
-		'nextPageLabel' => '»',
-		'prevPageLabel' => '«',
-		'firstPageLabel' => ' ',
-		'lastPageLabel'=> ' ',
-		'header' => ' ',
-		'htmlOptions' => array('class'=>'pagination'),
-		'hiddenPageCssClass' => '',
-		'selectedPageCssClass' => 'active',
-		'previousPageCssClass' => '',
-		'nextPageCssClass' => ''
-	),
-	'template'=>'{pager}{items}{pager}',
-	'columns'=>array(
-		// array(	
-		// 	'name' => "adSpace.site.category.mediaCategory.id",
-		// 	'header' => "媒體分類編號",
-		// 	'value'=>'$data->adSpace->site->category->mediaCategory->id',
-		// 	'htmlOptions'=>array('width'=>'100','class'=>'day'),
-		// 	'filter'=>false,
-		// ),			
+$allData = $model->supplierCategoryReport($_GET['CampaignId'],$this->user);
+
+$baseColumns = array(
 		array(	
 			'name' => "adSpace.site.category.mediaCategory.id",
 			'header' => "媒體分類",
@@ -92,6 +67,33 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		),		
 		array(
 			'header' => "廣告主花費",
+			'name' => "agency_income",
+			'value'=>'"$" . number_format($data->agency_income, 2, "." ,",")',
+			'htmlOptions'=>array('width'=>'120'),
+			'filter'=>false,
+			'footer'=>"$" . number_format($model->sumColumn($allData,"agency_income"), 2, "." ,","),
+		),	
+		array(
+			'header' => "eCPM",
+			'value'=>'"$" . (($data->impression > 0) ? number_format(($data->agency_income / $data->impression) * 1000, 2, "." ,",") : 0)',
+			'htmlOptions'=>array('width'=>'120'),
+			'filter'=>false,
+			'footer'=>"$" . (($model->sumColumn($allData,"impression") > 0) ? number_format(($model->sumColumn($allData,"agency_income") / $model->sumColumn($allData,"impression")) * 1000, 2, "." ,",") : 0),
+
+		),	
+		array(
+			'header' => "eCPC",
+			'value'=>'"$" . (($data->click > 0) ? number_format(($data->agency_income / $data->click), 2, "." ,",") : 0)',
+			'htmlOptions'=>array('width'=>'120'),
+			'filter'=>false,
+			'footer'=>"$" . (($model->sumColumn($allData,"click") > 0) ? number_format(($model->sumColumn($allData,"agency_income") / $model->sumColumn($allData,"click")), 2, "." ,",") : 0),
+
+		)
+);
+
+$incomeColumns = array(
+		array(
+			'header' => "Markup 前 費用",
 			'name' => "income",
 			'value'=>'"$" . number_format($data->income, 2, "." ,",")',
 			'htmlOptions'=>array('width'=>'120'),
@@ -99,7 +101,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'footer'=>"$" . number_format($model->sumColumn($allData,"income"), 2, "." ,","),
 		),	
 		array(
-			'header' => "eCPM",
+			'header' => "Markup 前 eCPM",
 			'value'=>'"$" . (($data->impression > 0) ? number_format(($data->income / $data->impression) * 1000, 2, "." ,",") : 0)',
 			'htmlOptions'=>array('width'=>'120'),
 			'filter'=>false,
@@ -107,13 +109,40 @@ $this->widget('zii.widgets.grid.CGridView', array(
 
 		),	
 		array(
-			'header' => "eCPC",
+			'header' => "Markup 前 eCPC",
 			'value'=>'"$" . (($data->click > 0) ? number_format(($data->income / $data->click), 2, "." ,",") : 0)',
 			'htmlOptions'=>array('width'=>'120'),
 			'filter'=>false,
 			'footer'=>"$" . (($model->sumColumn($allData,"click") > 0) ? number_format(($model->sumColumn($allData,"income") / $model->sumColumn($allData,"click")), 2, "." ,",") : 0),
 
-		),										
+		)
+);
+
+if($this->user->group < 7){
+	$baseColumns = array_merge($baseColumns, $incomeColumns);
+}
+
+
+$this->widget('zii.widgets.grid.CGridView', array(
+	'id'=>'yiiCGrid',
+	'itemsCssClass' => 'table table-bordered',
+	'dataProvider'=> $allData,
+	'filter'=>$model,
+	'summaryText'=>'共 {count} 筆資料，目前顯示第 {start} 至 {end} 筆',
+	'emptyText'=>'沒有資料',
+	'pager' => array(
+		'nextPageLabel' => '»',
+		'prevPageLabel' => '«',
+		'firstPageLabel' => ' ',
+		'lastPageLabel'=> ' ',
+		'header' => ' ',
+		'htmlOptions' => array('class'=>'pagination'),
+		'hiddenPageCssClass' => '',
+		'selectedPageCssClass' => 'active',
+		'previousPageCssClass' => '',
+		'nextPageCssClass' => ''
 	),
+	'template'=>'{pager}{items}{pager}',
+	'columns'=>$baseColumns,
 ));
 ?>
