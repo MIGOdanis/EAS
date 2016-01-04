@@ -24,8 +24,6 @@ class CronSupplierController extends Controller
 			foreach ($site->adSpace as $space) {
 				$pcReport = $this->getPcSpaceMonies($space->tos_id,$noPayCampaignId);
 
-				//print_r($pcReport); exit;
-
 				if(!empty($pcReport)){
 					$this->countPcSupplierMonies($pcReport);
 					$adSpaceArray[] = $space->tos_id;
@@ -142,6 +140,8 @@ class CronSupplierController extends Controller
 		$supplierApplicationMonies->this_application = $monthOfAccount->value;
 		$supplierApplicationMonies->update_time = time();
 
+
+
 		if(!$supplierApplicationMonies->save()){
 			$this->writeLog(
 				"儲存同步資料時發生錯誤 : SID=" . $supplierApplicationMonies->id . ",TYPE=" . $type . ",adSpace_id=" . $model->ad_space_id,
@@ -189,23 +189,38 @@ class CronSupplierController extends Controller
 			$supplierMoniesMonthly = SupplierMoniesMonthly::model()->find($criteria);
 			if($supplierMoniesMonthly === null){
 				$supplierMoniesMonthly = new SupplierMoniesMonthly();
-				$supplierMoniesMonthly->total_monies = 0;
-				$supplierMoniesMonthly->imp = $model->impression;
-				$supplierMoniesMonthly->click = $model->click;				
-			}else{
-				$supplierMoniesMonthly->imp += $model->impression;
-				$supplierMoniesMonthly->click += $model->click;					
+				$supplierMoniesMonthly->total_monies = 0;				
 			}
+
+			$supplierMoniesMonthly->imp = $model->impression;
+			$supplierMoniesMonthly->click = $model->click;					
 
 			$supplierMoniesMonthly->supplier_id = $space->site->supplier->tos_id;
 			$supplierMoniesMonthly->site_id = $space->site->tos_id;
 			$supplierMoniesMonthly->adSpace_id = $space->tos_id;
 			$supplierMoniesMonthly->total_monies = $supplierApplicationMonies->month_monies + $supplierApplicationMonies->total_monies;
+			if($supplierApplicationMonies->total_monies > 0){
+				$criteria = new CDbCriteria;
+				$criteria->addCondition("adSpace_id = '" . $space->tos_id . "'");
+				$criteria->order = "t.id DESC";
+				$lastSupplierMoniesMonthly = SupplierMoniesMonthly::model()->find($criteria);				
+				if($lastSupplierMoniesMonthly !== null){
+					$supplierMoniesMonthly->imp += $lastSupplierMoniesMonthly->imp;
+					$supplierMoniesMonthly->click += $lastSupplierMoniesMonthly->click;	
+					if($space->tos_id == "100282585"){
+						print_r($supplierMoniesMonthly); exit;
+					}					
+				}
+			}
 			$supplierMoniesMonthly->year = date("Y",$monthOfAccount->value);
 			$supplierMoniesMonthly->month = date("m",$monthOfAccount->value);
 			$supplierMoniesMonthly->buy_type = $space->buy_type;
 			$supplierMoniesMonthly->charge_type = $space->charge_type;
 			$supplierMoniesMonthly->price = $space->price;
+
+			// if($space->tos_id == "100282585"){
+			// 	print_r($supplierMoniesMonthly); exit;
+			// }
 
 			if(!$supplierMoniesMonthly->save()){
 				// print_r($supplierMoniesMonthly);
@@ -230,4 +245,69 @@ class CronSupplierController extends Controller
 			$monthly->save();
 		}
 	}
+
+	public function ActionYearsClear(){
+		set_time_limit(0);
+		//先執行清除
+		$this->clearSupplierMonies();
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("total_monies > 0 OR month_monies > 0");		
+		$model = SupplierApplicationMonies::model()->findAll($criteria);
+		foreach($model as $monies){
+			$supplierYearAccounts = new SupplierYearAccounts();
+			$supplierYearAccounts->supplier_id = $monies->supplier_id;
+			$supplierYearAccounts->site_id = $monies->site_id;
+			$supplierYearAccounts->adSpace_id = $monies->adSpace_id;
+			$supplierYearAccounts->total_monies = $monies->total_monies + $monies->month_monies;
+			$supplierYearAccounts->last_application = $monies->last_application;
+			$supplierYearAccounts->this_application = $monies->this_application;
+			//$supplierYearAccounts->year = date("Y",strtotime("-1 year"));
+			$supplierYearAccounts->year = "2015";
+			$supplierYearAccounts->application_type = 0;
+			$supplierYearAccounts->application_id = 0;
+			$supplierYearAccounts->application_by = 0;
+			$supplierYearAccounts->create_time = time();
+			$supplierYearAccounts->update_time = time();
+			$supplierYearAccounts->save();
+		}
+
+		$this->clearAllSupplierMonies();
+		
+	}	
+
+	
+	public function clearSupplierMonies(){
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("status = 3");
+		$criteria->addCondition("year = '" . date("Y", $monthOfAccount->value) . "'");
+		$criteria->addCondition("month = '" . date("m", $monthOfAccount->value) . "'");
+		$application = SupplierApplicationLog::model()->findAll($criteria);
+		// print_r($criteria); exit;
+		
+		foreach ($application as $value) {
+			SupplierApplicationMonies::model()->updateAll(
+				array(
+					'total_monies' => 0,
+					'month_monies' => 0,
+					// 'last_application' => $monthOfAccount->value
+				),
+				'supplier_id = ' . $value->supplier_id
+			);
+		}		
+		
+	}
+
+
+	public function clearAllSupplierMonies(){		
+		SupplierApplicationMonies::model()->updateAll(
+			array(
+				'total_monies' => 0,
+				'month_monies' => 0,
+				// 'last_application' => $monthOfAccount->value
+			)
+		);	
+	}	
+
 }

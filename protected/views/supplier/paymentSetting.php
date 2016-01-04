@@ -32,10 +32,10 @@
 		<?php }?>
 		<!-- <h5><div class="set-btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>編輯</div></h5> -->
 		
-		<div><?php echo $this->supplier->bank_name . " " . $this->supplier->bank_id; ?></div>
-		<div><?php echo $this->supplier->bank_sub_name . " " . $this->supplier->bank_sub_id; ?></div>
-		<div><?php echo $this->supplier->account_name; ?></div>
-		<div><?php if(!empty($this->supplier->account_number)) { echo  $this->supplier->account_number ; } ?></div>
+		<div><h3><?php echo $this->supplier->bank_name . " " . $this->supplier->bank_id; ?></h3></div>
+		<div><h3><?php echo $this->supplier->bank_sub_name . " " . $this->supplier->bank_sub_id; ?></h3></div>
+		<div><h3><?php echo $this->supplier->account_name; ?></h3></div>
+		<div><h3><?php if(!empty($this->supplier->account_number)) { echo  $this->supplier->account_number ; } ?></h3></div>
 
 		<div id="hide-form">
 			<?php 
