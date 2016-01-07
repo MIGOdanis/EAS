@@ -117,7 +117,9 @@ $this->nav = array(
 				"url"=>"supplierApplicationMonies/admin",
 				"action" => array(
 					"admin" => "供應商清單",
-					"application" => "供應商申請請款"
+					"application" => "供應商申請請款",
+					"deduct" => "扣除款項",
+					"delDeduct" => "取消扣款"
 				),
 			),
 			"supplierApplicationList" => array(

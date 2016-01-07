@@ -189,13 +189,18 @@ class SupplierController extends Controller
 		$criteria->order = "id DESC";
 		$thisApplication = SupplierApplicationLog::model()->find($criteria);
 
+
+		$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id);
+
+
 		$this->render('payments',array(
 			'model'=>$model,
 			'lastApplication'=>$lastApplication,
 			'accountsStatus'=>$accountsStatus,
 			'thisApplication' => $thisApplication,
 			'yearAccounts' => $yearAccounts,
-			'countYearAccounts' => $yearAccounts->total_monies
+			'countYearAccounts' => $yearAccounts->total_monies,
+			'deductAccounts' => $deductAccounts->deduct
 		));
 	}
 
@@ -387,6 +392,7 @@ class SupplierController extends Controller
 
 			if($log === null || $log->status == 0){
 				$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($this->supplier->tos_id);	
+				$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id)->deduct;
 
 				$application = new SupplierApplicationLog();
 				$application->status = 1;
@@ -398,7 +404,7 @@ class SupplierController extends Controller
 				$application->invoice = 0;
 				$application->invoice_time = 0;
 				$application->invoice_by = 0;
-				$application->monies = $model->count_monies + $yearAccounts->total_monies;
+				$application->monies = ($model->count_monies + $yearAccounts->total_monies) - $deductAccounts;
 				$application->year = date("Y", $model->this_application);
 				$application->month = date("m", $model->this_application);
 				$application->application_time = time();
@@ -425,6 +431,16 @@ class SupplierController extends Controller
 						),
 						'supplier_id = ' . $this->supplier->tos_id . ' AND application_type = 0'
 					);
+
+					DeductAccounts::model()->updateAll(
+						array(
+							'application_id' => $application->id,
+							'application_by' => Yii::app()->user->id,
+							'application_year' => date("Y", $model->this_application),
+							'application_month' => date("m", $model->this_application),
+						),
+						'supplier_id = ' . $this->supplier->tos_id . ' AND status = 1'
+					);					
 
 					return true;
 				}
@@ -479,6 +495,7 @@ class SupplierController extends Controller
 		$addressType = ($this->supplier->type == 1 || $this->supplier->type == 2)? "戶籍" : "";
 
 		$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($this->supplier->tos_id);
+		$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id)->deduct;
 
 		$document->setValue('title_name', $titleName);
 		$document->setValue('name',  $this->supplier->invoice_name . "(" . $this->supplier->tos_id  . ")");
@@ -494,7 +511,7 @@ class SupplierController extends Controller
 		$document->setValue('mail_address',  $this->supplier->mail_address);
 		$document->setValue('type', Yii::app()->params['supplierType'][$this->supplier->type]);
 
-		$totle_pay = $yearAccounts->total_monies + $SupplierApplicationMonies->count_monies;
+		$totle_pay = ($yearAccounts->total_monies + $SupplierApplicationMonies->count_monies) - $deductAccounts;
 		$document->setValue('totle_pay', number_format($this->tax($this,$totle_pay), 0, "." ,","));
 		$document->setValue('tax_pay', number_format($this->taxDeduct($this,$totle_pay), 0, "." ,","));
 		$document->setValue('pay', number_format($this->taxDeductTot($this,$totle_pay), 0, "." ,","));
@@ -506,6 +523,9 @@ class SupplierController extends Controller
 		}
 		$document->setValue('detil2', $totYearAccounts);
 
+		if($deductAccounts > 0){
+			$document->setValue('detil3', "待扣款項 : -" . number_format($deductAccounts, 0, "." ,","));
+		}
 		$tax = Yii::app()->params['taxTypeDeduct'][$this->supplier->type];
 		if($this->supplier->type == 1 && $count_monies < 20000)
 			$tax = 1;

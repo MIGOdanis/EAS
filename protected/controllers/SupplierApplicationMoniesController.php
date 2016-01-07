@@ -45,6 +45,57 @@ class SupplierApplicationMoniesController extends Controller
 		));
 	}
 
+	public function actionDeduct($id)
+	{				
+		$model = new DeductAccounts();
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.tos_id = '" . $id . "'");
+		$supplier = Supplier::model()->find($criteria);
+
+
+		if(isset($_POST['DeductAccounts'])){
+			header('Content-type: application/json');
+
+			$model->supplier_id = $id;
+			$model->reson = $_POST['reson'];
+			$model->deduct = (int)$_POST['deduct'];
+			$model->create_by = Yii::app()->user->id;
+			$model->status = 1;
+			$model->date = strtotime($_POST['date']);
+
+			if($model->save()){
+				echo json_encode(array("code" => "1"));
+			}else{
+				echo json_encode(array("code" => "2"));			
+			}
+			Yii::app()->end();
+		}
+
+		$this->renderPartial('deduct',array(
+			"model" => $model,
+			"supplier" => $supplier,
+		));
+	}
+
+	public function actionDelDeduct($id)
+	{				
+		$criteria=new CDbCriteria;
+		$model = DeductAccounts::model()->findByPk($id);
+		if($model != null){
+			$model->status = 2;
+			$model->application_by = Yii::app()->user->id;
+			if($model->save()){
+				
+				echo json_encode(array("code" => "1"));
+			}else{
+				echo json_encode(array("code" => "2"));			
+			}			
+		}
+			
+		Yii::app()->end();
+	}
+
 
 	public function actionApplication($id)
 	{	
@@ -80,6 +131,8 @@ class SupplierApplicationMoniesController extends Controller
 				$log = SupplierApplicationLog::model()->find($criteria);
 
 				if($log === null || $log->status == 0){
+					$deductAccounts = DeductAccounts::model()->countBySupplier($id)->deduct;
+					// print_r($deductAccounts); exit;
 					$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($id);	
 					$application = new SupplierApplicationLog();
 					$application->status = 1;
@@ -91,7 +144,7 @@ class SupplierApplicationMoniesController extends Controller
 					$application->invoice = 0;
 					$application->invoice_time = 0;
 					$application->invoice_by = 0;
-					$application->monies = $model->count_monies + $yearAccounts->total_monies;
+					$application->monies = $model->count_monies + $yearAccounts->total_monies - $deductAccounts;
 					$application->year = date("Y", $model->this_application);
 					$application->month = date("m", $model->this_application);
 					$application->application_time = time();
@@ -120,6 +173,18 @@ class SupplierApplicationMoniesController extends Controller
 							'supplier_id = ' . $id . ' AND application_type = 0'
 						);
 
+
+						DeductAccounts::model()->updateAll(
+							array(
+								'application_id' => $application->id,
+								'application_by' => Yii::app()->user->id,
+								'application_year' => date("Y", $model->this_application),
+								'application_month' => date("m", $model->this_application),
+							),
+							'supplier_id = ' . $model->supplier_id . ' AND status = 1'
+						);
+
+						
 						header('Content-type: application/json');
 						echo json_encode(array("code" => "1"));
 						Yii::app()->end();
@@ -155,13 +220,23 @@ class SupplierApplicationMoniesController extends Controller
 			$criteria->order = "supplier.tos_id DESC";
 			$supplierMoniesMonthly = SupplierApplicationMonies::model()->with("supplier","site","adSpace","supplierMoniesMonthly")->findAll($criteria);
 
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("t.status = 1");
+			$deductAccounts = DeductAccounts::model()->with("creater","supplier")->findAll($criteria);
+
 			$objPHPExcel = new PHPExcel();
 			$objPHPExcel->getProperties()->setCreator("CLICKFORCE INC.")->setTitle("CLICKFORCE Supplier Report")
 										 ->setSubject("CLICKFORCE Supplier Report")->setCategory("Report");
 
-	        $objPHPExcel = $this->makeSheetData($objPHPExcel, 0, $supplierMoniesMonthly);
+	        $objPHPExcel = $this->makeSheetMonies($objPHPExcel, 0, $supplierMoniesMonthly);
 	        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', '供應商對帳表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
 	        $objPHPExcel->setActiveSheetIndex(0)->setTitle("供應商對帳表");
+
+	        $objPHPExcel->createSheet();
+	        $objPHPExcel = $this->makeSheetDeduct($objPHPExcel, 1, $deductAccounts);
+	        $objPHPExcel->setActiveSheetIndex(1)->setCellValue('A1', '供應商待扣款表(' . $_GET['year'] . " / " . $_GET['month'] . ')');
+	        $objPHPExcel->setActiveSheetIndex(1)->setTitle("供應商待扣款表");	  
+			
 
 	        $objPHPExcel->setActiveSheetIndex(0);
 
@@ -180,7 +255,7 @@ class SupplierApplicationMoniesController extends Controller
 		}
 	}
 
-	public function makeSheetData($obj, $sheet, $data){
+	public function makeSheetMonies($obj, $sheet, $data){
 
 		$reportName = array(
 			'fill' => array(
@@ -290,6 +365,73 @@ class SupplierApplicationMoniesController extends Controller
 			}
 			$obj->setActiveSheetIndex($sheet)->setCellValue('P' . $r, $month_monies);
 			$obj->setActiveSheetIndex($sheet)->setCellValue('Q' . $r, $cril_total_monies);
+		}else{
+			$obj->setActiveSheetIndex($sheet)->setCellValue('A4', '沒有資料');
+		}
+		
+		return $obj;
+	}
+
+public function makeSheetDeduct($obj, $sheet, $data){
+
+		$reportName = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E86D4B'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+
+		);
+
+		$title = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E8BE93'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+		$title2 = array(
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'E8C7C7'),
+			),
+			'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
+		);
+
+		$obj->setActiveSheetIndex($sheet)->mergeCells('A1:G1');
+
+		$obj->setActiveSheetIndex($sheet)->getStyle('A1')->applyFromArray($reportName);
+
+		$obj->setActiveSheetIndex($sheet)->getStyle('A2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('B2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('C2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('D2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('E2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('F2')->applyFromArray($title2);
+		$obj->setActiveSheetIndex($sheet)->getStyle('G2')->applyFromArray($title2);
+
+		$obj->setActiveSheetIndex($sheet)->setCellValue('A2', '供應商ID');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('B2', '供應商名稱');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('C2', '供應商身份');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('D2', '扣款金額');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('E2', '扣款日期');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('F2', '扣款說明');
+		$obj->setActiveSheetIndex($sheet)->setCellValue('G2', '扣款人');
+
+		if($data !== null){
+			$r = 4;
+			foreach ($data as $value) {
+				$obj->setActiveSheetIndex($sheet)->setCellValue('A' . $r, $value->supplier_id);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('B' . $r, $value->supplier->name);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('C' . $r, Yii::app()->params['supplierType'][$value->supplier->type]);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('D' . $r, $value->deduct);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('E' . $r, $value->date);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('F' . $r, $value->reson);
+				$obj->setActiveSheetIndex($sheet)->setCellValue('G' . $r, $value->creater->name);
+
+				$r++;
+			}
 		}else{
 			$obj->setActiveSheetIndex($sheet)->setCellValue('A4', '沒有資料');
 		}

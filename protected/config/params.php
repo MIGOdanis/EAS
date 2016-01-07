@@ -17,7 +17,7 @@ return array(
 	// the copyright information displayed in the footer section
 	// 'baseUrl' => 'http://events.doublemax.net/cloud',
 	// 'baseUrl' => 'http://eas.doublemax.net',
-	'baseUrl' => 'http://127.0.0.1/eas',
+	'baseUrl' => '192.168.1.185/EAS',
 
 	'noPayAdvertiser' => array('100235377','100367'), 
 

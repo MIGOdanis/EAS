@@ -106,6 +106,13 @@ class SupplierApplicationListController extends Controller
 						'supplier_id = ' . $model->supplier_id . ' 
 							AND application_year = "' . $model->year .'" 
 							AND application_month = "' . $model->month .'"'
+					);	
+					DeductAccounts::model()->updateAll(
+						array(
+							'status' => 0
+						),
+						'supplier_id = ' . $model->supplier_id . ' AND status = 1'
+						
 					);					
 					//儲存成功
 					$data = array(
@@ -155,7 +162,15 @@ class SupplierApplicationListController extends Controller
 						'supplier_id = ' . $model->supplier_id . ' 
 							AND application_year = "' . $model->year .'" 
 							AND application_month = "' . $model->month .'"'
-					);					
+					);		
+					DeductAccounts::model()->updateAll(
+						array(
+							'status' => 1,
+						),
+						'supplier_id = ' . $model->supplier_id . ' 
+							AND application_year = "' . $model->year .'" 
+							AND application_month = "' . $model->month .'"'
+					);									
 				}else{
 					//儲存失敗
 					$data = array(
@@ -204,15 +219,24 @@ class SupplierApplicationListController extends Controller
 						'application_id' => $application->id,
 						'application_by' => Yii::app()->user->id
 					),
-						'supplier_id = ' . $model->supplier_id . ' 
-							AND application_year = "' . $model->year .'" 
-							AND application_month = "' . $model->month .'"'
+					'supplier_id = ' . $model->supplier_id
 				);
 				SupplierYearAccounts::model()->updateAll(
 					array(
 						'application_type' => 0,
 					),
-					'supplier_id = ' . $this->supplier->tos_id . ' AND application_type = 1'
+					'supplier_id = ' . $model->supplier_id . ' AND application_type = 1'
+
+				);
+				DeductAccounts::model()->updateAll(
+					array(
+						'application_id' => "",
+						'application_by' => "",
+						'application_year' => "",
+						'application_month' => "",
+					),
+					'supplier_id = ' . $model->supplier_id . ' AND status = 0'
+					
 				);
 
 				if($model->save()){

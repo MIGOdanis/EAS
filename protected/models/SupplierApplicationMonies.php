@@ -21,6 +21,7 @@ class SupplierApplicationMonies extends CActiveRecord
 {
 
 	public $count_monies;
+	public $count_deduct;
 	public $countAllMonies; //包含年度帳款
 
 	/**
@@ -181,6 +182,23 @@ class SupplierApplicationMonies extends CActiveRecord
 
 
 		return $this->find($criteria);
+	}
+
+	public function deductAccounts($model)
+	{
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("supplier_id = " . $model->supplier_id);
+		$criteria->addCondition("year = " . date("Y", $model->this_application));	
+		$criteria->addCondition("month = " . date("m", $model->this_application));		
+		$criteria->addCondition("status = 3");	
+		$log = SupplierApplicationLog::model()->find($criteria);
+		if($log === null || $log->status == 0){		
+			$this->count_deduct = DeductAccounts::model()->countBySupplier($model->supplier_id)->deduct;
+		}else{
+			$this->count_deduct = DeductAccounts::model()->countBySupplierThisApplication($model)->deduct;
+		}
+		
+		// print_r($this->count_deduct); exit;
 	}
 
 	public function yearAccounts($id)

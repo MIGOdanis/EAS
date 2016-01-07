@@ -1,3 +1,6 @@
+<link href="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript" src="<?php echo Yii::app()->params['baseUrl']; ?>/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js" charset="UTF-8"></script>
 <div class="page-header">
   <h1>供應商請款管理<?php echo ($accountsStatus->value == 1) ? "<span class='label label-success'>開帳中</span>" : "<span class='label label-danger'>關帳中</span>"; ?></h1>
   <small>資料時間 <?php echo date("Y-m-d H:i", $lastSync->value); ?></small>
@@ -54,6 +57,27 @@ $('.search-form form').submit(function(){
 });
 
 	function tableEvent(){
+		$('.deduct-btn').click(function() {
+			var url = $(this).prop('href');
+			$.ajax({
+				url:url,
+				success:function(html){
+					$('#modal-content-lg').html(html);
+					$('#modal-lg').modal('show');
+				}
+			})
+		    .fail(function(e) {
+		        if(e.status == 403){
+		        	alert('您的權限不足');
+		            window.location.reload();
+		        }
+		        if(e.status == 500){
+		        	alert('請稍後再試，或聯繫管理人員');
+		        }            
+		    });
+			return false;//阻止a标签		
+		});	
+
 		$('.set-btn').click(function() {
 			if(confirm('請確認是否備妥相關資料?')){
 				var url = $(this).prop('href');
@@ -81,6 +105,15 @@ $('.search-form form').submit(function(){
 			}
 			return false;//阻止a标签		
 		});
+
+		$('.on-application').click(function() {
+			alert('請先退回申請');		
+		});
+
+
+
+
+
 	}
 	tableEvent();
 
@@ -131,12 +164,26 @@ function application($data,$accountsStatus){
 	}
 }
 
+function deduct($data){
+	$deduct = $data->count_deduct;
+
+	return 
+	CHtml::link(
+	 	"$" . number_format($deduct, 0, "." ,","),
+	 	array(
+	 		"supplierApplicationMonies/deduct",
+	 		"id"=>$data->supplier_id
+	 	),
+	 	array(
+	 		"class"=>"btn btn-default deduct-btn"
+	 	)
+	);
+}
+
 function tax($data,$floor){
 	$tax = Yii::app()->params['taxType'][$data->site->supplier->type];
-	// if($data->site->supplier->type == 1)
-	// 	$tax = 1;
 
-	return number_format(($data->count_monies  + $data->countAllMonies) * $tax, $floor, "." ,",");
+	return number_format((($data->count_monies + $data->countAllMonies) - $data->count_deduct) * $tax, $floor, "." ,",");
 	
 }
 
@@ -200,14 +247,20 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'htmlOptions'=>array('width'=>'130'),
 			'value'=>'number_format($data->month_monies, 2, "." ,",")',
 			'filter'=>false,
-		),				
+		),	
+		array(
+			'header'=>'扣款',
+			'type'=>'raw',
+			'value'=> '$data->deductAccounts($data).deduct($data,' . $accountsStatus->value . ')',
+			'htmlOptions'=>array('width'=>'71'),
+		),						
 		array(
 			'header'=>'稅前總額',
 			'name'=>'count_monies',
 			'htmlOptions'=>array('width'=>'130'),
-			'value'=>'number_format($data->count_monies + $data->countAllMonies, 2, "." ,",")',
+			'value'=>'number_format(($data->count_monies + $data->countAllMonies) - $data->count_deduct, 2, "." ,",")',
 			'filter'=>false,
-		),	
+		),			
 		array(
 			'header'=>'稅後總額(原始)',
 			'htmlOptions'=>array('width'=>'130'),
@@ -233,7 +286,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'value'=>'date("Y-m",$data->this_application)',
 			'htmlOptions'=>array('width'=>'130'),
 			'filter'=>false,
-		),									
+		),										
 		array(
 			'header'=>'請款',
 			'type'=>'raw',

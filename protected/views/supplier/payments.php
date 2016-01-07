@@ -55,6 +55,20 @@ $count_monies = $model->count_monies + $countYearAccounts;
 				<div class="cash-text"><strong>$<?php echo number_format($model->month_monies, 0, "." ,",");?></strong></div>			
 			</div>		
 
+			<?php if($deductAccounts > 0): ?>
+
+				<div class="pay-infor-box">
+					<div><h4>　</h4></div>
+					<div class="cash-text"><strong>-</strong></div>			
+				</div>
+
+				<div class="pay-infor-box">
+					<div><h4>待扣款項</h4></div>
+					<div class="cash-text"><strong>$<?php echo number_format($deductAccounts, 0, "." ,",");?></strong></div>			
+				</div>	
+
+			<?php endif; ?>
+
 			<div class="pay-infor-box">
 				<div><h4>　</h4></div>
 				<div class="cash-text"><strong>=</strong></div>			
@@ -62,12 +76,12 @@ $count_monies = $model->count_monies + $countYearAccounts;
 
 			<div class="pay-infor-box">
 				<div><h4>可請款收益(未稅)</h4></div>
-				<div class="cash-text"><strong>$<?php echo number_format(unTax($this->supplier->type,$count_monies), 0, "." ,",");?></strong></div>			
+				<div class="cash-text"><strong>$<?php echo number_format(unTax($this->supplier->type,$count_monies - $deductAccounts), 0, "." ,",");?></strong></div>			
 			</div>
 
 			<div class="pay-infor-box">
 				<div><h4>可請款收益(含稅)</h4></div>
-				<div class="cash-text"><strong>$<?php echo number_format(tax($this->supplier->type,$count_monies), 0, "." ,",");?></strong></div>			
+				<div class="cash-text"><strong>$<?php echo number_format(tax($this->supplier->type,$count_monies - $deductAccounts), 0, "." ,",");?></strong></div>			
 			</div>
 		</div>
 		<br>
