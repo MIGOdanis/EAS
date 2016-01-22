@@ -39,7 +39,7 @@
 	<select name="year" class="select-type">
 	<?php for($y=2015; $y <= date("Y"); $y++) {?>
 		<option value="<?php echo $y?>" 
-			<?php if((isset($_GET['year']) && $_GET['year'] == $y) || (!isset($_GET['year']) && date("Y") == $y)){ ?>
+			<?php if((isset($_GET['year']) && $_GET['year'] == $y) || (!isset($_GET['year']) && (date("Y") - 1) == $y)){ ?>
 				selected="selected"<?php }?>>
 			<?php echo $y?>
 		</option>

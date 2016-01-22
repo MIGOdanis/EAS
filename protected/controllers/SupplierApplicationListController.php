@@ -223,9 +223,9 @@ class SupplierApplicationListController extends Controller
 				);
 				SupplierYearAccounts::model()->updateAll(
 					array(
-						'application_type' => 0,
+						'application_type' => 1,
 					),
-					'supplier_id = ' . $model->supplier_id . ' AND application_type = 1'
+					'supplier_id = ' . $model->supplier_id . ' AND application_type = 0'
 
 				);
 				DeductAccounts::model()->updateAll(
@@ -234,8 +234,11 @@ class SupplierApplicationListController extends Controller
 						'application_by' => "",
 						'application_year' => "",
 						'application_month' => "",
+						'status' => 1
 					),
-					'supplier_id = ' . $model->supplier_id . ' AND status = 0'
+					'supplier_id = ' . $model->supplier_id . ' 
+						AND application_year = "' . $model->year .'" 
+						AND application_month = "' . $model->month .'"'
 					
 				);
 

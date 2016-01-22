@@ -17,9 +17,9 @@ return array(
 	// the copyright information displayed in the footer section
 	// 'baseUrl' => 'http://events.doublemax.net/cloud',
 	// 'baseUrl' => 'http://eas.doublemax.net',
-	'baseUrl' => '192.168.1.185/EAS',
+	'baseUrl' => '//192.168.1.185/EAS',
 
-	'noPayAdvertiser' => array('100235377','100367'), 
+	'noPayAdvertiser' => array('100235377','100367','100269020','100330449','100346088','100385584','100413813'), 
 
 	//'noBookingAdvertiser' => array('100235377','100367','10013356','10011455','10013356','100269020','1007536','10013948','10013742','100216956','100203848'),
 	'noBookingAdvertiser' => array('100235377','100367','10013356','10011455','10013356','100269020','1007536','10013948','10013742','100216956','100203848'),

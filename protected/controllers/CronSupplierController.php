@@ -284,7 +284,7 @@ class CronSupplierController extends Controller
 		$criteria->addCondition("year = '" . date("Y", $monthOfAccount->value) . "'");
 		$criteria->addCondition("month = '" . date("m", $monthOfAccount->value) . "'");
 		$application = SupplierApplicationLog::model()->findAll($criteria);
-		// print_r($criteria); exit;
+		// print_r($application); exit;
 		
 		foreach ($application as $value) {
 			SupplierApplicationMonies::model()->updateAll(
@@ -295,6 +295,7 @@ class CronSupplierController extends Controller
 				),
 				'supplier_id = ' . $value->supplier_id
 			);
+			print_r($value->supplier_id."<br>");
 		}		
 		
 	}

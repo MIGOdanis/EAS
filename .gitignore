@@ -69,3 +69,4 @@ admin/protected/runtime/application.log
 *.log
 sql.txt
 aws/*
+logs/changeAccountsStatus/run.log
