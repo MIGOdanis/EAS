@@ -105,9 +105,32 @@ class DeductAccounts extends CActiveRecord
 		$criteria->addCondition("t.supplier_id = '" . $id . "'");
 		// print_r($criteria); exit;
 		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.id DESC',
+			),
 			'criteria'=>$criteria,
 		));
 	}
+
+	public function deductAccountsHistroy($id)
+	{
+		// @todo Please modify the following code to remove attributes that should not be searched.
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.supplier_id = '" . $id . "'");
+		// $criteria->addCondition("t.status = '0'");
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.id DESC',
+			),
+			'criteria'=>$criteria,
+		));
+	}
+
+
+
 
 	/**
 	 * Returns the static model of the specified AR class.

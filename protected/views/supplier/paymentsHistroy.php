@@ -2,6 +2,14 @@
 	table, th{
 		text-align: center;		
 	}
+	#select-box{
+		margin-top: 10px;
+		margin-bottom: 10px;
+		line-height: 30px;
+	}
+	#select-box select{
+		height: 30px;
+	}
 </style>
 <div id="payments">
 	<div class="page-header">
@@ -36,7 +44,26 @@
 
 		return $tax - $taxDeduct;
 	}	
+	?>
 
+	<div id="select-box">
+		<form method="post">
+			查詢年度(依請款期間查詢)
+			<select name="year" class="select-type">
+			<?php for($y=2015; $y <= date("Y"); $y++) {?>
+				<option value="<?php echo $y?>" 
+					<?php if((isset($_GET['year']) && $_GET['year'] == $y) || (!isset($_GET['year']) && date("Y") == $y)){ ?>
+						selected="selected"<?php }?>>
+					<?php echo $y?>
+				</option>
+			<?php }?>
+			</select>	
+			<button type="submit" class="btn btn-primary btn-sm">查詢</button>
+		</form>	
+
+	</div>
+
+	<?php
 	$this->widget('zii.widgets.grid.CGridView', array(
 		'id'=>'yiiCGrid',
 		'itemsCssClass' => 'table table-bordered table-striped',
@@ -100,7 +127,14 @@
 				'value'=>'"$" . number_format(taxDeductTot($data), 0, "." ,",")',
 				'htmlOptions'=>array('width'=>'100'),
 				'filter'=>false,
-			),						
+			),	
+			array(
+				'header'=>'憑證',
+				'name' => "invoice",
+				'value'=>'$data->invoice',
+				'htmlOptions'=>array('width'=>'100'),
+				'filter'=>false,
+			),
 			// array(
 			// 	'name' => "status",
 			// 	'type'=>'raw',

@@ -222,6 +222,18 @@ nav{
 	border-left: 10px solid #FB546A;
 }
 
+.report-site-list-type{
+	/*border-left: 10px solid #FB546A;*/
+}
+
+.report-site-list-type-page-header{
+	width: 100%;
+	border-bottom: 1px solid #E6E6E6;
+	margin-top: 10px;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+}
 /*#message-box{
 	position: relative;
 }*/

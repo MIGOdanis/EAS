@@ -34,6 +34,7 @@ $supplierColumns = array(
 	'filter'=>false,
 );
 
+
 if(isset($_GET['site']) && $_GET['site'] > 0){
 
 	$supplierColumns = array(
@@ -43,6 +44,8 @@ if(isset($_GET['site']) && $_GET['site'] > 0){
 		'htmlOptions'=>array('width'=>'250','class'=>'day'),
 		'filter'=>false,
 	);
+
+	echo '<h3>網站 : '.$site->name.'</h3>';
 
 }
 if(isset($_GET['adSpace']) && $_GET['adSpace'] > 0){
@@ -54,7 +57,10 @@ if(isset($_GET['adSpace']) && $_GET['adSpace'] > 0){
 		'htmlOptions'=>array('width'=>'250','class'=>'day'),
 		'filter'=>false,
 	);
-
+	echo '<h5>版位 : '.$adSpace->name.'</h5>';
+	echo '<h5>版位ID : '.$adSpace->tos_id.'</h5>';
+	echo '<h5>合作方式 : '.Yii::app()->params['buyType'][$adSpace->buy_type].'</h5>';
+	echo '<h5>金額 : '. Yii::app()->params['chrgeType'][$adSpace->charge_type] . $adSpace->price * Yii::app()->params['priceType'][$adSpace->charge_type].(($adSpace->buy_type == 2) ? "%" : "元" ). '</h5>';
 }
 
 $this->widget('zii.widgets.grid.CGridView', array(

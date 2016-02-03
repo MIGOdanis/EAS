@@ -125,6 +125,36 @@ class Site extends CActiveRecord
 		));
 	}
 
+
+	public function getSupplierSiteList($supplier_id)
+	{
+		// @todo Please modify the following code to remove attributes that should not be searched.
+
+		$criteria=new CDbCriteria;
+
+		$criteria->compare('t.id',$this->id);
+		$criteria->compare('t.tos_id',$this->tos_id,true);
+		$criteria->compare('supplier.name',$this->supplier_id,true);
+		$criteria->compare('t.name',$this->name,true);
+		$criteria->compare('t.type',$this->type);
+		$criteria->compare('t.domain',$this->domain,true);
+		$criteria->compare('t.description',$this->description,true);
+		$criteria->compare('t.create_time',$this->create_time);
+		$criteria->compare('t.sync_time',$this->sync_time);
+		$criteria->compare('t.status',$this->status);
+		$criteria->with = array('supplier','category','category.mediaCategory');
+
+		$criteria->addCondition("supplier_id = " . $supplier_id);
+
+		// print_r($criteria); exit;
+		return new CActiveDataProvider($this, array(
+			'pagination' => false,
+			'sort' => array(
+				'defaultOrder' => 't.id DESC',
+			),
+			'criteria'=>$criteria,
+		));
+	}
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!

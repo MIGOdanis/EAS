@@ -23,7 +23,13 @@ class SupplierController extends Controller
 
 	public function actionIndex()
 	{
-		$this->render('index');
+		$model=new Message('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Message']))
+			$model->attributes=$_GET['Message'];		
+		$this->render('index',array(
+			'model'=>$model,
+		));
 	}
 
 	public function actionMessage()
@@ -182,15 +188,23 @@ class SupplierController extends Controller
 		$criteria->order = "id DESC";
 		$lastApplication = SupplierApplicationLog::model()->find($criteria);
 
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 
 		$criteria=new CDbCriteria;
 		$criteria->addCondition("supplier_id = " . $this->supplier->tos_id);
+		$criteria->addCondition("year = " . date("Y",$monthOfAccount->value));
+		$criteria->addCondition("month = " . date("m",$monthOfAccount->value));
 		$criteria->addCondition("status > 0");
 		$criteria->order = "id DESC";
 		$thisApplication = SupplierApplicationLog::model()->find($criteria);
 
-
-		$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id);
+		// print_r($thisApplication->status); exit;
+		if($thisApplication->status == 3){
+			$deductAccounts = DeductAccounts::model()->countBySupplierThisApplication($model);
+		}else{
+			$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id);
+		}
+		
 
 
 		$this->render('payments',array(
@@ -216,6 +230,20 @@ class SupplierController extends Controller
 			'model'=>$model
 		));
 	}
+
+	public function actionDeductAccountsHistroy()
+	{
+		$this->layout = "supplier_column2";
+		$model = new DeductAccounts('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['DeductAccounts']))
+			$model->attributes=$_GET['DeductAccounts'];
+
+		$this->render('deductAccountsHistroy',array(
+			'model'=>$model
+		));
+	}
+
 
 	public function actionPaymentSetting()
 	{
@@ -252,6 +280,19 @@ class SupplierController extends Controller
 		));
 	}
 
+	public function actionGetMySite()
+	{
+
+		$model = new Site('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Site']))
+			$model->attributes=$_GET['Site'];	
+
+		$this->renderPartial('_mySite',array(
+			'model'=>$model,
+		));
+	}
+
 	public function actionGetMyAdSpace()
 	{
 		$criteria = new CDbCriteria;
@@ -281,6 +322,39 @@ class SupplierController extends Controller
 		}
 		$this->renderPartial('_adSpaceCode',array(
 			'id'=>$id,
+		));
+	}
+
+	public function actionCheckApplicationPay()
+	{	
+
+		$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($this->supplier->tos_id);
+
+		if(isset($_GET['type']) && $_GET['type'] == "downloadIV"){
+			$this->CreatIV();
+			Yii::app()->end();
+		}
+
+		$accountsStatus = SiteSetting::model()->getValByKey("accounts_status");
+		$this->layout = "supplier_column2";
+		$model = SupplierApplicationMonies::model()->getSupplierMonies($this->supplier->tos_id);
+
+		if(isset($_GET['type']) && $_GET['type'] == "applicationPay" && $model->application_type != 1){
+			if(($model->count_monies + $yearAccounts->total_monies) > 0){
+				if($this->applicationPay()){
+					$this->redirect(array('payments'));
+				}
+			}
+		}
+
+		$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id);	
+		
+		$this->renderPartial('_checkApplicationPay',array(
+			'model'=>$model,
+			'accountsStatus'=>$accountsStatus,
+			'yearAccounts' => $yearAccounts,
+			'countYearAccounts' => $yearAccounts->total_monies,
+			'deductAccounts' => $deductAccounts->deduct
 		));
 	}
 
@@ -369,8 +443,22 @@ class SupplierController extends Controller
 		if(isset($_GET['BuyReportDailyPc']))
 			$model->attributes=$_GET['BuyReportDailyPc'];
 
+		if(isset($_GET['site']) && $_GET['site'] > 0){
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . (int)$_GET['site']);
+			$site = Site::model()->find($criteria);
+		}
+		if(isset($_GET['adSpace']) && $_GET['adSpace'] > 0){
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("tos_id = " . (int)$_GET['adSpace']);
+			$adSpace = AdSpace::model()->find($criteria);
+		}
+
+
 		$this->renderPartial('_supplierReport',array(
 			'model'=>$model,
+			'site'=>$site,
+			'adSpace'=>$adSpace
 		));
 	}
 
@@ -495,7 +583,23 @@ class SupplierController extends Controller
 		$addressType = ($this->supplier->type == 1 || $this->supplier->type == 2)? "戶籍" : "";
 
 		$yearAccounts = SupplierYearAccounts::model()->getYearAccounts($this->supplier->tos_id);
-		$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id)->deduct;
+
+		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
+
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("supplier_id = " . $this->supplier->tos_id);
+		$criteria->addCondition("year = " . date("Y",$monthOfAccount->value));
+		$criteria->addCondition("month = " . date("m",$monthOfAccount->value));
+		$criteria->addCondition("status > 0");
+		$criteria->order = "id DESC";
+		$thisApplication = SupplierApplicationLog::model()->find($criteria);
+
+		if($thisApplication->status != 3){
+			$deductAccounts = DeductAccounts::model()->countBySupplier($this->supplier->tos_id)->deduct;
+		}else{
+			$deductAccounts = DeductAccounts::model()->countBySupplierThisApplication($SupplierApplicationMonies)->deduct;
+		}
+		
 
 		$document->setValue('title_name', $titleName);
 		$document->setValue('name',  $this->supplier->invoice_name . "(" . $this->supplier->tos_id  . ")");
@@ -524,8 +628,11 @@ class SupplierController extends Controller
 		$document->setValue('detil2', $totYearAccounts);
 
 		if($deductAccounts > 0){
-			$document->setValue('detil3', "待扣款項 : -" . number_format($deductAccounts, 0, "." ,","));
+			$document->setValue('detil3', "違規款項 : -" . number_format($deductAccounts, 0, "." ,","));
+		}else{
+			$document->setValue('detil3', "");
 		}
+
 		$tax = Yii::app()->params['taxTypeDeduct'][$this->supplier->type];
 		if($this->supplier->type == 1 && $count_monies < 20000)
 			$tax = 1;

@@ -123,7 +123,7 @@ class Message extends CActiveRecord
 		));
 	}
 
-	public function supplierMessage()
+	public function supplierMessage($limit=null)
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
@@ -132,7 +132,9 @@ class Message extends CActiveRecord
 		$criteria->addCondition("t.active = 1");
 		$criteria->addCondition("t.publish_time <= " . time());
 		$criteria->addCondition("t.expire_time >= " . time() . " OR t.expire_time = 0");
-
+		
+		if($limit)
+			$criteria->limit = $limit;
 
 		// print_r($criteria); exit;
 

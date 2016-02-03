@@ -39,10 +39,10 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 		<div class="display-supplier-adSpace">
 			<h4><?php echo $value->name;?></h4>
 
-			<h5>網站編號 : <?php echo $value->site->tos_id;?></h5>
-			<h5>版位編號 : <?php echo $value->tos_id;?></h5>
+			<h5><?php echo (($model->type == 2) ? "APP ID : " : "網站編號") . $value->site->tos_id;?></h5>
+			<h5><?php echo (($model->type == 2) ? "Zone ID : " : "版位編號") . $value->tos_id;?></h5>
 			<h5>版位大小 : <?php echo ($model->type == 1) ? $value->width . " x " . $value->height : str_replace (":"," x ",$value->ratio_id);?></h5>
-			<h5>拆分方式 : <?php echo Yii::app()->params['buyType'][$value->buy_type]; ?></h5>
+			<h5>合作方式 : <?php echo Yii::app()->params['buyType'][$value->buy_type]; ?></h5>
 			<h5>
 			價格 : <?php echo Yii::app()->params['chrgeType'][$value->charge_type] . $value->price * Yii::app()->params['priceType'][$value->charge_type]; ?>
 			<?php 
@@ -83,26 +83,6 @@ if(isset($model->adSpace) && !empty($model->adSpace)){
 				$('.applyAdSpace').click(function() {
 					$.ajax({
 						url:"applyAdSpace?id=<?php echo $value->site->id;?>",
-						success:function(html){
-							$('#modal-content').html(html);
-							$('#modal').modal('show');
-						}
-					})
-				    .fail(function(e) {
-				        if(e.status == 403){
-				        	alert('您的權限不足');
-				            window.location.reload();
-				        }
-				        if(e.status == 500){
-				        	alert('請稍後再試，或聯繫管理人員');
-				        }            
-				    });
-					return false;//阻止a标签		
-				});
-
-				$('.applySite').click(function() {
-					$.ajax({
-						url:"applySite?id=<?php echo $this->supplier->tos_id;?>",
 						success:function(html){
 							$('#modal-content').html(html);
 							$('#modal').modal('show');

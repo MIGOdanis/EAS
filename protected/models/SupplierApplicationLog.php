@@ -170,6 +170,13 @@ class SupplierApplicationLog extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->addCondition("supplier_id = " . $supplier_id);
 		$criteria->addCondition("status = 3");
+
+		$year = date("Y");
+		if(isset($_POST['year']))
+			$year = $_POST['year'];
+
+		$criteria->addCondition("year = " . $year);
+
 		$criteria->order = "id DESC";
 
 		return new CActiveDataProvider($this, array(
