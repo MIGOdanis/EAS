@@ -5,6 +5,13 @@
 </style>
 <div class="page-header">
 	<h1><?php echo $model->name;?></h1>
+	<h3>版位放置文字說明:</h3>
+	<h6>1.同一頁面中，不得同時放置兩組同一廣告代碼，會造成廣告失效，請直接點入下方「申請新版位」另外申請。</h6>
+	<h6><h6>2.禁止惡意操作廣告之行為，若經查發現此情形，將扣除違規之款項，嚴重者當月款項皆不得請款。</h6>
+	<h6>3.版位名稱開頭「CF」為PC端廣告代碼；「MW」為Mobile web廣告代碼；「MA」為App專用代碼。</h6>
+	<h6>4.若需申請RWD響應式廣告代碼，請直接與域動服務團隊聯繫或mail： owen@clickforce.com.tw。</h6>
+	<h6>5.禁止將廣告代碼任意放置在非審核過的網站中。</h6>
+	<br>
 	<h6>申請與異動網站版位資訊，請洽您的專員！</h6>
 	<h6>網站類型 : <?php echo Yii::app()->params["siteType"][$model->type];?></h6>
 	<button type="button" class="btn btn-primary applyAdSpace">申請新版位</button>

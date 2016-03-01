@@ -2,6 +2,10 @@
 	.download-btn{
 		margin-top: 5px;
 	}
+	.read-btn{
+		color: #428bca;
+		cursor: pointer;
+	}
 </style>
 <script type="text/javascript">
 $('.applySite').click(function() {
@@ -23,13 +27,46 @@ $('.applySite').click(function() {
     });
 	return false;//阻止a标签		
 });
+$(".read-btn").click(function(){
+	$("#contract").modal();
+	$('#contract').modal('show');
+});
+	$(".set-font").click(function(){
+		var size = $(this).data("size");
+		console.log(size);
+		$("#contract_body span").css("font-size",size);
+	});
 </script>
 <div class="page-header">
 	<h1>網站總覽</h1>
 <!-- 	<h6>申請與異動網站版位資訊，請洽您的專員！</h6>
  -->	
+ 	<h5>請遵守域動廣告聯播網之<span class="read-btn">「網站合作合約條款」</span>，違反規定者，域動有權終止合作並拒絕支付廣告收益，感謝各位站長配合。</h5>
  	<button type="button" class="btn btn-primary applySite">申請新網站</button>
 </div>
+	<div class="modal fade" id="contract">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">				
+					<h4 class="modal-title">域動行銷股份有限公司-網站合作銷售合約書</h4>
+				</div>
+				<div class="modal-body">
+					<div>字形大小</div>
+					<div class="btn-group" role="group" aria-label="">
+						<button type="button" class="btn btn-default font-s-btn set-font" data-size="14px">小</button>
+						<button type="button" class="btn btn-default font-m-btn set-font" data-size="16px">中</button>
+						<button type="button" class="btn btn-default font-l-btn set-font" data-size="20px">大</button>
+					</div>
+
+
+					<?php echo $this->renderPartial('../registerSupplier/_contract'); ?>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 <?php
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){

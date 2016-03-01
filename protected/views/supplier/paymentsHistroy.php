@@ -129,7 +129,7 @@
 				'filter'=>false,
 			),	
 			array(
-				'header'=>'憑證',
+				'header'=>'憑證號碼',
 				'name' => "invoice",
 				'value'=>'$data->invoice',
 				'htmlOptions'=>array('width'=>'100'),
