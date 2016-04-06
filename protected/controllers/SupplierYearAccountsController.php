@@ -54,7 +54,8 @@ class SupplierYearAccountsController extends Controller
 				"H" => date("Y-m",$value->last_application),
 				"I" => date("Y-m",$value->this_application),
 				"J" => $value->year,
-				"K" => $application_type[$value->application_type]
+				"K" => $application_type[$value->application_type],
+				"L" => ($value->application_type != 0) ? $value->application_year . "-" . $value->application_month : ""
 			);
 		}
 
@@ -74,7 +75,8 @@ class SupplierYearAccountsController extends Controller
 				"H2" => "款項月份(起)",
 				"I2" => "款項月份(迄)",
 				"J2" => "年度",
-				"K2" => "請款狀態"
+				"K2" => "請款狀態",
+				"L2" => "請款月份"
 			),
 			"data" => $data
 		);	

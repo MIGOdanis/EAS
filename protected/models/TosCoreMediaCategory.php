@@ -26,7 +26,7 @@ class TosCoreMediaCategory extends CActiveRecord
 
 	public function tableName()
 	{
-		return '{{media_category}}';
+		return '{{media_category_zh_tw}}';
 	}
 
 	/**

@@ -56,6 +56,9 @@ class CronApplicationMoniesController extends Controller
 				),
 				'supplier_id = ' . $value->supplier_id
 			);
+
+
+
 		}		
 		
 	}
@@ -67,7 +70,17 @@ class CronApplicationMoniesController extends Controller
 				'lock' => 0
 			),
 			'status != 3'
-		);		
+		);	
+
+		SupplierYearAccounts::model()->updateAll(
+			array(
+				'application_type' => 0,
+				'application_year' => 0,
+				'application_month' => 0,
+
+			),
+			'application_type != 2'
+		);			
 	}
 
 	public function transSupplierMonies(){

@@ -89,6 +89,18 @@ return array(
 		"其他",
 	),
 
+	'autoDaily' => array(
+		array(
+			"mailto" => "York.jiang@amnetgroup.com,Tiffany.Huang@amnetgroup.com",
+			"cc" => "danis@clickforce.com.tw,alan@clickforce.com.tw,chi_huei@clickforce.com.tw,vitus@clickforce.com.tw,joey@clickforce.com.tw,jerryweng@clickforce.com.tw,freyayan@clickforce.com.tw,amy@clickforce.com.tw",
+			"advertiserId" => "100529895 ",
+			"mu" => array(
+				"mailto" => "York.jiang@amnetgroup.com,Tiffany.Huang@amnetgroup.com",
+				"cc" => "danis@clickforce.com.tw,alan@clickforce.com.tw,chi_huei@clickforce.com.tw,vitus@clickforce.com.tw,joey@clickforce.com.tw,jerryweng@clickforce.com.tw,freyayan@clickforce.com.tw,amy@clickforce.com.tw",
+			)
+		),
+	),
+
 	'alertMailGroup' => array('danis@clickforce.com.tw'),
 	'adminMail' => array('danis@clickforce.com.tw'),
 

@@ -675,7 +675,7 @@ class BuyReportDailyPc extends CActiveRecord
 		set_time_limit(0);
 		$criteria=new CDbCriteria;
 		$criteria->select = '
-			sum(t.income) / 100000 as income_sum,
+			sum(t.agency_income) / 100000 as income_sum,
 			sum(t.click) as click_sum,
 			sum(t.impression) as impression_sum,
 			t.*
@@ -732,7 +732,7 @@ class BuyReportDailyPc extends CActiveRecord
 	public function getCampaignAllIncome($campaign_id)
 	{
 		$criteria=new CDbCriteria;
-		$criteria->select = 'sum(t.income) / 100000 as income_sum';		
+		$criteria->select = 'sum(t.agency_income) / 100000 as income_sum';		
 		$criteria->addCondition("t.campaign_id = '" . $campaign_id . "'");
 		$model = $this->find($criteria);
 		$this->temp_income_sum = $model->income_sum;
@@ -1053,6 +1053,35 @@ class BuyReportDailyPc extends CActiveRecord
 		));	
 	}
 
+	//加值報表
+	public function getCampaignDailyByAdvertiserId($advertiserId,$preDay)
+	{	
+		$dailyDay = date("Y-m-d 00:00:00", time() - (86400 * $preDay));
+		$dailyTime = strtotime($dailyDay);
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.advertiser_id = '" . $advertiserId . "'");
+		$campaign = Campaign::model()->findAll($criteria);
+		$campaignList = array();
+		foreach ($campaign as $value) {
+			$campaignList[] = $value->tos_id;
+		}
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.income) / 100000 as income,
+			sum(t.agency_income) / 100000 as agency_income,
+			sum(t.click) as click,
+			sum(t.impression) as impression
+		';
+		$criteria->addInCondition("t.campaign_id",$campaignList);
+		$criteria->addCondition("t.settled_time >= '" . $dailyTime . "'");
+		// $criteria->addCondition("campaign.start_time <= '" . $dailyTime . "'");
+		// $criteria->addCondition("campaign.end_time >= '" . strtotime(date("Y-m-d 00:00:00", (time()-86400))) . "'");
+		$criteria->group = "t.settled_time, t.campaign_id";
+		$criteria->order = "t.campaign_id DESC,t.settled_time ASC";
+		$criteria->with = array("campaign","campaign.advertiser");
+		return $this->findAll($criteria);
+
+	}
 
 	/**
 	 * Returns the static model of the specified AR class.
