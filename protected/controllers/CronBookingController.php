@@ -28,9 +28,6 @@ class CronBookingController extends Controller
 					foreach ($strategyData->strategyPartialDate as $date) {
 						$partialDate = strtotime($date->end_time) -  strtotime($date->start_time);
 						$campaignBookingDay = $campaignBookingDay + $partialDate;
-						if(isset($_GET['test'])){
-							print_r($value->strategy->id . "走期+" . $partialDate . "<br>");
-						}						
 					}				
 				}
 			}

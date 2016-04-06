@@ -87,10 +87,7 @@ class CronMailController extends Controller
 			$highestRow = $sheet->getHighestRow();
 			foreach ($model as $report) {
 				$highestRow++;
-				// $PHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $highestRow, date("Y-m-d", $report->settled_time));
-				$PHPExcel->setActiveSheetIndex(0)->setCellValueExplicit(
-					'A' . $highestRow, date("Y-m-d", $report->settled_time),PHPExcel_Cell_DataType::TYPE_DATE
-				);
+				$PHPExcel->setActiveSheetIndex(0)->setCellValue('A' . $highestRow, date("Y-m-d", $report->settled_time));
 				$PHPExcel->setActiveSheetIndex(0)->setCellValue('B' . $highestRow, $report->campaign->advertiser->short_name);
 				$PHPExcel->setActiveSheetIndex(0)->setCellValue('C' . $highestRow, $report->campaign->campaign_name);
 				$PHPExcel->setActiveSheetIndex(0)->setCellValue('D' . $highestRow, $report->impression);

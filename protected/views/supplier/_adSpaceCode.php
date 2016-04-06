@@ -13,7 +13,7 @@
 &lt;/script&gt;
 &lt;script type=&quot;text/javascript&quot; src=&quot;//static.doublemax.net/js/tr.js&quot;&gt;
 &lt;/script&gt;
-&lt;script src=&quot;//eland.doublemax.net/cfdmp/edmp_ads.js&quot;&gt;&lt;/script&gt;
+
 
 </pre>
 </div>

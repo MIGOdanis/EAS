@@ -176,8 +176,11 @@ class DownloadDataController extends Controller
 	public function actionCreativeInfor()
 	{
 		set_time_limit(0);
+		$time = time() - 10368000;
+		$criteria=new CDbCriteria;
+		$criteria->addCondition("t.create_time >= " . date("Y-m-d 00:00:00", $time));
 		$model = TosCoreCreativeMaterial::model()->with("campaign","group")->findAll();
-
+		$creativeType = array("","PC","MOB");
 		$data = array();		
 		foreach ($model as $value) {
 			$elandCat = TosCoreIndustryCategory::model()->elandFunction($value->campaign->industry->id);
@@ -185,10 +188,13 @@ class DownloadDataController extends Controller
 				"A" => $value->campaign->id,
 				"B" => $value->campaign->campaign_name,
 				"C" => $value->campaign->industry->name,
-				"D" => $elandCat,
-				"E" => $value->group->id,
-				"F" => $value->id,
-				"G" => $value->group->name,
+				"D" => $value->campaign->start_time,
+				"E" => $value->campaign->end_time,				
+				"F" => $elandCat,
+				"G" => $value->group->id,
+				"H" => $value->id,
+				"I" => $value->group->name,
+				"J" => $creativeType[$value->group->medium],
 			);
 		}
 
@@ -196,15 +202,18 @@ class DownloadDataController extends Controller
 			"name" => "訂單素材資訊",
 			"titleName" => "訂單素材資訊 資料時間" . date("Y-m-d H:i:s"),
 			"fileName" => "訂單素材資訊 資料時間" . date("Y-m-d H:i:s"),
-			"width" => "F1",
+			"width" => "J1",
 			"title" => array(
 				"A2" => "訂單ID",
 				"B2" => "訂單名稱",
 				"C2" => "產業名稱",
-				"D2" => "產業名稱(意藍)",
-				"E2" => "素材群組ID (後台)",
-				"F2" => "素材ID(前台)",
-				"G2" => "素材名稱",
+				"D2" => "訂單開始",
+				"E2" => "訂單結束",
+				"F2" => "產業名稱(意藍)",
+				"G2" => "素材群組ID (後台)",
+				"H2" => "素材ID(前台)",
+				"I2" => "素材名稱",
+				"J2" => "素材類型"
 			),
 			"data" => $data
 		);	

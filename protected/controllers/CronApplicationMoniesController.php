@@ -15,8 +15,8 @@ class CronApplicationMoniesController extends Controller
 
 		$monthOfAccount = SiteSetting::model()->getValByKey("month_of_accounts");
 		//print_r($month_of_account); exit;
-		// $monthOfAccount->value = strtotime(date("Y-m-01",strtotime("-1 Months",time())));
-		$monthOfAccount->value = strtotime(date("Y-m-01"));
+		$monthOfAccount->value = strtotime(date("Y-m-01",strtotime("-1 Months",time())));
+		// $monthOfAccount->value = strtotime(date("Y-m-01"));
 		$monthOfAccount->save();	
 
 		//清除已申請完成的請款
@@ -56,9 +56,6 @@ class CronApplicationMoniesController extends Controller
 				),
 				'supplier_id = ' . $value->supplier_id
 			);
-
-
-
 		}		
 		
 	}
@@ -70,17 +67,7 @@ class CronApplicationMoniesController extends Controller
 				'lock' => 0
 			),
 			'status != 3'
-		);	
-
-		SupplierYearAccounts::model()->updateAll(
-			array(
-				'application_type' => 0,
-				'application_year' => 0,
-				'application_month' => 0,
-
-			),
-			'application_type != 2'
-		);			
+		);		
 	}
 
 	public function transSupplierMonies(){

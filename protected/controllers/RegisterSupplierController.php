@@ -25,7 +25,6 @@ class RegisterSupplierController extends Controller
 
 		if(isset($_POST['SupplierRegister']))
 		{
-			//print_r($_FILES); exit;
 			$time = time();
 			$model->attributes=$_POST['SupplierRegister'];
 			$model->name = $model->company_name;
@@ -36,19 +35,21 @@ class RegisterSupplierController extends Controller
 			$model->check_by = 0;
 
 			if (isset($_FILES['bank_book_img']) && !empty($_FILES['bank_book_img']['name'])) {
-				$folder = Yii::app()->params['uploadFolder'] . "registerSupplier/" . date("Ymd");
+				$folder = Yii::app()->params['uploadFolder'] . "registerSupplier/" . date("Ymd");		
 				$uploadMsg  = $this->upload_image_resize(
 					$_FILES['bank_book_img'], 
 					false,
 					$folder,
 					md5($_FILES['bank_book_img']['name'].$time)
 			  	);
+			  	
 				if($uploadMsg === true){
 					$model->bank_book_img = date("Ymd") . "/" . md5($_FILES['bank_book_img']['name'].$time);
 				}else{
 					// print_r($uploadMsg); exit;
 				}
 			}
+
 
 			if (isset($_FILES['certificate_image']) && !empty($_FILES['certificate_image']['name'])) {
 				$folder = Yii::app()->params['uploadFolder'] . "registerSupplier/" . date("Ymd");
@@ -78,7 +79,7 @@ class RegisterSupplierController extends Controller
 				$model->read_contract = null;
 			}
 
-			if($model->save()){
+			if($model->save()){			
 				$this->redirect(array('afterRegister'));
 			}
 		}

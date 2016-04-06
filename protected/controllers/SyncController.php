@@ -61,10 +61,6 @@ class SyncController extends Controller
 		set_time_limit(0);
 		$criteria = new CDbCriteria;
 		$criteria->addCondition("account_id = 2");
-
-		if(isset($_GET['id']))
-			$criteria->addCondition("id = " . $_GET['id']);
-		
 		$tosSite = TosCoreSite::model()->findAll($criteria);
 		foreach ($tosSite as $value) {
 			$type = "update";
@@ -90,7 +86,6 @@ class SyncController extends Controller
 					date("YmdH") . "log.log"
 				);
 			}
-			
 		}
 		$this->saveLog("lastSyncSite",time());
 	}
@@ -105,7 +100,6 @@ class SyncController extends Controller
 		$model->create_time = strtotime($tosSite->create_time);
 		$model->sync_time = time();
 		$model->status = $tosSite->status;
-
 		return $model;
 	}
 
