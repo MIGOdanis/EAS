@@ -101,4 +101,109 @@ class TosTreporBuyDrDisplayHourlyPcReport extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+	public function addNoPayCampaign($criteria){
+
+		if($_GET['showNoPay'] != "all"){
+			$noPayCriteria = new CDbCriteria;
+			$noPayCriteria->addInCondition("advertiser_id",Yii::app()->params['noPayAdvertiser']);		
+			$noPayCampaign = Campaign::model()->findAll($noPayCriteria);
+			$noPayCampaignId = array();
+
+			foreach ($noPayCampaign as $value) {
+				$noPayCampaignId[] = $value->tos_id;
+			}
+
+			if(isset($_GET['showNoPay']) && $_GET['showNoPay'] == "only"){
+				 $criteria->addInCondition("campaign_id",$noPayCampaignId);
+			}else{
+				$criteria->addNotInCondition("campaign_id",$noPayCampaignId);
+			}
+		}
+		
+		return $criteria;
+	}
+
+	public function addReportTime($criteria, $columns = "settled_time")
+	{
+		
+		if($_GET['type'] == "custom"){
+			if(isset($_GET['day']) && !empty($_GET['day'])){
+				$criteria->addCondition($columns ." >= '" . date("Y-m-d 00:00:00",strtotime($_GET['day'])) . "'");
+				$criteria->addCondition($columns ." <= '" . date("Y-m-d 23:59:59",strtotime($_GET['day'])) . "'");
+			}
+		}else{
+				$criteria->addCondition($columns ." >= '" . date("Y-m-d 00:00:00") . "'");
+				$criteria->addCondition($columns ." <= '" . date("Y-m-d 23:59:59") . "'");			
+		}
+
+		// print_r($criteria); exit;
+		return $criteria;
+	}
+
+	public function getAdSpace()
+	{
+		if($_GET['supplierId'] > 0 || $_GET['siteId'] > 0 || $_GET['adSpaceId'] > 0){
+
+			$criteria=new CDbCriteria;
+
+			if($_GET['supplierId'] > 0){
+				$criteria->addCondition("t.tos_id = '" . $_GET['supplierId'] ."'");
+			}
+			
+			if($_GET['siteId'] > 0){
+				$criteria->addCondition("site.tos_id = '" . $_GET['siteId'] . "'");
+			}
+
+			if($_GET['adSpaceId'] > 0){
+				$criteria->addCondition("adSpace.tos_id = '" . $_GET['adSpaceId'] . "'");
+			}		
+
+			$supplier = Supplier::model()->with("site","site.adSpace")->find($criteria);
+			$adSpacArray = array();	
+
+			if($supplier !== null){
+				foreach ($supplier->site as $site) {
+					foreach ($site->adSpace as $value) {
+						$adSpacArray[] = $value->tos_id;
+					}
+				}				
+			}
+
+
+			return $adSpacArray;			
+		}
+	}
+
+
+	public function getHourlyByDay()
+	{
+		$criteria=new CDbCriteria;
+		$criteria->select = '
+			sum(t.media_cost) / 100000 as media_cost,
+			sum(t.click) as click,
+			sum(t.impression) as impression,
+			sum(t.pv) as pv,
+			settled_time
+		';
+
+
+		$criteria = $this->addReportTime($criteria);
+
+		$adSpacArray = $this->getAdSpace();
+
+		
+		if(!empty($adSpacArray))
+			$criteria->addInCondition("ad_space_id",$adSpacArray);
+		
+		$criteria = $this->addNoPayCampaign($criteria);
+		$criteria->group = "settled_time";
+
+		// print_r($this->findAll($criteria)); exit;
+		// print_r($criteria); exit;
+		return $this->findAll($criteria);	
+	}	
+
 }
+
+
