@@ -48,6 +48,7 @@ class TosTreporBuyDrDisplayHourlyMobReport extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'adSpace' => array(self::HAS_ONE, 'TosCoreAdSpace', array('id' => 'ad_space_id')),
+			'campaign' => array(self::HAS_ONE, 'Campaign', array('tos_id' => 'campaign_id'))
 		);
 	}
 
